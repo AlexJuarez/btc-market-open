@@ -4,7 +4,7 @@
             [flight.db.migrations :as migrations]
             [clojure.tools.nrepl.server :as nrepl]
             [taoensso.timbre :as timbre]
-            [environ.core :refer [env]])
+            [flight.env :refer [env]])
   (:gen-class))
 
 (defonce nrepl-server (atom nil))

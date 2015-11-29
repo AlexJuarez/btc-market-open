@@ -4,7 +4,7 @@
             [clojure.test :refer :all]
             [clojure.java.jdbc :as jdbc]
             [conman.core :refer [with-transaction]]
-            [environ.core :refer [env]]))
+            [flight.env :refer [env]]))
 
 (use-fixtures
   :once

@@ -1,16 +1,25 @@
 (ns flight.handler
   (:require [compojure.core :refer [defroutes routes wrap-routes]]
-            [flight.layout :refer [error-page]]
-            [flight.routes.home :refer [home-routes]]
-            [flight.middleware :as middleware]
-            [flight.db.core :as db]
             [compojure.route :as route]
-            [taoensso.timbre :as timbre]
-            [taoensso.timbre.appenders.3rd-party.rotor :as rotor]
-            [selmer.parser :as parser]
-            [environ.core :refer [env]]
+            [flight.cache :as cache]
             [flight.config :refer [defaults]]
-            [mount.core :as mount]))
+            [flight.db.core :as db]
+            [flight.env :refer [env]]
+            [flight.layout :refer [error-page]]
+            [flight.middleware :as middleware]
+            [flight.routes.home :refer [home-routes]]
+            [mount.core :as mount]
+            [selmer.parser :as parser]
+            [taoensso.timbre :as log]
+            [taoensso.timbre.appenders.3rd-party.rotor :as rotor]))
+
+(defroutes base-routes
+  (route/not-found "Not Found"))
+
+(defn log-path []
+  (if (env :dev)
+    (env :log-path)
+    (str (System/getProperty "user.home") (env :log-path))))
 
 (defn init
   "init will be called once when
@@ -19,12 +28,15 @@
    put any initialization code here"
   []
 
-  (timbre/merge-config!
+  (log/merge-config!
     {:level     ((fnil keyword :info) (env :log-level))
      :appenders {:rotor (rotor/rotor-appender
-                          {:path (or (env :log-path) "flight.log")
+                          {:path (log-path)
                            :max-size (* 512 1024)
                            :backlog 10})}})
+
+  (log/info "logging at" (log-path))
+
   (mount/start)
   ((:init defaults)))
 
@@ -32,9 +44,9 @@
   "destroy will be called when your application
    shuts down, put any clean up code here"
   []
-  (timbre/info "flight is shutting down...")
+  (log/info "flight is shutting down...")
   (mount/stop)
-  (timbre/info "shutdown complete!"))
+  (log/info "shutdown complete!"))
 
 (def app-routes
   (routes

@@ -1,19 +1,21 @@
 (ns flight.middleware
-  (:require [flight.layout :refer [*app-context* error-page]]
-            [taoensso.timbre :as timbre]
-            [environ.core :refer [env]]
-            [ring.middleware.flash :refer [wrap-flash]]
-            [immutant.web.middleware :refer [wrap-session]]
-            [ring.middleware.webjars :refer [wrap-webjars]]
-            [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
-            [ring.middleware.anti-forgery :refer [wrap-anti-forgery]]
-            [ring.middleware.format :refer [wrap-restful-format]]
-            [buddy.auth.middleware :refer [wrap-authentication]]
-            [buddy.auth.backends.session :refer [session-backend]]
+  (:require [buddy.auth :refer [authenticated?]]
             [buddy.auth.accessrules :refer [restrict]]
-            [buddy.auth :refer [authenticated?]]
+            [buddy.auth.backends.session :refer [session-backend]]
+            [buddy.auth.middleware :refer [wrap-authentication]]
+            [flight.cache :as cache]
+            [flight.config :refer [defaults]]
+            [flight.env :refer [env]]
+            [flight.layout :refer [*app-context* error-page]]
             [flight.layout :refer [*identity*]]
-            [flight.config :refer [defaults]])
+            [immutant.web.middleware :refer [wrap-session]]
+            [ring-ttl-session.core :refer [ttl-memory-store]]
+            [ring.middleware.anti-forgery :refer [wrap-anti-forgery]]
+            [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
+            [ring.middleware.flash :refer [wrap-flash]]
+            [ring.middleware.format :refer [wrap-restful-format]]
+            [ring.middleware.webjars :refer [wrap-webjars]]
+            [taoensso.timbre :as log])
   (:import [javax.servlet ServletContext]))
 
 (defn wrap-context [handler]
@@ -36,7 +38,7 @@
     (try
       (handler req)
       (catch Throwable t
-        (timbre/error t)
+        (log/error t)
         (error-page {:status 500
                      :title "Something very bad has happened!"
                      :message "We've dispatched a team of highly trained gnomes to take care of the problem."})))))
@@ -81,6 +83,8 @@
       (wrap-defaults
         (-> site-defaults
             (assoc-in [:security :anti-forgery] false)
-            (dissoc :session)))
+            (assoc-in [:session :store] (if (env :couchbase)
+                                          (cache/create-couchbase-session-store)
+                                          (ttl-memory-store (* 60 30))))))
       wrap-context
       wrap-internal-error))

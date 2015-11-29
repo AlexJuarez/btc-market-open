@@ -1,12 +1,6 @@
 (ns lobos.config
-  (:use [lobos.connectivity]))
-
-(def db-spec
-  {:classname "org.postgresql.Driver"
-   :subprotocol "postgresql"
-   :subname "//localhost/whitecity"
-   :user "devil"
-   :password "admin"})
+  (:use [lobos.connectivity])
+  (:require [flight.env :refer [env]]))
 
 (defn open-global-when-necessary
   "Open a global connection only when necessary, that is, when no previous
@@ -22,4 +16,4 @@
     ((lobos.connectivity/open-global db-spec) :default-connection)
     (@lobos.connectivity/global-connections :default-connection)))
 
-(open-global-when-necessary db-spec)
+(open-global-when-necessary (env :dbspec))
