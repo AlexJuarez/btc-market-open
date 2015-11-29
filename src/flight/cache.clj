@@ -5,7 +5,9 @@
             [flight.util.mem-store :as mem]
             [mount.core :refer [defstate]]
             [taoensso.timbre :as log]
-            [ring.middleware.session.store :as session-store]))
+            [ring.middleware.session.store :as session-store])
+  (:import net.spy.memcached.compat.log.Log4JLogger
+           org.apache.log4j.BasicConfigurator))
 
 (def ^:private address (env :couchbase-server-uri))
 
@@ -20,6 +22,10 @@
 (defn init-connection []
   (if (env :couchbase)
     (do
+      (let [props (System/getProperties)]
+        (.put props "net.spy.log.LoggerImpl" "net.spy.memcached.compat.log.Log4JLogger")
+        (System/setProperties props)
+        (org.apache.log4j.BasicConfigurator/configure))
       (log/info "Starting couchbase connection")
       (atom (create-connection address)))
     (atom nil)))

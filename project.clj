@@ -34,6 +34,7 @@
                  [org.clojure/tools.nrepl "0.2.12"]
                  [org.immutant/web "2.1.1" :exclusions [ch.qos.logback/logback-classic]]
                  [org.postgresql/postgresql "9.3-1102-jdbc41"] ;;postgres adapter
+                 [org.slf4j/log4j-over-slf4j "1.7.12"]
                  [prismatic/schema "1.0.3"]
                  [ring "1.4.0" :exclusions [ring/ring-jetty-adapter]]
                  [ring-ttl-session "0.1.1"]
