@@ -1,3 +1,4 @@
+*.idea
 /target
 /lib
 /classes
@@ -9,3 +10,7 @@ pom.xml
 profiles.clj
 /.env
 *.log
+*.swp
+*~
+.nrepl-port
+*.iml

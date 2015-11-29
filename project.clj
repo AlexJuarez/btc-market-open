@@ -55,7 +55,9 @@
             [migratus-lein "0.2.0"]
             [org.clojars.punkisdead/lein-cucumber "1.0.4"]]
   :cucumber-feature-paths ["test/features"]
-
+  :less {:source-path ["resources/styles"]
+         :target-path "resources/public/css"}
+  :hooks [leiningen.less]
   :profiles
   {:uberjar {:omit-source true
              :env {:production true}
@@ -72,9 +74,6 @@
                                  [org.clojure/core.cache "0.6.3"]
                                  [mvxcvi/puget "1.0.0"]]
 
-
-                  :less {:source-path ["resources/styles"]
-                         :target-path "resources/public/css"}
                   :source-paths ["env/dev/clj"]
                   :repl-options {:init-ns flight.core}
                   :injections [(require 'pjstadig.humane-test-output)
