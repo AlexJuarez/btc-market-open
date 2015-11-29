@@ -1,6 +1,6 @@
 (ns flight.db.migrations
   (:require
-   [taoensso.timbre :as timbre]
+   [taoensso.timbre :as log]
    [lobos.migration :as lm]
    [lobos.core :as lc]
    [flight.env :refer [env]]))
@@ -17,12 +17,12 @@
     (empty? (pending-migrations)))
 
 (defn migrate-up []
-  (timbre/info "checking for new migrations")
+  (log/info "checking for new migrations")
   (if (not (actualized?))
     (do
-      (timbre/info "migrations found, applying new migrations")
+      (log/info "migrations found, applying new migrations")
       (lc/migrate))
-    (timbre/info "no new migrations found")))
+    (log/info "no new migrations found")))
 
 (defn migrate-down []
   (lc/rollback))
@@ -31,12 +31,12 @@
   (cond
    (some #{"destroy"} args)
    (do
-     (timbre/info "rolling back all migrations")
+     (log/info "rolling back all migrations")
      (dotimes [n (count (completed-migrations))]
        (migrate-down)))
    (some #{"rollback"} args)
    (do
-     (timbre/info "rolling back a migration")
+     (log/info "rolling back a migration")
      (migrate-down))
    (every? #{"migrate"} args)
    (migrate-up)))
