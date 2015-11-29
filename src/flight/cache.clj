@@ -21,7 +21,7 @@
   (if (env :couchbase)
     (do
       (log/info "Starting couchbase connection")
-      (create-connection address))
+      (atom (create-connection address)))
     (atom nil)))
 
 (defn shutdown-connection [ce]
