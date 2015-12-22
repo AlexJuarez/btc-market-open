@@ -1,0 +1,65 @@
+{% extends "layout/side-menu.html" %}
+{% block links %}
+{% include "links/mod.html" %}
+{% endblock %}
+{% block content %}
+<div class="mod">
+  <h1 class="jumbo">Moderator Overview</h1>
+  <p class="well">On the moderators landing page you can look at orders that need a resolution.
+    Please use your best judgement to come up with a solution. The solutions will
+    be voted upon by other moderators, and should you attempt to make biased moderation's
+    you may be stripped of your moderating privileges.</p>
+  {% if not tickets|empty? %}
+  <h1>Tickets</h1>
+  <table class="table normal">
+    <thead>
+    <tr>
+      <th>tx #</th>
+      <th>User</th>
+      <th>subject</th>
+      <th>message...</th>
+      <th>freshness</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for ticket in tickets %}
+    <tr>
+      <td><a href="/moderate/support/{{ticket.id}}">{{ticket.id}}</a></td>
+      <td><a href="/user/ticket.user_id}}">{{ticket.alias}}</a></td>
+      <td>{{ticket.subject}}</td>
+      <td>{{ticket.content}}</td>
+      <td><em>{{ticket.created_on|freshness}}</em></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+  {% if not orders|empty? %}
+  <h2>Orders</h2>
+  <table class="table normal">
+    <thead>
+    <tr>
+      <th>order #</th>
+      <th>item</th>
+      <th>quantity</th>
+      <th>price</th>
+      <th>freshness</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for order in orders %}
+    <tr>
+      <td><a href="/moderate/{{order.id}}">{{order.id}}</a></td>
+      <td><a href="/listing/{{order.listing_id}}">{{order.title}}</a></td>
+      <td>{{order.quantity}}</td>
+      <td><strong>&#3647;{{order.btc_amount|double-format:5}}</strong></td>
+      <td><em>{{order.auto_finalize|freshness}}</em></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="well">There are not any orders that require your attention.</p>
+  {% endif %}
+</div>
+{% endblock %}

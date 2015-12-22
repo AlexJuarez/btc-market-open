@@ -1,0 +1,64 @@
+{% extends "layout/side-menu.html" %}
+{% block links %}
+{% include "links/sell.html" %}
+{% endblock %}
+{% block menu %}
+<div class="title">
+  Vendor Dashboard
+</div>
+<ul class="category-tree">
+  <li>
+    <a class="header" href="/vendor/listings"><span class="category">Listings</span></a>
+  </li>
+  <li>
+    <a class="header" href="/vendor/listings/create"><span class="category">Add listing</span></a>
+  </li>
+  <li>
+    <a class="header" href="/vendor/postage/create"><span class="category">Add postage</span></a>
+  </li>
+  <!-- <li>
+    <a class="header" href="/vendor/form/create"><span class="category">create an order form</span></a>
+  </li> -->
+  <li>
+    <a class="header" href="/vendor/news"><span class="category">Manage Followers</span></a>
+    <ul>
+      <li><a class="header active" href="/vendor/news/create"><span class="category">create a new post</span></a></li>
+    </ul>
+  </li>
+  <li>
+    <a class="header" href="/vendor/images"><span class="category">manage images</span></a>
+  </li>
+</ul>
+{% endblock %}
+{% block container %}
+<h1 class="jumbo">News letter preview</h1>
+{% if preview %}
+<div class="well">
+  {{preview|safe}}
+</div>
+{% endif %}
+<form method="POST">
+  <p>
+    <label for="subject">Subject: {% if errors.subject %}<p>{{errors.subject|join:", "}}</p>{% endif %}</label>
+    <input name="subject" class="input" id="subject" type="text" value="{{subject}}" />
+  </p>
+  <p>
+    <label>Public: <input type="checkbox" name="public" {% if public %}checked{% endif %} value="true" /></label>
+    should this be visible on your profile? (if not it will be a newsletter sent to your fans)
+  </p>
+  <p>
+    <label>Published: <input type="checkbox" name="published" {% if published %}checked{% endif %} value="true" /></label>
+    you can always publish an article at a later date.
+  </p>
+  {% if errors.content %}
+  <p>{{errors.content|join:", "}}</p>
+  {% endif %}
+  <p>
+    <textarea rows="6" name="content" class="form-control">{{content|safe}}</textarea>
+  </p>
+  <span class="submit">
+    <button type="submit" class="btn btn-primary">{% if preview %}Update{% else %}Create{% endif %}</button>
+  </span>
+  {% csrf-token %}
+</form>
+{% endblock %}

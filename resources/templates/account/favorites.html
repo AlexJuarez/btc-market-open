@@ -1,0 +1,96 @@
+{% extends "side-menu.html" %}
+{% block links %}
+  {% include "links/settings.html" %}
+{% endblock %}
+{% block settings %}
+  {% include "layout/settings.html" %}
+{% endblock %}
+{% block menu %}
+<div class="title">
+  Account
+</div>
+<ul class="category-tree">
+  <li>
+    <a class="header" href="/account"><span class="category">settings</span></a>
+  </li>
+  <li>
+    <a class="header" href="/account/pgp"><span class="category">pgp</span></a>
+  </li>
+  <li>
+    <a class="header" href="/account/wallet"><span class="category">wallet</span></a>
+  </li>
+  <li>
+    <a class="header active" href="/account/favorites"><span class="category">favorites</span></a>
+  </li>
+  <li>
+    <a class="header" href="/account/reviews"><span class="category">reviews</span></a>
+  </li>
+  <li>
+    <a class="header" href="/account/password"><span class="category">change password</span></a>
+  </li>
+</ul>
+{% endblock %}
+{% block container %}
+<h1 class="jumbo">Favorites</h1>
+{% if bookmarks|empty? %}
+{% if favorites|empty? %}
+<p class="well">
+You don't currently have any users or listings favorited.
+</p>
+{% endif %}
+{% endif %}
+{% if not bookmarks|empty? %}
+<h3>Bookmarks</h3>
+<table class="table normal p">
+  <thead>
+    <tr>
+      <th>item</th>
+      <th>category</th>
+      <th>remaining</th>
+      <th>seller</th>
+      <th>price</th>
+      <th>hedged</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for bookmark in bookmarks %}
+    <tr>
+      <td><a href="/listing/{{bookmark.listing_id}}">{{bookmark.title}}</a></td>
+      <td><a href="/category/{{bookmark.category_id}}">{{bookmark.category_name}}</a></td>
+      <td>{{bookmark.quantity}}</td>
+      <td><a href="/user/{{bookmark.user_id}}">{{bookmark.user_alias}}</a></td>
+      <td>{{user.currency_symbol|safe}}{{bookmark.price}}</td>
+      <td>{{bookmark.hedged}}</td>
+      <td><a href="/listing/{{bookmark.id}}/unbookmark">unbookmark</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% if not favorites|empty? %}
+<h3>Favorites</h3>
+<table class="table normal p">
+  <thead>
+    <tr>
+      <th>user</th>
+      <th>rating</th>
+      <th>listings</th>
+      <th>last seen</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for favorite in favorites %}
+    <tr>
+      <td><a href="/user/{{favorite.user_id}}">{{favorite.alias}}</td>
+      <td>{{favorite.rating}}</td>
+      <td>{{favorite.listings}}</td>
+      <td title="{{favorite.last_login|date:fullDateTime}}" class="pretty-time">{{favorite.last_login|date:shortDate}}</td>
+      <td><a href="/user/{{favorite.id}}/unfollow">unfollow</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% endblock %}

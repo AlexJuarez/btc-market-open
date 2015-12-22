@@ -2,7 +2,7 @@
   (:refer-clojure :exclude [get])
   (:import (org.apache.commons.codec.binary Base64))
   (:use [flight.db.core]
-        [flight.models.predicates]
+        [flight.db.predicates]
         [korma.db :only (transaction)]
         [korma.core])
   (:require
@@ -10,7 +10,8 @@
         [flight.validator :as v]
         [hiccup.util :as hc]
         [clojure.string :as s]
-        [flight.util :as util]
+        [flight.util.core :as util]
+        [flight.util.user :as user-util]
         [flight.util.pgp :as pgp]
         [noir.session :as session]
         [flight.models.order :as order]
@@ -32,7 +33,7 @@
 
 (defn get-dirty [id]
   (first (select users
-                 (where {:id (util/parse-int id)}))))
+                 (where {:id id}))))
 
 (defn make-salt []
   (let [b (byte-array salt-byte-size)
@@ -61,18 +62,18 @@
           (where {:alias a}))))
 
 (defn get [i]
-  (let [id (util/parse-int i)]
-    (if (not (nil? id))
-      (-> (select users
-                  (where {:id (util/parse-int id)}))
-        first (dissoc :salt :pass))
-      (dissoc (get-by-alias i) :salt :pass)
-      )))
+  (dissoc
+   (if
+    (instance? Long i)
+    (-> (select users
+                (where {:id id}))
+        first)
+    (get-by-alias i)) :salt :pass))
 
 (defn get-with-pin [id pin]
   (first (select users
           (fields :login)
-          (where {:id id :pin (util/parse-int pin)}))))
+          (where {:id id :pin pin}))))
 
 (defn vendor-list []
   (select users
@@ -93,8 +94,8 @@
 
 (defn clean [{:keys [alias region_id auth currency_id pub_key description]}]
   {:auth (= auth "true")
-   :currency_id (util/parse-int currency_id)
-   :region_id (util/parse-int region_id)
+   :currency_id currency_id
+   :region_id region_id
    :description (hc/escape-html description)
    :updated_on (raw "now()")
    :alias alias})
@@ -109,11 +110,11 @@
 ;; Operations
 
 (defn update-pin! [id slug]
-  (let [user (util/current-user)
+  (let [user (user-util/current)
         check (v/user-pin-validator slug)]
     (if (empty? check)
       (do
-        (let [user (util/current-user)]
+        (let [user (user-util/current)]
           (update users
                   (set-fields {:pin (:pin slug)})
                   (where {:id id}))
@@ -126,7 +127,7 @@
   (let [updates (clean slug)
         check (valid-update? updates)]
     (if (empty? check)
-      (let [user (util/current-user)]
+      (let [user (user-util/current)]
         (session/put! :user
                       (merge
                        (update users
@@ -140,7 +141,7 @@
   (let [updates (clean-pgp pub_key)
         check (valid-pgp? updates)]
     (if (empty? check)
-      (let [user (util/current-user)
+      (let [user (user-util/current)
             update  (update users
                             (set-fields updates)
                             (where {:id (:id user)}))]
@@ -149,7 +150,7 @@
 
 (defn update-btc-address! [id]
   (let [new-address (btc/newaddress id)]
-    (session/put! :user (merge (util/current-user) {:wallet new-address}))
+    (session/put! :user (merge (user-util/current-user) {:wallet new-address}))
     (transaction
       (insert wallets (values {:wallet new-address :user_id id}))
       (update users (set-fields {:wallet new-address}) (where {:id id})))))
@@ -157,8 +158,7 @@
 
 ;;withdraw for the current user
 (defn withdraw-btc! [{:keys [amount address pin] :as slug} user-id]
-  (let [amount (util/parse-float amount)
-        audit {:user_id user-id :role "withdrawal" :amount (* -1 amount)}
+  (let [audit {:user_id user-id :role "withdrawal" :amount (* -1 amount)}
         errors (v/user-withdrawal-validator slug)]
     (if (empty? errors)
       (do
@@ -166,7 +166,7 @@
          (update users (set-fields {:btc (raw (str "btc - " amount))}) (where {:id user-id}))
          (insert withdrawals (values {:amount amount :address address :user_id user-id}))
          (insert audits (values audit)))
-        (util/update-session user-id))
+        (user-util/update-session user-id))
       {:errors errors})
     ))
 

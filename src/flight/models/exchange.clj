@@ -6,6 +6,7 @@
    [korma.db :only (transaction)]
    [clojure.string :only (split lower-case)])
   (:require
+   [flight.env :refer [env]]
    [taoensso.timbre :as log]
    [cheshire.core :as jr]
    [flight.cache :as cache]
@@ -19,18 +20,34 @@
    :as :json
    :accept :json})
 
+(defn- get-from-remote [url]
+  (try
+    (:body (client/get url remote-opts))
+    (catch Exception ex
+      (log/error ex "getting the information from coinbase failed")
+      (jr/parse-string (slurp "resources/exchange_rates.json")))))
+
+(defn- get-currency-map [currencies]
+  (->>
+   (map #(assoc {} (lower-case (:key %)) (:id %)) currencies)
+   (apply merge)))
+
+(defn- create-currency-map [slug]
+  (let [currencies (get-currency-map (currency/all))]
+    (->>
+     (map #(let [s (split (name (key %)) #"_")]
+             {:from (currencies (.substring (first s) 0 3))
+              :to (currencies (.substring (last s) 0 3))
+              :value (Float/parseFloat (val %))})
+          slug)
+     (filter #(not (or (nil? (:from %)) (nil? (:to %))))))))
+
 (defn update-from-remote []
-  (let [response 
-              (try 
-                (:body (client/get "https://coinbase.com/api/v1/currencies/exchange_rates" remote-opts))
-                (catch Exception ex
-                  (log/error ex "getting the information from coinbase failed")
-                  (jr/parse-string (slurp "resources/exchange_rates.json"))))
-        currencies (apply merge (map #(assoc {} (lower-case (:key %)) (:id %)) (currency/all)))
-        prep (filter #(not (or (nil? (:from %)) (nil? (:to %)))) (map #(let [s (split (name (key %)) #"_")] {:from (currencies (.substring (first s) 0 3)) :to (currencies (.substring (last s) 0 3)) :value (Float/parseFloat (val %))}) response))]
+  (let [response (get-from-remote (env :remote-bitcoin-values))
+        prep (create-currency-map response)]
     (if-not (empty? response)
       (do
-        (dorun (pmap #(cache/set (str (:from %) "-" (:to %)) (:value %)) prep))
+        (dorun (map #(cache/set (str (:from %) "-" (:to %)) (:value %)) prep))
         (transaction
           (delete exchange)
           (insert exchange

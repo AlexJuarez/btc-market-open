@@ -1,0 +1,33 @@
+{% extends "market.html" %}
+{% block content %}
+<div id="modal">
+  <h2>Register</h2>
+  <form method="POST">
+    {% csrf-token %}
+    <div class="p">
+      <div{% if errors.login %} class="has-error"{% endif %}>
+      <input placeholder="Username" class="form-control" id="login" name="login" type="text" value="{{login}}" />
+      {% if errors.login %}
+        {{errors.login|join:", "}}
+      {% endif %}
+      </div>
+      <div{% if errors.pass %} class="has-error"{% endif %}>
+        <input placeholder="Password" class="form-control" id="pass" value="{{pass}}" name="pass" type="password" />
+        {% if errors.pass %}
+          {{errors.pass|join:", "}}
+        {% endif %}
+        <input placeholder="Confirm Password" class="form-control" id="confirm" value="{{confirm}}" name="confirm" type="password" />
+      </div>
+    </div>
+    <div class="p{% if errors.captcha %} has-error{% endif %}">
+       {% if errors.captcha %}
+         {{errors.captcha|join:", "}}
+       {% endif %}
+       <img class="captcha" src="data:image/jpeg;base64,{{captcha|safe}}" />
+       <input placeholder="captcha" class="form-control" id="captcha" name="captcha" type="text" />
+    </div>
+    <input type="submit" class="btn btn-primary" value="Register" />
+  </form>
+  <a href="/login">login</a>
+</div>
+{% endblock %}

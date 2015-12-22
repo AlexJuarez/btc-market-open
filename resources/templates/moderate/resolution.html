@@ -1,0 +1,238 @@
+{% extends "layout/side-menu.html" %}
+{% block links %}
+{% include "links/mod.html" %}
+{% endblock %}
+{% block content %}
+<div class="mod">
+{% if not id %}
+Order not found
+{% else %}
+<h1 class="jumbo">Order Information</h1>
+<span>Transaction #<a href="/moderate/{{id}}">{{id}}</a></span>
+<div class="well">
+  <table class="fact-table">
+    <tbody>
+    <tr>
+      <td>item:</td><td><a href="/listing/{{listing_id}}">{{title}}</a></td>
+    </tr>
+    <tr>
+      <td>shipping:</td><td>{{postage_title}}</td>
+    </tr>
+    <tr>
+      <td>postage:</td><td class="price">{{user.currency_symbol|safe}}{{postage_price}}</td>
+    </tr>
+    <tr>
+      <td>price:</td><td class="price">{{user.currency_symbol|safe}}{{price}}</td>
+    </tr>
+    <tr>
+      <td>total:</td><td class="price">{{user.currency_symbol|safe}}{{total}}</td>
+    </tr>
+    <tr>
+      <td>ordered:</td><td><span class="pretty-time" title="{{created_on|date:fullDateTime}}">{{created_on|date:shortDate}}</span></td>
+    </tr>
+    <tr>
+      <td>state:</td><td><em>{{status|status}}</em></td>
+    </tr>
+    <tr>
+      <td>auto finalize:</td><td>{% if status = 0 %}N/A{% else %}<span class="pretty-time" title="{{auto_finalize|date:fullDateTime}}">{{auto_finalize|date:shortDate}}</span>{% endif %}</td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+<div class="well">
+  <h3>Buyer info</h3>
+  <table class="fact-table">
+    <tbody>
+    <tr>
+      <td>buyer:</td><td><a href="/user/{{buyer.id}}">{{buyer.alias}}</a></td>
+    </tr>
+    <tr>
+      <td>orders:</td><td>{{past_orders}}</td>
+    </tr>
+    <tr>
+      <td>member since:</td><td><span title="{{buyer.created_on|date:shortDate}}">{{buyer.created_on|freshness}}</span></td>
+    </tr>
+    <tr>
+      <td>last login:</td><td>{{buyer.last_login|freshness}}</td>
+    </tr>
+    </tbody>
+  </table>
+  {% if not buyer-resolutions|empty? %}
+  <table class="table normal p">
+    <thead>
+    <tr>
+      <th>order #</th>
+      <th>item</th>
+      <th>quantity</th>
+      <th>price</th>
+      <th>refunded</th>
+      <th>freshness</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for order in buyer-resolutions %}
+    <tr>
+      <td><a href="/moderate/{{order.id}}">{{order.id}}</a></td>
+      <td><a href="/listing/{{order.listing_id}}">{{order.title}}</a></td>
+      <td>{{order.quantity}}</td>
+      <td><strong>&#3647;{{order.btc_amount}}</strong></td>
+      <td>{{order.percent}}%</td>
+      <td><em>{{order.auto_finalize|freshness}}</em></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</div>
+<div class="well">
+  <h3>Seller info</h3>
+  <table class="fact-table">
+    <tbody>
+    <tr>
+      <td>seller:</td><td><a href="/user/{{seller.id}}">{{seller.alias}}</a></td>
+    </tr>
+    <tr>
+      <td>sales:</td><td>{{seller.transactions}}</td>
+    </tr>
+    <tr>
+      <td>rating</td><td>{{seller-rating}}%</td>
+    </tr>
+    <tr>
+      <td>member since:</td><td><span title="{{buyer.created_on|date:shortDate}}">{{seller.created_on|freshness}}</span></td>
+    </tr>
+    <tr>
+      <td>last login:</td><td>{{seller.last_login|freshness}}</td>
+    </tr>
+    </tbody>
+  </table>
+
+  {% if not seller-resolutions|empty? %}
+  <table class="table normal p">
+    <thead>
+    <tr>
+      <th>order #</th>
+      <th>item</th>
+      <th>quantity</th>
+      <th>price</th>
+      <th>refunded</th>
+      <th>freshness</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for order in seller-resolutions %}
+    <tr>
+      <td><a href="/moderate/{{order.id}}">{{order.id}}</a></td>
+      <td><a href="/listing/{{order.listing_id}}">{{order.title}}</a></td>
+      <td>{{order.quantity}}</td>
+      <td><strong>&#3647;{{order.btc_amount}}</strong></td>
+      <td>{{order.percent}}%</td>
+      <td><em>{{order.auto_finalize|freshness}}</em></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</div>
+
+{% if not modresolutions|empty? %}
+<h1>Moderator resolutions</h1>
+<table class="table resolution fill p">
+  <thead>
+  <tr>
+    <th>from</th>
+    <th>message</th>
+    <th>action</th>
+    <th>freshness</th>
+    <th>votes</th>
+    <th></th>
+  </tr>
+  </thead>
+  <tbody>
+  {% for resolution in modresolutions %}
+  <tr>
+    <td>
+      <a href="/user/{{resolution.user_id}}" class="sender">{{resolution.alias}}</a>
+    </td>
+    <td>
+      {{resolution.content}}
+    </td>
+    <td>
+      refund {{resolution.percent}}% ~({{user.currency_symbol|safe}}{{resolution.est|double-format:5}})
+    </td>
+    <td><span title="{{resolution.created_on|date:fullDateTime}}" class="pretty-time">{{resolution.create_on|date:shortDate}}</span></td>
+    <td>{{resolution.votes}}</td>
+    <td>
+      {% if status = 2 %}
+        {% if resolution.voted %}<a href="/moderate/{{id}}/{{resolution.id}}/downvote">disagree</a>{% else %}<a href="/moderate/{{id}}/{{resolution.id}}/upvote">agree</a>{% endif %}
+        {% if user.admin %}| <a href="/admin/{{id}}/{{resolution.id}}/resolve">resolve<a/>{% endif %}
+      {% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% if not resolutions|empty? %}
+<h1>User resolutions</h1>
+<table class="table resolution fill p">
+  <thead>
+  <tr>
+    <th>from</th>
+    <th class="large-column" style="width:70%">message</th>
+    <th>action</th>
+    <th>freshness</th>
+  </tr>
+  </thead>
+  <tbody>
+  {% for resolution in resolutions %}
+  <tr>
+    <td>
+      {% ifequal resolution.from seller.id %}
+      <span class="sender">{{seller.alias}} <em>(seller)</em></span>
+      {% else %}
+      <a href="/user/{{resolution.seller_id}}" class="sender">{{resolution.alias}} <em>(buyer)</em></a>
+      {% endifequal %}
+    </td>
+    <td>
+      {{resolution.content}}
+    </td>
+    <td>
+      {% ifequal resolution.action "extension" %}
+      extend by {{resolution.value}} day{% if not resolution.value = 1 %}s{% endif %}
+      {% endifequal %}
+      {% ifequal resolution.action "refund" %}
+      refund {{resolution.value}}% ~({{user.currency_symbol|safe}}{{resolution.est|double-format:5}})
+      {% endifequal %}
+    </td>
+    <td><span title="{{resolution.created_on|date:fullDateTime}}" class="pretty-time">{{resolution.created_on|freshness}}</span></td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% if status = 2 %}
+<form action="/moderate/{{id}}" method="POST">
+  <p>
+    Propose a resolution:
+  </p>
+  <p>
+    <label>
+      Refund:
+      <input name="percent" class="input input-3" maxlength="3" type="text" value="{{percent}}" />
+      %
+    </label>
+    {% if errors.percent %}
+    <strong class="error">{{errors.percent|join:", "}}</strong>
+    {% endif %}
+  </p>
+  <p>
+    <label for="message">Message:</label>
+    <textarea rows="6" id="message" name="content" class="form-control">{{content}}</textarea>
+  </p>
+  <input type="submit" class="btn btn-primary p" value="send" />
+  {% csrf-token %}
+</form>
+{% endif %}
+{% endif %}
+</div>
+{% endblock %}

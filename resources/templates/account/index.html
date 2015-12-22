@@ -1,0 +1,79 @@
+{% extends "layout/side-menu.html" %}
+{% block links %}
+{% include "links/settings.html" %}
+{% endblock %}
+{% block settings %}
+{% include "layout/settings.html" %}
+{% endblock %}
+{% block menu %}
+<div class="title">
+  Account
+</div>
+<ul class="category-tree">
+  <li>
+    <a class="header active" href="/account"><span class="category">settings</span></a>
+  </li>
+  <li>
+    <a class="header" href="/account/pgp"><span class="category">pgp</span></a>
+  </li>
+  <li>
+    <a class="header" href="/account/wallet"><span class="category">wallet</span></a>
+  </li>
+  <li>
+    <a class="header" href="/account/favorites"><span class="category">favorites</span></a>
+  </li>
+  <li>
+    <a class="header" href="/account/reviews"><span class="category">reviews</span></a>
+  </li>
+  <li>
+    <a class="header" href="/account/password"><span class="category">change password</span></a>
+  </li>
+</ul>
+{% endblock %}
+{% block container %}
+<h1 class="jumbo">Settings</h1>
+<form action="/account" enctype="multipart/form-data" method="POST">
+  {% csrf-token %}
+  <div class="form-group {% if errors.alias %}has-error{% endif %}">
+    <label for="alias">Alias:
+    {% if errors.alias %}
+      {{errors.alias|join:", "}}
+    {% endif %}
+    </label>
+    <input name="alias" id="alias" class="input" type="text" value="{{user.alias}}" />
+  </div>
+  <div class="form-group">
+    <label for="currency_id">Currency: </label>
+    <select id="currency_id" name="currency_id">
+      {% for currency in currencies %}
+      <option value="{{currency.id}}" {% ifequal currency.id user.currency_id %}selected="selected"{% endifequal %}>{{currency.name}}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="region_id">Region: </label>
+    <select id="region_id" name="region_id">
+      {% for region in regions %}
+      <option value="{{region.id}}" {% ifequal region.id user.region_id %}selected="selected"{% endifequal %}>{{region.name}}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="form-group public">
+      <strong>2 step auth?</strong>
+      <br>
+      <label>
+        <input type="checkbox" {% if user.auth %}checked="checked"{% endif %} name="auth" value="true">
+        (check for yes)
+      </label>
+  </div>
+  {% if user.vendor %}
+  <div class="form-group">
+    <label for="description">My Description:</label>
+    <textarea id="description" class="form-control" rows="8" name="description">{{user.description|safe}}</textarea>
+  </div>
+  {% endif %}
+  <div class="form-group">
+    <button type="submit" class="btn btn-primary">update</button>
+  </div>
+</form>
+{% endblock %}

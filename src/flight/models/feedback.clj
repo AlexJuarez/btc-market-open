@@ -2,9 +2,7 @@
   (:refer-clojure :exclude [count get])
   (:use [korma.db :only (transaction)]
         [korma.core]
-        [flight.db.core])
-  (:require
-   [flight.validator :as v]))
+        [flight.db.core]))
 
 (defn all []
   (select feedback
@@ -24,11 +22,8 @@
    :user_id user-id})
 
 (defn add! [message user-id]
-  (let [message (prep message user-id)
-        check (v/support-validator message)]
-    (if (empty? check)
-      (insert feedback (values message))
-      {:errors check})))
+  (let [message (prep message user-id)]
+    (insert feedback (values message))))
 
 
 (defn add-response! [id slug user-id]
@@ -37,11 +32,6 @@
                  :content (:content slug)
                  :user_id (:user_id ticket)
                  :sender_id user-id
-                 :feedback_id id}
-        check (v/support-validator prepped)]
-    (if (empty? check)
-      (transaction
-       (insert messages
-               (values prepped)))
-       {:errors check}
-      )))
+                 :feedback_id id}]
+    (insert messages
+            (values prepped))))

@@ -1,0 +1,47 @@
+{% extends "layout/side-menu.html" %}
+{% block links %}
+{% include "links/settings.html" %}
+{% endblock %}
+{% block settings %}
+{% include "layout/settings.html" %}
+{% endblock %}
+{% block menu %}
+<div class="title">
+  Account
+</div>
+<ul class="category-tree">
+  <li>
+    <a class="header" href="/account"><span class="category">settings</span></a>
+  </li>
+  <li>
+    <a class="header active" href="/account/pgp"><span class="category">pgp</span></a>
+  </li>
+  <li>
+    <a class="header" href="/account/wallet"><span class="category">wallet</span></a>
+  </li>
+  <li>
+    <a class="header" href="/account/favorites"><span class="category">favorites</span></a>
+  </li>
+  <li>
+    <a class="header" href="/account/reviews"><span class="category">reviews</span></a>
+  </li>
+  <li>
+    <a class="header" href="/account/password"><span class="category">change password</span></a>
+  </li>
+</ul>
+{% endblock %}
+{% block container %}
+<h2>Verify your pgp key</h2>
+<form enctype="multipart/form-data" method="POST">
+  {% csrf-token %}
+  {% if message %}
+  <h3 class="error">{{message}}</h3>
+  {% endif %}
+  <p>Decode this message using your private key, and then copy the result into the text area.</p>
+  <pre class="well p">{{decode}}</pre>
+  <textarea id="response" class="form-control p" rows="4" name="response"></textarea>
+  <div class="form-group">
+    <button type="submit" class="btn">update</button>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends "layout/side-menu.html" %}
+{% block links %}
+{% include "links/sell.html" %}
+{% endblock %}
+{% block menu %}
+<div class="title">
+  Vendor Dashboard
+</div>
+<ul class="category-tree">
+  <li>
+    <a class="header" href="/vendor/listings"><span class="category">Listings</span></a>
+  </li>
+  <li>
+    <a class="header" href="/vendor/listings/create"><span class="category">Add listing</span></a>
+  </li>
+  <li>
+    <a class="header" href="/vendor/postage/create"><span class="category">Add postage</span></a>
+  </li>
+  <!-- <li>
+    <a class="header" href="/vendor/form/create"><span class="category">create an order form</span></a>
+  </li> -->
+  <li>
+    <a class="header active" href="/vendor/news"><span class="category">Manage Followers</span></a>
+    <ul>
+      <li><a class="header" href="/vendor/news/create"><span class="category">create a new post</span></a></li>
+    </ul>
+  </li>
+  <li>
+    <a class="header" href="/vendor/images"><span class="category">manage images</span></a>
+  </li>
+</ul>
+{% endblock %}
+{% block container %}
+<h1 class="jumbo">My Followers</h1>
+<div class="p">
+  you have {{user.fans}} follower{{user.fans|pluralize:"":"s"}}
+</div>
+{% if not posts|empty? %}
+<table class="table normal messages">
+  <thead>
+  <tr>
+    <th>subject</th>
+    <th>public</th>
+    <th>published</th>
+    <th>freshness</th>
+    <th>&nbsp;</th>
+  </tr>
+  </thead>
+  <tbody>
+  {% for post in posts %}
+  <tr class="message">
+    <td>
+      <a href="/vendor/news/{{post.id}}/edit">{{post.subject}}</a>
+    </td>
+    <td>{% if post.public %}<strong>yes</strong>{% else %} no {% endif %}</td>
+    <td>{% if post.published %} published {% else %} false {% endif %}</td>
+    <td><span title="{{post.created_on|date:fullDateTime}}">{{post.created_on|freshness}}</span></td>
+    <td>
+      {% if not post.published %}<a href="/vendor/news/{{post.id}}/publish">publish</a>
+      | {% endif %}<a href="/vendor/news/{{post.id}}/delete">delete</a>
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="well">You have not posted any news yet.</div>
+{% endif %}
+{% endblock %}

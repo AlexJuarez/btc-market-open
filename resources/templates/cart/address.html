@@ -1,0 +1,30 @@
+{% extends "layout/side-menu.html" %}
+{% block links %}
+{% include "links/settings.html" %}
+{% endblock %}
+{% block cartlink %}
+{% include "layout/cart.html" %}
+{% endblock %}
+{% block menu %}
+<div class="title">
+  My cart
+</div>
+{% endblock %}
+{% block container %}
+<h1 class="jumbo">Shopping Cart</h1>
+<form class="my-cart" method="post">
+  <h1>Total: &#3647;{{btc-total|double-format:5}} {% if convert %} ~({{user.currency_symbol|safe}}{{total|double-format:5}}) {% endif %} {% if errors.total %}- <span class="error">{{errors.total|join:", "}}</span>{% endif %}</h1>
+  <p>
+    <label for="address">Address {% if errors.address %} <span class="error">- {{errors.address|join:", "}}</span> {% endif %}</label>
+    <textarea rows="7" class="form-control" id="address" name="address">{{address}}</textarea>
+  </p>
+  <label for="pin">Pin: </label>
+  <input class="input" type="password" name="pin" id="pin" />
+  {% if errors.pin %}
+  <span class="error">{{errors.pin|join:", "}}</span>
+  {% endif %}
+  <p>
+    <input type="submit" class="btn btn-primary" name="submit" value="Review and Confirm" />
+  </p>
+</form>
+{% endblock %}

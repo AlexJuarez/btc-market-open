@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Flight: Relax, take flight</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    {% load-styles css/screen.css %}
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="container">
+        <div class="row">
+          <div class="cell header">
+            <header id="header">
+              <div id="banner"><a href="/">
+                <svg class="icon-feather" version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+                  width="32px" height="32px" viewBox="0 0 32 32" enable-background="new 0 0 32 32" xml:space="preserve">
+                  <g>
+                    <g>
+                    <path fill-rule="evenodd" clip-rule="evenodd" fill="#989898" d="M3.515,4.809c8.432,13.302,20.094,21.289,20.094,21.289
+                    c0.374-1.217,0.281-2.225-0.047-3.442c-1.357-4.074-6.275-9.649-6.275-9.649c-1.078,0.421-1.874,0.515-1.874,0.515l1.077-1.405
+                    l-0.984-0.187l-2.623,2.295l0.563-4.497C6.794,7.62,1.173,0.406,1.173,0.406S0.33,1.952,0.19,4.622
+                    c-0.141,2.67,0.656,4.778,0.656,4.778c1.452,0.609,3.793,1.827,3.793,1.827l-3.075,0.219c2.779,8.04,6.448,10.648,6.448,10.648
+                    c3.888,0.421,8.104,1.64,8.104,1.64c-1.968-0.188-6.277-0.235-6.277-0.235c7.869,6.371,13.538,4.778,13.538,4.778
+                    C11.291,20.174,8.714,13.756,3.515,4.809z M7.782,11.415c0,0,5.843,9.984,15.371,16.057c5.805,3.922,7.418,3.91,7.418,3.91
+                    s0.838,0.008,1.471-0.372C32.042,31.01,19.912,27.72,7.782,11.415z"></path>
+                    </g>
+                  </g>
+                </svg>
+                Flight</a></div>
+              <div class="account-cart">
+                {% block settings %}
+                {% if user.logged_in %}
+                <div class="settings">
+                  <a href="/account">Settings</a>
+                  <div class="drop-down">
+                    <ul>
+                      <li><a href="/account/pgp">PGP</a></li>
+                      <li><a href="/account/wallet">Wallet</a></li>
+                      <li><a href="/account/favorites">Favorites</a></li>
+                      <li><a href="/account/reviews">Reviews</a></li>
+                      <li><a href="/account/password">Change Password</a></li>
+                    </ul>
+                  </div>
+                </div>
+                {% endif %}
+                {% endblock %}
+                <div class="account">
+                  {% if user.logged_in %}
+                  Hi, <strong>{{user.alias}}</strong>
+                  | <a href="/logout">logout</a>
+                  {% else %}
+                  <a href="/login">login</a> |
+                  <a href="/register">register</a>
+                  {% endif %}
+                </div>
+                {% block cartlink %}
+                <div class="cart links">
+                  <a href="/cart">
+                    <span class="cart-icon">Cart</span> ({{cart-count}})
+                  </a>
+                </div>
+                {% endblock %}
+              </div>
+              {% block links %}
+                <nav class="links">
+                  <a class="active" href="/">Market</a>
+                  {% if user.logged_in %}
+                  <a href="/messages">Inbox ({{user.messages.unread}})</a>
+                  <a href="/orders">Orders ({{user.orders}})</a>
+                  {% if user.vendor %}
+                  <a href="/vendor/sales">Sold ({{user.sales.total}})</a>
+                  <a href="/vendor/listings">Sell ({{user.listings}})</a>
+                  {% endif %}
+                  <a href="/account/wallet">Wallet {{user.currency_symbol|safe}}{{user.balance|double-format:4}}</a>
+                  {% if user.mod %}
+                  <a href="/moderate">Mod</a>
+                  {% endif %}
+                  {% endif %}
+                </nav>
+              {% endblock %}
+            </header>
+          </div>
+        </div>
+        <div class="row">
+          <div class="cell max">
+            {% block content %}
+            {% endblock %}
+          </div>
+        </div>
+        <div class="row">
+          <div class="cell">
+            <footer id="footer">
+              &#3647;1 BTC ~= {{user.currency_symbol|safe}}{{user.conversion|double-format:4}} | <!-- <a href="/support">support</a>  | --><a href="/support">support</a> | <a href="http://iipgngvrv7nu4bkk.onion">forum</a> | <a href="/about">about</a>
+            </footer>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

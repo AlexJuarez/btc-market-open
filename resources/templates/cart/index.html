@@ -1,0 +1,68 @@
+{% extends "layout/side-menu.html" %}
+{% block links %}
+  {% include "links/settings.html" %}
+{% endblock %}
+{% block cartlink %}
+  {% include "layout/cart.html" %}
+{% endblock %}
+{% block menu %}
+<div class="title">
+  My cart
+</div>
+{% endblock %}
+{% block container %}
+<h1 class="jumbo">Shopping Cart</h1>
+<a href="/cart/empty">empty cart</a>
+{% if not listings|empty? %}
+<form class="my-cart" method="post">
+{% csrf-token %}
+<table class="table">
+  <thead>
+    <tr>
+      <th>seller</th>
+      <th>item</th>
+      <th>price</th>
+      <th>quantity</th>
+      <th>sub-total</th>
+      {% if errors.postage %}<th class="error">postage required</th>{% else %}<th>postage</th>{% endif %}
+      <th>total</th>
+      <th>hedged</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for listing in listings %}
+  <tr>
+    <td><a href="/user/{{listing.user_id}}">{{listing.alias}} ({{listing.user_rating|rating}})</a></td>
+    <td>{{listing.title}}</td>
+    <td>{{user.currency_symbol|safe}}{{listing.price|double-format:5}}</td>
+    <td>
+      <input class="quantity-input" type="text" name="quantity[{{listing.lid}}]" value="{{listing.lid|count-cart}}" />
+      <em>max: {{listing.quantity}}</em>
+      {% if listing.errors.quantity %}<strong class="error">{{listing.errors.quantity|join:", "}}</strong>{% endif %}
+    </td>
+    <td>{{user.currency_symbol|safe}}{{listing.subtotal|double-format:5}}</td>
+    <td>
+      <select name="postage[{{listing.lid}}]">
+        <option>select one</option>
+        {% for postage in listing.postage %}
+        <option {% ifequal listing.lid|postage-cart postage.id %}selected{% endifequal %} value="{{postage.id}}">{{postage.title}} - {{user.currency_symbol|safe}}{{postage.price|double-format:5}}</option>
+        {% endfor %}
+      </select>
+    </td>
+    <td>{{user.currency_symbol|safe}}{{listing.total|double-format:5}}</td>
+    <td>{% if listing.hedged %}hedged{% else %}unhedged{% endif %}</td>
+    <td><a href="/cart/{{listing.lid}}/remove">remove</a></td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+<p>
+  <input class="btn btn-primary" type="submit" name="submit" value="Checkout" />
+  <input class="btn btn-gray" type="submit" name="submit" value="Update Cart" />
+</p>
+</form>
+{% else %}
+  <p class="well">Your cart is empty!</p>
+{% endif %}
+{% endblock %}

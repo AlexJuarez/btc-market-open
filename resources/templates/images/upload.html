@@ -1,0 +1,55 @@
+{% extends "layout/side-menu.html" %}
+{% block links %}
+{% include "links/sell.html" %}
+{% endblock %}
+{% block menu %}
+<div class="title">
+  Vendor Dashboard
+</div>
+<ul class="category-tree">
+  <li>
+    <a class="header" href="/vendor/listings"><span class="category">Listings</span></a>
+  </li>
+  <li>
+    <a class="header" href="/vendor/listings/create"><span class="category">Add listing</span></a>
+  </li>
+  <li>
+    <a class="header" href="/vendor/postage/create"><span class="category">Add postage</span></a>
+  </li>
+  <!-- <li>
+    <a class="header" href="/vendor/form/create"><span class="category">create an order form</span></a>
+  </li> -->
+  <li>
+    <a class="header" href="/vendor/news"><span class="category">Manage Followers</span></a>
+  </li>
+  <li>
+    <a class="header" href="/vendor/images"><span class="category">manage images</span></a>
+    <ul>
+      <li><a class="header active" href="/vendor/images/upload"><span class="category">upload</span></a></li>
+      <li><a class="header" href="/vendor/images/edit"><span class="category">edit</span></a></li>
+    </ul>
+  </li>
+</ul>
+{% endblock %}
+{% block container %}
+<div class="images">
+  <h1 class="jumbo">Images</h1>
+  <p>
+    The max size for an image is 400(px) wide x 300(px) tall. Any image uploaded at a different size will be transformed to these dimensions and
+    images must be in the jpeg format.
+  </p>
+  <form enctype="multipart/form-data" method="post">
+    {% csrf-token %}
+    <div class="form-group">
+      <label>Upload a Image (.jpg):</label>
+      <div>
+        <input type="file" name="image" accept="image/jpeg" />
+      </div>
+    </div>
+    <div class="form-group">
+      <button type="submit" class="btn btn-primary">upload</button>
+    </div>
+  </form>
+</div>
+</div>
+{% endblock %}

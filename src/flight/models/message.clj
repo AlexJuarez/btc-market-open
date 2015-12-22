@@ -4,10 +4,9 @@
         [korma.core]
         [flight.db.core])
   (:require
-        [flight.validator :as v]
         [flight.cache :as cache]
         [flight.util.pgp :as pgp]
-        [flight.util :as util]))
+        [flight.util.user :as user-util]))
 
 ;;Gets
 (defn count [id]
@@ -41,16 +40,16 @@
             (limit per-page)
             (offset (* (- page 1) per-page))))
   ([ticket_id]
-   (let [tid (util/parse-int ticket_id)]
+   (let [tid ticket_id]
      (select messages
                (fields :id :subject :content :created_on :user_id :sender_id :feedback_id :read)
                (with senders (fields [:alias :user_alias]))
                (where {:feedback_id tid})
                (order :created_on :ASC))))
   ([id receiver-id]
-   (let [rid (util/parse-int receiver-id)]
+   (let [rid receiver-id]
      (do
-       (when (not (empty? (update! id rid))) (util/update-session id :messages))
+       (when (not (empty? (update! id rid))) (user-util/update-session id :messages))
        (select messages
                (fields :id :subject :content :created_on :user_id :sender_id :read)
                (with senders (fields [:alias :user_alias]))
@@ -58,30 +57,24 @@
                (order :created_on :ASC))))))
 
 (defn prep [{:keys [encrypt subject content sender_id user_id]}]
-  (let [recipient (first (select users (fields :pub_key) (where {:id (util/parse-int user_id)})))]
+  (let [recipient (first (select users (fields :pub_key) (where {:id  user_id})))]
     {:content (if (and (= "true" encrypt) (not (nil? (:pub_key recipient)))) (pgp/encode (:pub_key recipient) content) content)
-     :user_id (util/parse-int user_id)
+     :user_id user_id
      :sender_id sender_id}))
 
 (defn store! [message user-id receiver-id]
-  (util/update-session receiver-id :messages)
+  (user-util/update-session receiver-id :messages)
   (insert messages (values (prep (merge message {:user_id receiver-id :sender_id user-id})))))
 
 (defn store-support! [message user-id ticket-id]
   (insert messages (values (merge (prep message) {:feedback_id ticket-id :sender_id user-id}))))
 
 (defn remove! [id user-id]
-  (util/update-session user-id :messages)
-  (delete messages (where {:id (util/parse-int id) :user_id user-id})))
+  (user-util/update-session user-id :messages)
+  (delete messages (where {:id id :user_id user-id})))
 
 (defn add-support! [message user-id ticket-id]
- (let [check (v/message-validator message)]
-      (if (empty? check)
-        (do (store-support! message user-id ticket-id) nil)
-        (conj {:errors check} message))))
+  (store-support! message user-id ticket-id))
 
 (defn add! [message user-id receiver-id]
-  (let [check (v/message-validator message)]
-    (if (empty? check)
-      (do (store! message user-id receiver-id) nil)
-      (conj {:errors check} message))))
+  (store! message user-id receiver-id))

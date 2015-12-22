@@ -1,0 +1,19 @@
+{% extends "market.html" %}
+{% block content %}
+<div id="modal">
+  <h2>Login</h2>
+  {% if success %}
+  <div class="success">{{success}}</div>
+  {% endif %}
+  <form method="POST">
+  {% csrf-token %}
+    <div {% if error %}class="has-error"{% endif %}>
+      {{error}}
+      <input id="handle" class="form-control" name="login" type="text" placeholder="Username" value="{{login}}"/>
+      <input id="pass" class="form-control" name="pass" type="password" placeholder="Password" />
+    </div>
+    <input type="submit" class="btn btn-primary p" value="login" />
+  </form>
+  <a href="/register">register</a>
+</div>
+{% endblock %}

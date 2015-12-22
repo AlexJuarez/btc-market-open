@@ -1,0 +1,37 @@
+{% extends "layout/side-menu.html" %}
+{% block links %}
+{% include "links/orders.html" %}
+{% endblock %}
+{% block container %}
+  <form method="post">
+    {% csrf-token %}
+    <table class="table">
+      <thead>
+        <th>item</th>
+        <th>rating</th>
+        <th>did you receive the item?</th>
+        <th>additional comments</th>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a href="/listing/{{listing_id}}">{{title}}</a></td>
+          <td>
+            <label><input type="radio" {% if rating = 1 %}checked {% endif %}name="rating" value="1" /> 1</label>
+            <label><input type="radio" {% if rating = 2 %}checked {% endif %}name="rating" value="2" /> 2</label>
+            <label><input type="radio" {% if rating = 3 %}checked {% endif %}name="rating" value="3" /> 3</label>
+            <label><input type="radio" {% if rating = 4 %}checked {% endif %}name="rating" value="4" /> 4</label>
+            <label><input type="radio" {% if rating = 5 %}checked {% endif %}name="rating" value="5" /> 5</label>
+          </td>
+          <td>
+            <label><input type="radio" {% if shipped %}checked {% endif %}name="shipped" value="true" /> yes</label>
+            <label><input type="radio" {% if not shipped %}checked {% endif %}name="shipped" value="false" /> no</label>
+          </td>
+          <td>
+            <textarea class="form-control" name="content">{{content}}</textarea>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <input type="submit" class="btn btn-primary p" value="update" />
+  </form>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "market.html" %}
+{% block content %}
+<div id="wrap">
+	<div class="container">
+    <h2>2 Step auth</h2>
+		{% if error %}
+		<h3 class="error">{{error}}</h3>
+    {% endif %}
+    <p>Decode this message using your private key, and then copy the result into the text area.</p>
+    <pre class="well p">{{decode}}</pre>
+    <form method="POST">
+    {% csrf-token %}
+    <textarea id="response" class="form-control p" rows="4" name="response"></textarea>
+    <div class="submit">
+			<input type="submit" class="btn" value="login" />
+		</div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,133 @@
+{% extends "layout/side-menu.html" %}
+{% block links %}
+{% include "links/orders.html" %}
+{% endblock %}
+{% block container %}
+{% if not id %}
+Order not found
+{% else %}
+<h1 class="jumbo">Order Information</h1>
+<span>Transaction #<a href="/order/{{id}}">{{id}}</a></span>
+<div class="well">
+  <table class="fact-table">
+    <tbody>
+      <tr>
+        <td>status:</td><td>{{status|status}}</td>
+      </tr>
+      <tr>
+        <td>buyer:</td><td>{{user.alias}}</td>
+      </tr>
+      <tr>
+        <td>seller:</td><td><a href="/user/{{seller_id}}">{{alias}}</a></td>
+      </tr>
+      <tr>
+        <td>item:</td><td><a href="/listing/{{listing_id}}">{{title}}</a></td>
+      </tr>
+      <tr>
+        <td>shipping:</td><td>{{postage_title}}</td>
+      </tr>
+      <tr>
+        <td>postage:</td><td class="price">{{user.currency_symbol|safe}}{{postage_price}}</td>
+      </tr>
+      <tr>
+        <td>price:</td><td class="price">{{user.currency_symbol|safe}}{{price}}</td>
+      </tr>
+      <tr>
+        <td>total:</td><td class="price">{{user.currency_symbol|safe}}{{total}}</td>
+      </tr>
+      <tr>
+        <td>ordered:</td><td><span class="pretty-time" title="{{created_on|date:fullDateTime}}">{{created_on|date:shortDate}}</span></td>
+      </tr>
+      <tr>
+        <td>auto finalize:</td><td>{% if status = 0 %}N/A{% else %}<span class="pretty-time" title="{{auto_finalize|date:fullDateTime}}">{{auto_finalize|date:shortDate}}</span>{% endif %}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+{% if status = 2 %}
+{% if not resolutions|empty? %}
+<table class="table resolution fill p">
+  <thead>
+    <tr>
+      <th>from</th>
+      <th class="large-column" style="width:70%">message</th>
+      <th>action</th>
+      <th>freshness</th>
+      <th>&nbsp;</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for resolution in resolutions %}
+    <tr>
+      <td>
+        {% ifequal resolution.from user.id %}
+          <span class="sender">{{user.alias}}</span>
+        {% else %}
+          <a href="/user/{{resolution.seller_id}}" class="sender">{{resolution.alias}}</a>
+        {% endifequal %}
+      </td>
+      <td>
+        {{resolution.content}}
+      </td>
+      <td>
+        {% ifequal resolution.action "extension" %}
+        extend by {{resolution.value}} day{% if not resolution.value = 1 %}s{% endif %}
+        {% endifequal %}
+        {% ifequal resolution.action "refund" %}
+        refund {{resolution.value}}% ~({{user.currency_symbol|safe}}{{resolution.est|double-format:5}})
+        {% endifequal %}
+      </td>
+      <td><span title="{{resolution.created_on|date:fullDateTime}}" class="pretty-time">{{resolution.create_on|date:shortDate}}</span></td>
+      <td>
+        {% if not resolution.user_accepted %}
+          <a href="/resolution/{{resolution.id}}/accept">accept</a>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% if not arbitration %}
+<form class="well" action="/order/{{id}}" method="POST">
+  <p>
+    Propose a resolution:
+  </p>
+  <ul class="list-unstyled">
+    <li>
+      <label>
+        <input type="radio" name="action" {% ifequal action "extension" %}checked="checked"{% endifequal %} value="extension" />
+      Extension:</label>
+      <input name="extension" class="input input-2" maxlength="2" id="extension" type="text" value="{{extension}}" />
+      days
+      {% ifequal action "extension" %}
+        {% if errors.value %}
+          <strong class="error">{{errors.value|join:", "}}</strong>
+        {% endif %}
+      {% endifequal %}
+    </li>
+    <li>
+      <label title="This is the percentage of the total that you will receive"><input type="radio" name="action" {% ifequal action "refund" %}checked="checked"{% endifequal %} value="refund" />
+      Refund:</label>
+      <input name="refund" class="input input-3" maxlength="3" id="refund" type="text" value="{{refund}}" />
+      %
+      {% ifequal action "refund" %}
+        {% if errors.value %}
+          <strong class="error">{{errors.value|join:", "}}</strong>
+        {% endif %}
+      {% endifequal %}
+    </li>
+  </ul>
+  <p>
+    <label for="message">Message:</label>
+    <textarea rows="6" id="message" name="content" class="form-control">{{content}}</textarea>
+  </p>
+  <span class="submit">
+    <input type="submit" class="btn" value="send" />
+  </span>
+  {% csrf-token %}
+</form>
+{% endif %}
+{% endif %}
+{% endif %}
+{% endblock %}

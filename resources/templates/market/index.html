@@ -1,0 +1,74 @@
+{% extends "layout/side-menu.html" %}
+{% block menu %}
+<div class="title">
+  Browse
+</div>
+{{categories|render-tree}}
+{% endblock %}
+{% block container %}
+<div class="options">
+  <form method="get">
+          <span class="well">
+            <label>
+              sort by:
+              <select name="sort_by">
+                <option value="bestselling">bestselling</option>
+                <option {% ifequal sort_by "lowest" %}selected {% endifequal %}value="lowest">lowest price</option>
+                <option {% ifequal sort_by "highest" %}selected {% endifequal %}value="highest">highest price</option>
+                <option {% ifequal sort_by "title" %}selected {% endifequal %}value="title">title</option>
+                <option {% ifequal sort_by "newest" %}selected {% endifequal %}value="newest">newest</option>
+              </select>
+            </label>
+            {% if user.logged_in %}
+            <label>
+              <input type="checkbox" name="ships_to" value="true"{% if ships_to %} checked="checked"{% endif %}> ships to my region
+            </label>
+            <label>
+              <input type="checkbox" name="ships_from" value="true"{% if ships_from %} checked="checked"{% endif %}> ships from my region
+            </label>
+            {% endif %}
+          </span>
+    <button type="submit" class="btn btn-gray">update</button>
+  </form>
+</div>
+{% for listing in listings %}
+<div class="listing-row">
+  {% if listing.image_id %}
+  <div class="thumbnail">
+    <a href="/listing/{{listing.id}}">
+      {% image-thumbnail listing.image_id %}
+    </a>
+  </div>
+  {% endif %}
+  <div class="sale">
+    <div class="text">
+      <div class="price">{{user.currency_symbol|safe}}{{listing.price|double-format:5}}</div>
+      <a class="cart-link" href="/cart/add/{{listing.id}}">add to cart</a>
+      <br />
+      <a class="favorite" href="/listing/{{listing.id}}/bookmark">favorite</a>
+    </div>
+  </div>
+  <div class="body">
+    <div class="title"><a href="/listing/{{listing.id}}">{{listing.title}}</a></div>
+    <table class="fact-table">
+      <tbody>
+      <tr>
+        <td>seller:</td>
+        <td><a href="/user/{{listing.user_id}}">{{listing.alias}} ({{listing.rating|rating}})</a></td>
+      </tr>
+      <tr>
+        <td>ships from:</td>
+        <td>{{listing.from|region}}</td>
+      </tr>
+      <tr>
+        <td>ships to:</td>
+        <td>{{listing.to|regions}}</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endfor %}
+<div class="clear-float"></div>
+<div class="market">{{page|pagination}}</div>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "layout/side-menu.html" %}
+{% block menu %}
+<div class="title">
+  Browse
+</div>
+{{categories|render-tree}}
+{% endblock %}
+{% block container %}
+{% if message %}
+    <p class="well">
+      {{message}}
+    </p>
+{% endif %}
+{% if not users|empty? %}
+<h3>Users</h3>
+<table class="table normal">
+  <thead>
+  <tr>
+    <th>user</th>
+    <th>rating</th>
+    <th>last seen</th>
+  </tr>
+  </thead>
+  <tbody>
+  {% for user in users %}
+  <tr>
+    <td><a href="/user/{{user.id}}">{{user.alias}}</a></td>
+    <td>{{user.rating}}</td>
+    <td><span title="{{user.last_login|date:fullDateTime}}" class="pretty-time">{{user.last_login|date:shortDate}}</span>
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% if not category-results|empty? %}
+    <h3>Categories</h3>
+    <ul>
+      {% for category in category-results %}
+      <li><a href="/category/{{category.id}}">{{category.name}}</a></li>
+      {% endfor %}
+    </ul>
+{% endif %}
+{% if not listings|empty? %}
+<h3>Listings</h3>
+<table class="table normal">
+  <thead>
+  <tr>
+    <th>item</th>
+    <th>category</th>
+    <th>price</th>
+    <th>ships to:</th>
+    <th>ships from:</th>
+    <th></th>
+  </tr>
+  </thead>
+  <tbody>
+  {% for listing in listings %}
+    <tr>
+      <td><a href="/listing/{{listing.id}}">{{listing.title}}</a></td>
+      <td><a href="/category/{{listing.category_id}}">{{listing.category_name}}</a></td>
+      <td>{{user.currency_symbol|safe}}{{listing.price|double-format:5}}</td>
+      <td>{{listing.to|regions}}</td>
+      <td>{{listing.from|region}}</td>
+      <td><a href="/cart/add/{{listing.id}}">add to cart</a></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% endblock %}

@@ -3,7 +3,7 @@
   (:use
     [flight.db.core]
     [korma.core]
-    [flight.models.predicates]
+    [flight.db.predicates]
     [korma.db :only (transaction)]
     [clojure.string :only (split lower-case)])
   (:require

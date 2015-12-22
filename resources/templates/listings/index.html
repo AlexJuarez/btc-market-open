@@ -1,0 +1,126 @@
+{% extends "layout/side-menu.html" %}
+{% block links %}
+{% include "links/sell.html" %}
+{% endblock %}
+{% block menu %}
+<div class="title">
+  Vendor Dashboard
+</div>
+<ul class="category-tree">
+  <li>
+    <a class="header active" href="/vendor/listings"><span class="category">Listings</span></a>
+  </li>
+  <li>
+    {% if not postages|empty? %}
+      <a class="header" href="/vendor/listings/create"><span class="category">Add listing</span></a>
+    {% else %}
+      <em class="header" title="you need to create postage first"><span class="category">Add listing</span></em>
+    {% endif %}
+  </li>
+  <li>
+    <a class="header" href="/vendor/postage/create"><span class="category">Add postage</span></a>
+  </li>
+  <!-- <li>
+    <a class="header" href="/vendor/form/create"><span class="category">create an order form</span></a>
+  </li> -->
+  <li>
+    <a class="header" href="/vendor/news"><span class="category">Manage Followers</span></a>
+  </li>
+  <li>
+    <a class="header" href="/vendor/images"><span class="category">manage images</span></a>
+  </li>
+</ul>
+{% endblock %}
+{% block container %}
+<h1 class="jumbo">Listings</h1>
+<div class="postage">
+{% if not postages|empty? %}
+<table class="table normal">
+  <thead>
+    <tr>
+      <th>title</th>
+      <th>price</th>
+      <th>currency</th>
+      <th>&nbsp;</th>
+      <th>&nbsp;</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for postage in postages %}
+    <tr>
+        <td>{{postage.title}}</td>
+        <td>{{postage.currency_symbol|safe}}{{postage.price}}</td>
+        <td>{{postage.currency_name}}</td>
+        <td><a href="/vendor/postage/{{postage.id}}/edit">edit</a></td>
+        <td><a href="/vendor/postage/{{postage.id}}/remove">remove</a></td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="well">
+    <strong class="danger">
+        You need to add postage
+    </strong>
+</p>
+{% endif %}
+</div>
+<div class="listings">
+{% for listing in listings %}
+  <div class="listing-row">
+    {% if listing.image_id %}
+      <div class="thumbnail-wrapper">
+        {% image listing.image_id %}
+      </div>
+    {% endif %}
+    <div class="sale">
+      <div class="text">
+        <div class="price">Price: {{listing.currency_symbol|safe}}{{listing.price}}</div>
+        <br/>
+        <span>Currency: {{listing.currency_key}}</span>
+      </div>
+    </div>
+    <div class="info">
+      <div class="title">{{listing.title}}
+        <sup class="normal">
+          <a href="/vendor/listing/{{listing.id}}/edit" class="edit">edit</a> -
+          <a href="/vendor/listing/{{listing.id}}/remove" class="remove" oncLick="return confirm('Delete?')">delete</a>
+        </sup>
+      </div>
+      <table class="fact-table">
+        <tbody>
+        <tr>
+          <td>created on:</td><td>
+          <span title="{{listing.created_on|date:fullDateTime}}">
+            {{listing.created_on|date:shortDate}},
+          </span>
+          <span class="public">
+          this listing is
+          {% if listing.public %}
+          public
+          {% else %}
+          private
+          {% endif %}
+          - <a href="/listing/{{listing.id}}" class="link">link</a>
+        </span>
+        </td>
+        </tr>
+        <tr>
+          <td>ships from:</td><td>{{listing.from|region}}</td>
+        </tr>
+        <tr>
+          <td>ships to:</td><td>{{listing.to|regions}}</td>
+        </tr>
+        <tr>
+          <td>Category:</td><td><a href="/category/{{listing.category_id}}">{{listing.category_name}}</a></td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+{% endfor %}
+  {{page|pagination}}
+
+</div>
+{% endblock %}

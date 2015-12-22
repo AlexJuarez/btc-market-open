@@ -1,0 +1,14 @@
+{% if user.logged_in %}
+<div class="settings active">
+  <a href="/account"><span>Settings</span></a>
+  <div class="drop-down">
+    <ul>
+      <li><a href="/account/pgp">PGP</a></li>
+      <li><a href="/account/wallet">Wallet</a></li>
+      <li><a href="/account/favorites">Favorites</a></li>
+      <li><a href="/account/reviews">Reviews</a></li>
+      <li><a href="/account/password">Change Password</a></li>
+    </ul>
+  </div>
+</div>
+{% endif %}

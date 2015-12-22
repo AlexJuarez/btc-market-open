@@ -1,0 +1,10 @@
+{% extends "market.html" %}
+{% block content %}
+<div class="inbox">
+  <h1 class="jumbo">News letter from <a href="/user/{{alias}}">{{alias}}</a></h1>
+  <nav class="nav"><a href="/messages">inbox <strong>{{user.messages.unread}}</strong></a></nav>
+</div>
+<div class="well">
+  {{content|safe}}
+</div>
+{% endblock %}

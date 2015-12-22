@@ -1,0 +1,50 @@
+{% extends "layout/side-menu.html" %}
+{% block links %}
+{% include "links/messages.html" %}
+{% endblock %}
+{% block menu %}
+<div class="title">
+  My messages
+</div>
+<ul class="category-tree">
+  <li>
+    <a class="header" href="/messages"><span class="category">Inbox</span> <span class="count">({{user.messages.unread}})</span></a>
+  </li>
+  <li>
+    <a class="header active" href="/messages/sent"><span class="category">Sent</span></a>
+  </li>
+</ul>
+{% endblock %}
+{% block container %}
+<div class="inbox">
+  <h1 class="jumbo">Sent</h1>
+</div>
+{% if not messages|empty? %}
+<table class="table normal messages">
+  <thead>
+  <tr>
+    <th>to</th>
+    <th>subject</th>
+    <th>freshness</th>
+    <th>&nbsp;</th>
+  </tr>
+  </thead>
+  <tbody>
+  {% for message in messages %}
+  <tr class="message">
+    <td>
+      <span class="sender">{{message.user_alias}}</span>
+    </td>
+    <td>{% if message.subject %}{{message.subject}}{% else %}no subject{% endif %}</td>
+    <td><span title="{{message.created_on|date:fullDateTime}}" class="age pretty-time">{{message.created_on|date:shortDate}}</span></td>
+    <td>
+      <span class="subject"><a href="/messages/{{message.user_id}}">read</a></span>
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="well">You do not have any sent messages</div>
+{% endif %}
+{% endblock %}

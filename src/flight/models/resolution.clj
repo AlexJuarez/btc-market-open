@@ -4,7 +4,7 @@
         [flight.db.core])
   (:require
         [flight.validator :as v]
-        [flight.util :as util]))
+        [flight.util.user :as user-util]))
 
 (def actions #{"refund" "extension"})
 
@@ -13,20 +13,20 @@
    (select resolutions
            (with sellers
                 (fields [:alias :seller_alias]))
-           (where {:order_id (util/parse-int order-id)})
+           (where {:order_id order-id})
            (order :created_on :ASC)))
   ([order-id user-id]
    (select resolutions
            (with sellers
                  (fields :alias))
-           (where {:order_id (util/parse-int order-id) :user_id user-id})
+           (where {:order_id order-id :user_id user-id})
            (order :created_on :ASC))))
 
 (defn all-sales [order-id seller-id]
   (select resolutions
           (with users
                 (fields :alias))
-          (where {:order_id (util/parse-int order-id) :seller_id seller-id})
+          (where {:order_id order-id :seller_id seller-id})
           (order :created_on :ASC)))
 
 (defn extension [id days order_id res]
@@ -44,8 +44,8 @@
         seller-amount (- amount user-amount)
         user-audit {:amount user-amount :user_id user_id :role "refund"}
         seller-audit {:amount seller-amount :user_id seller_id :role "refund"}]
-    (util/update-session user_id :orders :sales)
-    (util/update-session seller_id :orders :sales)
+    (user-util/update-session user_id :orders :sales)
+    (user-util/update-session seller_id :orders :sales)
     (if amount
       (transaction
         (update resolutions
@@ -59,8 +59,7 @@
                 (where {:user_id user_id :finalized false :id order_id}))))))
 
 (defn accept [id user-id]
-  (let [id (util/parse-int id)
-        res (first (select resolutions (where {:id id :applied false})))] ;;added a flag to see if the resolution was used
+  (let [res (first (select resolutions (where {:id id :applied false})))] ;;added a flag to see if the resolution was used
       (let [values (if (= (:seller_id res) user-id) {:seller_accepted true} {})
             values (if (= (:user_id res) user-id) (assoc values :user_accepted true) values)]
         (if (or
@@ -78,8 +77,7 @@
 (defn prep [{:keys [action extension refund content]} order-id user-id]
   "prepares content for the resolutions table,
   takes in a map with an action, extension, refund and message"
-  (let [order-id (util/parse-int order-id)
-        order (first (select orders (where {:id order-id})))
+  (let [order (first (select orders (where {:id order-id})))
         seller-id (:seller_id order)
         buyer-id (:user_id order)]
       (let [res {:from user-id
@@ -90,7 +88,7 @@
                  :user_accepted (= user-id buyer-id)
                  :seller_accepted (= user-id seller-id)
                  :action (if (contains? actions action) action)
-                 :value (if (= action "refund") (util/parse-int refund) (util/parse-int extension))
+                 :value (if (= action "refund") refund extension)
                  :order_id order-id}]
         (if (nil? (:value res)) (dissoc res :value) res))))
 

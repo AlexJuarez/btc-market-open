@@ -1,0 +1,122 @@
+{% extends "layout/side-menu.html" %}
+{% block container %}
+{% if not id %}
+<p>User not found</p>
+{% else %}
+<h1 class="jumbo">{{alias}}</h1>
+<a href="/messages/{{id}}">send a message</a>
+{% if not posts|empty? %}
+<div class="user-posts">
+  <div class="title">Updates:</div>
+  <ul>
+    {% for post in posts %}
+    <li>
+      <div class="date">{{post.created_on|freshness}}</div>
+      {{post.content|safe}}
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+<br />
+<br />
+<div class="well sm">
+  has been a member since: <strong title="{{created_on|freshness}}">{{created_on|date:shortDate}}</strong>
+  <br />
+  was last seen: <strong title="{{last_login|date:shortDate}}">{{last_login|freshness}}</strong>
+  <br />
+  {% if ranking %}
+  ranked in the top % of sellers with
+  {% endif %}
+  {{feedback-rating}}% positive feedback from more than {{transactions}} tranactions
+  <br />
+  has {{fans}} {% ifequal fans "1" %}follower{% else %}followers{% endifequal %} - {% if followed %}<a href="/user/{{id}}/unfollow">unfollow</a>{% else %}<a href="/user/{{id}}/follow">follow</a>{% endif %}
+  {% if pub_key_id %}
+  <br />
+  <a target="_blank" href="http://directory4iisquf.onion/key/{{pub_key_id|lower}}">vendor directory lookup</a>
+  {% endif %}
+</div>
+<br />
+<div class="well sm">
+  {% if reported %}
+    <a href="/user/{{id}}/unreport">remove my report</a>
+  {% else %}
+    <a href="/user/{{id}}/report">report this vendor</a>
+  {% endif %}
+</div>
+{% if vendor %}
+  {% if not description|empty? %}
+  <div class="well p markdown">
+    {{description|safe}}
+  </div>
+  {% endif %}
+  {% if not pub_key|empty? %}
+    <div class="well p">
+      <pre id="pgp-key">{{pub_key}}</pre>
+      <p><a href="/user/{{id}}/key">Download Key</a> as ASC file</p>
+    </div>
+  {% endif %}
+{% endif %}
+{% if not listings-all|empty? %}
+<table class="table normal p">
+  <thead>
+    <tr>
+      <th>category</th>
+      <th>item</th>
+      <th>price</th>
+      <th>ships to</th>
+      <th>ships from</th>
+      <th>&nbsp;</th>
+    </tr>
+  </thead>
+  <tfoot>
+  <tr>
+    <td colspan="6">
+      {{page|pagination}}
+    </td>
+  </tr>
+  </tfoot>
+  <tbody>
+{% for listing in listings-all %}
+  <tr>
+    <td><a href="/category/{{listing.category_id}}">{{listing.category_name}}</a></td>
+    <td><a href="/listing/{{listing.id}}">{{listing.title}}</a></td>
+    <td>{{user.currency_symbol|safe}}{{listing.price|double-format:5}}</td>
+    <td>{{listing.to|regions}}</td>
+    <td>{{listing.from|region}}</td>
+    <td><a href="/cart/add/{{listing.id}}">add to cart</a></td>
+  </tr>
+{% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="well">
+  The user does not currently have active public listings
+</div>
+{% endif %}
+{% if not review|empty? %}
+  <table class="reviews table">
+    <thead>
+      <tr>
+        <th>rating</th>
+        <th>Item</th>
+        <th class="large-column">review</th>
+        <th>freshness</th>
+        <th>recieved</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in review %}
+      <tr>
+        <td>{{r.rating}} of 5</td>
+        <td class="item-title"><a href="/listing/{{r.listing_id}}">{{r.title}}</a></td>
+        <td>{{r.content}}</td>
+        <td title="{{r.created_on|date:fullDateTime}}" class="pretty-time">{{r.created_on|date:shortDate}}</td>
+        <td>{% if r.shipped %}received{% else %}no{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endif %}
+{% endif %}
+{% endblock %}

@@ -1,7 +1,6 @@
 (ns flight.db.core
   (:refer-clojure :exclude [update])
   (:use [korma.core]
-        [flight.util.core]
         [flight.db.helpers])
   (:require [korma.db :refer [defdb]]
             [korma.core :refer :all]

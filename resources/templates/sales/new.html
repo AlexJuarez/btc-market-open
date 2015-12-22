@@ -1,0 +1,127 @@
+{% extends "layout/side-menu.html" %}
+{% block links %}
+{% include "links/sales.html" %}
+{% endblock %}
+{% block menu %}
+<div class="title">
+  my sales
+</div>
+<ul class="category-tree">
+  <li>
+    <a class="header" href="/vendor/sales"><span class="category">Overview</span> <span class="count">({{user.sales.total|default:0}})</span></a>
+  </li>
+  <li>
+    <a class="header active" href="/vendor/sales/new"><span class="category">New</span> <span class="count">({{user.sales.new|default:0}})</span></a>
+  </li>
+  <li>
+    <a class="header" href="/vendor/sales/shipped"><span class="category">In Transit</span> <span class="count">({{user.sales.ship|default:0}})</span></a>
+  </li>
+  <li>
+    <a class="header" href="/vendor/sales/resolutions"><span class="category">In Resolution</span> <span class="count">({{user.sales.resolution|default:0}})</span></a>
+  </li>
+  <li>
+    <a class="header" href="/vendor/sales/past"><span class="category">Past</span> <span class="count">({{user.sales.finalize|default:0}})</span></a>
+  </li>
+</ul>
+{% endblock %}
+{% block container %}
+<h1 class="jumbo">New Sales</h1>
+{% if not sales|empty? %}
+<form action="/vendor/sales/new" method="POST">
+  {% csrf-token %}
+  <input class="btn btn-primary" type="submit" name="submit" value="accept" />
+  <input class="btn btn-warn" type="submit" name="submit" value="reject" />
+  <a href="/vendor/sales/new/download?page={{page}}" class="right">download</a>
+  <table class="table sales">
+    <thead>
+      <tr>
+        <th></th>
+        <th>order #</th>
+        <th>item</th>
+        <th>postage type</th>
+        <th>quantity</th>
+        <th>buyer</th>
+        <th>amount</th>
+        <th>fee</th>
+        <th>finalized</th>
+        <th>address</th>
+      </tr>
+    </thead>
+    <tfoot>
+    <tr>
+      <td colspan="7">
+        {{page-info|pagination}}
+      </td>
+    </tr>
+    </tfoot>
+    <tbody>
+    {% for order in sales %}
+    <tr>
+      <td><input type="checkbox" name="check[{{order.id}}]" /></td>
+      <td><a href="/vendor/sale/{{order.id}}">{{order.id}}</a></td>
+      <td><a href="/listing/{{order.listing_id}}">{{order.title}}</a></td>
+      <td>{{order.postage_title}}</td>
+      <td>{{order.quantity}}</td>
+      <td><a href="/user/{{order.user_id}}">{{order.alias}}</a></td>
+      <td>{{user.currency_symbol|safe}}{{order.amount|double-format:5}}</td>
+      <td>{{user.currency_symbol|safe}}{{order.fee|double-format:5}}</td>
+      <td>{{order.finalized}}
+      <td><em>{{order.address}}</em></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</form>
+{% endif %}
+{% if not finalized|empty? %}
+<h1>Finalized sales</h1>
+<form action="/vendor/sales/new" method="POST">
+  {% csrf-token %}
+  <input type="submit" name="submit" value="accept" />
+  <table class="table normal sales">
+    <thead>
+      <tr>
+        <th></th>
+        <th>order #</th>
+        <th>item</th>
+        <th>postage type</th>
+        <th>quantity</th>
+        <th>buyer</th>
+        <th>amount</th>
+        <th>fee</th>
+        <th>finalized</th>
+        <th>address</th>
+      </tr>
+    </thead>
+    <tfoot>
+    <tr>
+      <td colspan="7">
+        {{page-info|pagination}}
+      </td>
+    </tr>
+    </tfoot>
+    <tbody>
+    {% for order in finalized %}
+    <tr>
+      <td><input type="checkbox" name="check[{{order.id}}]" /></td>
+      <td><a href="/vendor/sale/{{order.id}}">{{order.id}}</a></td>
+      <td><a href="/listing/{{order.listing_id}}">{{order.title}}</a></td>
+      <td>{{order.postage_title}}</td>
+      <td>{{order.quantity}}</td>
+      <td><a href="/user/{{order.user_id}}">{{order.alias}}</a></td>
+      <td>{{user.currency_symbol|safe}}{{order.amount|double-format:5}}</td>
+      <td>{{user.currency_symbol|safe}}{{order.fee|double-format:5}}</td>
+      <td>{{order.finalized}}
+      <td><em>{{order.address}}</em></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</form>
+{% endif %}
+{% if finalized|empty? %}
+    {% if sales|empty? %}
+  <p class="well">You don't have any pending sales.</p>
+    {% endif %}
+{% endif %}
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends "layout/side-menu.html" %}
+{% block links %}
+{% include "links/sell.html" %}
+{% endblock %}
+{% block menu %}
+<div class="title">
+  Vendor Dashboard
+</div>
+<ul class="category-tree">
+  <li>
+    <a class="header" href="/vendor/listings"><span class="category">Listings</span></a>
+  </li>
+  <li>
+    <a class="header" href="/vendor/listings/create"><span class="category">Add listing</span></a>
+  </li>
+  <li>
+    <a class="header" href="/vendor/postage/create"><span class="category">Add postage</span></a>
+  </li>
+  <!-- <li>
+    <a class="header" href="/vendor/form/create"><span class="category">create an order form</span></a>
+  </li> -->
+  <li>
+    <a class="header" href="/vendor/news"><span class="category">Manage Followers</span></a>
+  </li>
+  <li>
+    <a class="header" href="/vendor/images"><span class="category">manage images</span></a>
+    <ul>
+      <li><a class="header" href="/vendor/images/upload"><span class="category">upload</span></a></li>
+      <li><a class="header active" href="/vendor/images/edit"><span class="category">edit</span></a></li>
+    </ul>
+  </li>
+</ul>
+{% endblock %}
+{% block container %}
+<div class="images">
+  <h1 class="jumbo">Images</h1>
+  {% if not images|empty? %}
+  <form enctype="multipart/form-data" method="POST">
+  {% csrf-token %}
+  <table class="table normal p">
+    <thead>
+      <tr>
+        <th>id</th>
+        <th>name</th>
+        <th>uploaded on</th>
+        <th>&nbsp;</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for image in images %}
+      <tr>
+        <td>{{image.id}}</td>
+        <td><input type="text" value="{{image.name}}" name="name[{{image.id}}]" class="input" /></td>
+        <td>
+          <span class="pretty-time" title="{{image.created_on|date:fullDateTime}}">
+            {{image.created_on|date:shortDate}}
+          </span>
+        </td>
+        <td>
+          <a href="/vendor/image/{{image.id}}/delete">delete</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div class="form-group">
+    <button type="submit" class="btn btn-primary">submit</button>
+  </div>
+  </form>
+  {% else %}
+    You do not currently have any hosted images
+  {% endif %}
+</div>
+{% endblock %}

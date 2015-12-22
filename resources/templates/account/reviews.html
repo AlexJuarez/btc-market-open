@@ -1,0 +1,76 @@
+{% extends "layout/side-menu.html" %}
+{% block links %}
+{% include "links/settings.html" %}
+{% endblock %}
+{% block settings %}
+{% include "layout/settings.html" %}
+{% endblock %}
+{% block menu %}
+<div class="title">
+  Account
+</div>
+<ul class="category-tree">
+  <li>
+    <a class="header" href="/account"><span class="category">settings</span></a>
+  </li>
+  <li>
+    <a class="header" href="/account/pgp"><span class="category">pgp</span></a>
+  </li>
+  <li>
+    <a class="header" href="/account/wallet"><span class="category">wallet</span></a>
+  </li>
+  <li>
+    <a class="header" href="/account/favorites"><span class="category">favorites</span></a>
+  </li>
+  <li>
+    <a class="header active" href="/account/reviews"><span class="category">reviews</span></a>
+  </li>
+  <li>
+    <a class="header" href="/account/password"><span class="category">change password</span></a>
+  </li>
+</ul>
+{% endblock %}
+{% block container %}
+<h1 class="jumbo">Reviews</h1>
+{% if success %}
+  <div class="success">{{success}}</div>
+{% endif %}
+{% if not reviews|empty? %}
+<h3>reviews</h3>
+<table class="table normal p">
+  <thead>
+    <tr>
+      <th>item</th>
+      <th>message</th>
+      <th>rating</th>
+      <th>received</th>
+      <th>freshness</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tfoot>
+  <tr>
+    <td colspan="7">
+      {{page|pagination}}
+    </td>
+  </tr>
+  </tfoot>
+  <tbody>
+  {% for review in reviews %}
+    <tr>
+      <td><a href="/listing/{{review.listing_id}}">{{review.title}}</a></td>
+      <td>{{review.content}}</td>
+      <td>{{review.rating}}</td>
+      <td>{% if review.shipped %}yes{% else %}no{% endif %}</td>
+      <td><strong class="pretty-time" title="{{review.created_on|date:fullDateTime}}">{{review.created_on|date:shortDate}}</strong></td>
+      <td><a href="/review/{{review.id}}/edit">edit</a></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="well">
+You can only see reviews that you have authored in the last 4 months. No reviews were found.
+</p>
+{% endif %}
+{% endblock %}

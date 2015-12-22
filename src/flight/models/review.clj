@@ -2,19 +2,16 @@
   (:refer-clojure :exclude [get])
   (:use [korma.db :only (transaction)]
         [korma.core]
-        [flight.db.core])
-  (:require
-        [flight.validator :as v]
-        [flight.util :as util]))
+        [flight.db.core]))
 
 (defn get [id user-id]
   (first (select reviews
           (with listings (fields :title))
-          (where {:id (util/parse-int id) :user_id user-id}))))
+          (where {:id id :user_id user-id}))))
 
 (defn all [listing-id page per-page]
   (select reviews
-          (where {:listing_id (util/parse-int listing-id)})
+          (where {:listing_id listing-id})
           (order :created_on :asc)
           (offset (* (- page 1) per-page))
           (limit per-page)))
@@ -23,7 +20,7 @@
   (select reviews
           (with listings
                 (fields :title))
-          (where {:user_id (util/parse-int user-id)})
+          (where {:user_id user-id})
           (offset (* (- page 1) per-page))
           (limit per-page)))
 
@@ -31,23 +28,22 @@
   (select reviews
           (with listings
                 (fields :title))
-          (where {:seller_id (util/parse-int user-id)})
+          (where {:seller_id user-id})
           (limit 20)))
 
 (defn prep [{:keys [order_id rating content shipped]} user-id order-info]
-  (if-let [order-info (order-info (util/parse-int order_id))]
-    {:order_id (util/parse-int order_id)
+  (if-let [order-info (order-info order_id)]
+    {:order_id order_id
      :published true
      :seller_id (:seller_id order-info)
      :listing_id (:listing_id order-info)
-     :rating (max 0 (min 5 (util/parse-int rating)))
+     :rating (max 0 (min 5 rating))
      :content content
      :shipped (= "true" shipped)
      :user_id user-id}))
 
 (defn update! [id {:keys [rating shipped content]} user_id]
-  (let [id (util/parse-int id)
-        rating (max 0 (min 5 (util/parse-int rating)))
+  (let [rating (max 0 (min 5 rating))
         shipped (= "true" shipped)]
     (update reviews
             (set-fields {:rating rating :shipped shipped :content content})

@@ -4,9 +4,7 @@
         [korma.core]
         [flight.db.core])
   (:require
-   [flight.validator :as v]
-   [hiccup.util :as hc]
-   [flight.util :as util]))
+   [hiccup.util :as hc]))
 
 (def per-page 25)
 
@@ -32,37 +30,29 @@
   (first (select posts
                  (with users
                        (fields :alias))
-                 (where {:id (util/parse-int id)}))))
+                 (where {:id id}))))
 
 (defn store! [slug]
   (insert posts (values slug)))
 
-(defn prep [{:keys [subject content public published]}]
-  {:subject subject
-   :content (hc/escape-html content)
-   :published (= published "true")
-   :public (= public "true")})
+(defn prep [{:keys [subject content public published] :as item}]
+  (merge item
+         {:content (hc/escape-html content)}))
 
 (defn remove! [id user-id]
   (delete posts
-          (where {:user_id user-id :id (util/parse-int id)})))
+          (where {:user_id user-id :id id})))
 
 (defn add! [slug user-id]
-  (let [check (v/news-validator slug)]
-    (if (empty? check)
-      (-> slug prep (assoc :user_id user-id) store!)
-      (conj {:errors check} slug))))
+  (-> slug prep (assoc :user_id user-id) store!))
 
 (defn publish! [id user-id]
   (update posts
           (set-fields {:published true})
-          (where {:user_id user-id :id (util/parse-int id)})))
+          (where {:user_id user-id :id id})))
 
 (defn update! [slug user-id]
-  (let [check (v/news-validator slug)
-        post (-> slug prep (assoc :updated_on (raw "now()")))]
-    (if (empty? check)
+  (let [post (-> slug prep (assoc :updated_on (raw "now()")))]
       (update posts
               (set-fields post)
-              (where {:user_id user-id :id (util/parse-int (:id slug))}))
-      (conj {:errors check} slug))))
+              (where {:user_id user-id :id (:id slug)}))))

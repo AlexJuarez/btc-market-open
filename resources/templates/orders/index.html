@@ -1,0 +1,106 @@
+{% extends "layout/side-menu.html" %}
+{% block links %}
+    {% include "links/orders.html" %}
+{% endblock %}
+{% block container %}
+<h1 class="jumbo">Orders</h1>
+{% if not pending-review|empty? %}
+<form method="post">
+  {% csrf-token %}
+  <table class="table">
+    <thead>
+        <th>order #</th>
+      <th>item</th>
+      <th>seller</th>
+      <th>rating</th>
+      <th>did you receive the item?</th>
+      <th>additional comments</th>
+    </thead>
+    <tbody>
+      {% for order in pending-review %}
+      <tr>
+        <td><a href="/order/{{order.id}}">{{order.id}}</a></td>
+        <td><a href="/listing/{{order.listing_id}}">{{order.title}}</a></td>
+        <td><a href="/user/{{order.seller_id}}">{{order.alias}}</a></td>
+        <td>
+          <label><input type="radio" name="rating[{{order.id}}]" value="1" /> 1</label>
+          <label><input type="radio" name="rating[{{order.id}}]" value="2" /> 2</label>
+          <label><input type="radio" name="rating[{{order.id}}]" value="3" /> 3</label>
+          <label><input type="radio" name="rating[{{order.id}}]" value="4" /> 4</label>
+          <label><input type="radio" checked name="rating[{{order.id}}]" value="5" /> 5</label>
+        </td>
+        <td>
+          <label><input type="radio" name="shipped[{{order.id}}]" value="true" /> yes</label>
+          <label><input type="radio" name="shipped[{{order.id}}]" value="false" /> no</label>
+        </td>
+        <td>
+          <textarea class="form-control" name="content[{{order.id}}]"></textarea>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p>
+    <span class="submit">
+      <input type="submit" class="btn" value="submit" />
+    </span>
+  </p>
+</form>
+{% endif %}
+{% if not orders|empty? %}
+<table class="table normal">
+  <thead>
+    <tr>
+      <th>order #</th>
+      <th>item</th>
+      <th>quantity</th>
+      <th>seller</th>
+      <th>status</th>
+      <th>hedged</th>
+      <th>auto finalize</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for order in orders %}
+  <tr>
+    <td><a href="/order/{{order.id}}">{{order.id}}</a></td>
+    <td><a href="/listing/{{order.listing_id}}">{{order.title}}</a></td>
+    <td>{{order.quantity}}</td>
+    <td><a href="/user/{{order.seller_id}}">{{order.alias}}</a></td>
+    <td><em>{{order.status|status}}</em></td>
+    <td>{% if order.hedged %}hedged{% else %}unhedged{% endif %}</td>
+    <td>
+      {% if order.status = 0 %}
+        N/A
+      {% else %}
+        <span title="{{order.auto_finalize|date:fullDateTime}}" class="pretty-time">{{order.auto_finalize|date:shortDate}}</span>
+      {% endif %}
+    </td>
+    <td>
+      {% if order.arbitration %}
+        <em>awaiting arbitration</em>
+      {% else %}
+        {% if order.status = 2 %}<a href="/order/{{order.id}}">resolution page</a>{% else %}
+          {% if order.status = 0 %}
+            {% if not order.finalized %}
+            <a href="/order/{{order.id}}/cancel">cancel</a>
+            | <a href="/order/{{order.id}}/finalize">finalize</a>
+            {% else %}
+            <em>finalized</em>
+            {% endif %}
+          {% else %}
+            {% if order.resolve %}
+            <a href="/order/{{order.id}}/resolve">resolve</a> {% else %} <em>resolve</em> {% endif %} | <a href="/order/{{order.id}}/finalize">finalize<a>
+            {% endif %}
+        {% endif %}
+      {% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+  <p class="well">You don't have any pending orders.</p>
+{% endif %}
+{% endblock %}

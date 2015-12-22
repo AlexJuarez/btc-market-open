@@ -1,0 +1,188 @@
+{% extends "layout/side-menu.html" %}
+{% block links %}
+{% include "links/wallet.html" %}
+{% endblock %}
+{% block menu %}
+<div class="title">
+  Account
+</div>
+<ul class="category-tree">
+  <li>
+    <a class="header" href="/account"><span class="category">settings</span></a>
+  </li>
+  <li>
+    <a class="header" href="/account/pgp"><span class="category">pgp</span></a>
+  </li>
+  <li>
+    <a class="header active" href="/account/wallet"><span class="category">wallet</span></a>
+  </li>
+  <li>
+    <a class="header" href="/account/favorites"><span class="category">favorites</span></a>
+  </li>
+  <li>
+    <a class="header" href="/account/reviews"><span class="category">reviews</span></a>
+  </li>
+  <li>
+    <a class="header" href="/account/password"><span class="category">change password</span></a>
+  </li>
+</ul>
+{% endblock %}
+{% block container %}
+<h1 class="jumbo">Wallet</h1>
+<p>
+  <strong>availible: </strong>&#3647;{{user.btc}} {% if balance %}(~{{user.currency_symbol|safe}}{{user.balance|double-format:2}}){% endif %}
+  <br>
+  <strong>Bitcoin address:</strong> <span class="bitcoin-address">{{user.wallet}}</span>
+  <br>
+  <a href="/account/wallet/new">generate a new address</a>
+</p>
+<hr/>
+<h3>Wallet Pin</h3>
+<div class="p">
+  {% if not user.pin %}
+  <h4>You need to create a pin to preform a purchase or withdrawal.</h4>
+  <form method="post">
+    {% csrf-token %}
+    <table class="input-table">
+      <tbody>
+        <tr>
+          <td><label for="pin">New Pin: </label></td>
+          <td {% if not errors.pin|empty? %}class="has-error"{% endif %}>
+            <input id="pin" class="input" type="text" name="pin" placeholder="New Pin" />
+            {% if errors.pin %}
+              {{errors.pin|join:", "}}
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <td><label for="confirmpin">Confirm Pin: </label></td>
+          <td {% if not errors.confirmpin|empty? %}class="has-error"{% endif %}>
+            <input id="confirmpin" class="input" type="text" name="confirmpin" placeholder="Confirm Pin" />
+            {% if errors.confirmpin %}
+              {{errors.confirmpin|join:", "}}
+            {% endif %}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <button type="submit" class="btn btn-gray">Create Pin</button>
+  </form>
+  {% else %}
+  <h4>Enter your old pin, and a new pin to change your pin
+  {% if pin-success %}
+    - <span class="success">{{pin-success}}</span>
+  {% endif %}
+  </h4>
+  <form method="post">
+    {% csrf-token %}
+    <table class="input-table">
+      <tbody>
+        <tr>
+          <td><label for="oldpin">Old Pin: </label></td>
+          <td {% if not pinerrors.oldpin|empty? %}class="has-error"{% endif %}>
+          <input id="oldpin" class="input" type="text" name="oldpin" placeholder="Current Pin" />
+          {% if pinerrors.oldpin %}
+            {{pinerrors.oldpin|join:", "}}
+          {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <td><label for="pin">New Pin: </label></td>
+          <td {% if not pinerrors.pin|empty? %}class="has-error"{% endif %}>
+          <input id="pin" class="input" type="text" name="pin"  placeholder="New Pin" />
+          {% if pinerrors.pin %}
+            {{pinerrors.pin|join:", "}}
+          {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <td><label for="confirmpin">Confirm Pin: </label></td>
+          <td {% if not pinerrors.confirmpin|empty? %}class="has-error"{% endif %}>
+          <input id="confirmpin" class="input" type="text" name="confirmpin" placeholder="Confirm Pin" />
+          {% if pinerrors.confirmpin %}
+            {{pinerrors.confirmpin|join:", "}}
+          {% endif %}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <button type="submit" class="btn btn-gray">Update</button>
+  </form>
+  {% endif %}
+</div>
+<hr/>
+<h3>Withdraw Funds</h3>
+<div class="p">
+  {% if user.btc >= 0 %}
+    <form method="post">
+      {% csrf-token %}
+      <table class="input-table">
+        <tbody>
+          <tr>
+            <td>
+              <label for="amount">Amount:</label>
+            </td>
+            <td {% if not errors.amount|empty? %}class="has-error"{% endif %}>
+              <input id="amount" class="input" type="text" name="amount" value="{{amount}}" />
+              {% if errors.amount %}
+                {{errors.amount|join:", "}}
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label for="bitcoin-address">Bitcoin Address: </label>
+            </td>
+            <td {% if not errors.address|empty? %}class="has-error"{% endif %}>
+            <input id="bitcoin-address" class="input btc-address" type="text" name="address" value="{{address}}" />
+            {% if errors.address %}
+              {{errors.address|join:", "}}
+            {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label for="widthdrawl-pin">Pin: </label>
+            </td>
+            <td {% if not errors.pin|empty? %}class="has-error"{% endif %}>
+            <input id="widthdrawl-pin" class="input" type="text" name="pin" />
+            {% if errors.pin %}
+            {{errors.pin|join:", "}}
+            {% endif %}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <button type="submit" class="btn btn-gray">Withdraw</button>
+    </form>
+  {% else %}
+    insufficient funds
+  {% endif %}
+</div>
+<hr/>
+<h3>Recent Transactions</h3>
+{% if not transactions|empty? %}
+<table class="table normal p">
+  <thead>
+    <tr>
+      <th>amount</th>
+      <th>note</th>
+      <th>date</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for transaction in transactions %}
+    <tr {% if transaction.amount > 0 %}class="gain"{% else %}class="loss"{% endif %}>
+      <td>{{transaction.amount}}</td>
+      <td>{{transaction.role}}</td>
+      <td>{{transaction.created_on|date:shortDate}}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="well">
+  no recent transactions
+</p>
+{% endif %}
+{% endblock %}

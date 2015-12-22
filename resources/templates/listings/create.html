@@ -1,0 +1,149 @@
+{% extends "layout/side-menu.html" %}
+{% block links %}
+{% include "links/sell.html" %}
+{% endblock %}
+{% block menu %}
+<div class="title">
+  Vendor Dashboard
+</div>
+<ul class="category-tree">
+  <li>
+    <a class="header" href="/vendor/listings"><span class="category">Listings</span></a>
+  </li>
+  <li>
+    <a class="header active" href="/vendor/listings/create"><span class="category">Add listing</span></a>
+  </li>
+  <li>
+    <a class="header" href="/vendor/postage/create"><span class="category">Add postage</span></a>
+  </li>
+  <!-- <li>
+    <a class="header" href="/vendor/form/create"><span class="category">create an order form</span></a>
+  </li> -->
+  <li>
+    <a class="header" href="/vendor/news"><span class="category">Manage Followers</span></a>
+  </li>
+  <li>
+    <a class="header" href="/vendor/images"><span class="category">manage images</span></a>
+  </li>
+</ul>
+{% endblock %}
+{% block container %}
+<h1 class="jumbo">{% if edit %}Listing Edit{% else %}Listing Create{% endif %} {% if success %}- {% endif %}<span class="success">{{success}}</span></h1>
+<form enctype="multipart/form-data" method="post">
+  {% csrf-token %}
+  <div class="image">
+  {% if image_id %}
+    {% image image_id %}
+  {% else %}
+    <div class="placeholder">
+      400<em>px</em> x 300<em>px</em>
+    </div>
+  {% endif %}
+  </div>
+  <div class="top form-group {% if errors.title %}has-error{% endif %}">
+    <label for="title">Title:
+      {% if errors.title %}
+      {{errors.title|join:", "}}
+      {% endif %}
+    </label>
+    <input name="title" id="title" class="form-control" type="text" value="{{title}}" />
+  </div>
+  <div class="well top">
+    <div class="form-group">
+      <label>Upload a Image (.jpg):</label>
+      <div>
+        <input type="file" name="image" accept="image/jpeg" />
+      </div>
+    </div>
+    {% if images %}
+    <div class="form-group">
+      <label for="images">Select an image:</label>
+      <div> 
+        <select id="images" name="image_id">
+        <option value {% if not image_id %}selected="selected"{% endif %}>None</option>
+        {% for image in images %}
+        <option {% ifequal image_id image.id %}selected="selected"{% endifequal %} value="{{image.id}}">
+        {% if image.name %}
+        {{image.name}}
+        {% else %}
+        {{image.id}}
+        {% endif %}
+        </option>
+        {% endfor %}
+        </select>
+        <a target="_blank" href="/vendor/images">manage images</a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+  <div class="clear-float"></div>
+  <div class="form-group public">
+      <label for="public">Public?</label>
+      <div> 
+        <input id="public" type="checkbox" {% if public %}checked="checked"{% endif %}  name="public" value="true">
+        (check for yes)
+      </div>
+  </div>
+  <div class="form-group hedged">
+      <label for="hedged">Hedged?</label>
+      <div> 
+        <input id="hedged" type="checkbox" name="hedged" {% if hedged %}checked="checked"{% endif %} value="true">
+        (check for yes)
+      </div>
+  </div>
+  <div class="form-group">
+    <label for="category_id">Category: </label>
+    <select id="category_id" name="category_id">
+      {% for category in categories %}
+      <option value="{{category.id}}" {% ifequal category.id category_id %}selected="selected"{% endifequal %}>{{category.name}}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="form-group{% if errors.price %} has-error{% endif %}">
+    <label for="price" title="Must be greater than {{user.currency_symbol|safe}}{{min-price}}">
+    Price: 
+    <input name="price" id="price" class="input" type="text" value="{{price}}" />
+    </label>
+    <select title="currency" name="currency_id" id="currency_id">
+      {% for currency in currencies %}
+      <option value="{{currency.id}}" {% if currency_id %}{% ifequal currency.id currency_id %}selected="selected"{% endifequal %}{% else %}{% ifequal currency.id user.currency_id %}selected="selected"{% endifequal %}{% endif %}>{{currency.name}}</option>
+      {% endfor %}
+    </select>
+    {% if errors.currency_id %}
+    {{errors.currency_id|join:", "}}
+    {% endif %}
+    {% if errors.price  %}
+    {{errors.price|join:", "}}
+    {% endif %}
+  </div>
+  <div class="form-group{% if errors.quantity %} has-error{% endif %}">
+    <label for="quantity">Quantity:
+      <input type="number" class="input" name="quantity" value="{{quantity}}" id="quantity" />
+      {% if errors.quantity %}
+        {{errors.quantity|join:", "}}
+      {% endif %}
+    </label>
+  </div>
+  <div class="form-group">
+    <label for="ships_from">Ships from:</label>
+    <select id="ships_from" name="from">
+      {% for region in regions %}
+      <option value="{{region.id}}" {% ifequal region.id from %}selected="selected"{% endifequal %}>{{region.name}}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="ships_to">Ships to:</label>
+    <select id="ships_to" name="to[]" size="10" multiple>
+      {% shipping-selectors regions to recent %}
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="description">Description:</label>
+    <textarea id="description" class="form-control" rows="4" name="description">{{description|safe}}</textarea>
+  </div>
+  <div class="form-group">
+    <button type="submit" class="btn btn-primary">{% if id %}update{% else %}create{% endif %}</button>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "layout/side-menu.html" %}
+{% block links %}
+{% include "links/settings.html" %}
+{% endblock %}
+{% block settings %}
+{% include "layout/settings.html" %}
+{% endblock %}
+{% block menu %}
+<div class="title">
+  Account
+</div>
+<ul class="category-tree">
+  <li>
+    <a class="header" href="/account"><span class="category">settings</span></a>
+  </li>
+  <li>
+    <a class="header active" href="/account/pgp"><span class="category">pgp</span></a>
+  </li>
+  <li>
+    <a class="header" href="/account/wallet"><span class="category">wallet</span></a>
+  </li>
+  <li>
+    <a class="header" href="/account/favorites"><span class="category">favorites</span></a>
+  </li>
+  <li>
+    <a class="header" href="/account/reviews"><span class="category">reviews</span></a>
+  </li>
+  <li>
+    <a class="header" href="/account/password"><span class="category">change password</span></a>
+  </li>
+</ul>
+{% endblock %}
+{% block container %}
+<h1 class="jumbo">Public Key Management</h1>
+<form enctype="multipart/form-data" method="POST">
+  {% csrf-token %}
+  {% if message %}<span class="success">{{message}}</span>{% endif %}
+  <div class="form-group">
+    <label for="pub-key">Public Key:
+    {% if errors.pub_key %}
+      <span class="error">
+        {{errors.pub_key}}
+      </span>
+    {% endif %}
+    </label>
+    <textarea id="pub-key" class="form-control" rows="14" name="pub_key">{% if pub_key %}{{pub_key}}{% else %}{{user.pub_key}}{% endif %}</textarea>
+  </div>
+  <div class="form-group">
+    <button type="submit" class="btn btn-primary">update</button>
+  </div>
+</form>
+{% endblock %}

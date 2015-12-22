@@ -1,0 +1,88 @@
+{% extends "layout/side-menu.html" %}
+{% block links %}
+{% include "links/sales.html" %}
+{% endblock %}
+{% block menu %}
+<div class="title">
+  my sales
+</div>
+<ul class="category-tree">
+  <li>
+    <a class="header active" href="/vendor/sales"><span class="category">Overview</span> <span class="count">({{user.sales.total|default:0}})</span></a>
+  </li>
+  <li>
+    <a class="header" href="/vendor/sales/new"><span class="category">New</span> <span class="count">({{user.sales.new|default:0}})</span></a>
+  </li>
+  <li>
+    <a class="header" href="/vendor/sales/shipped"><span class="category">In Transit</span> <span class="count">({{user.sales.ship|default:0}})</span></a>
+  </li>
+  <li>
+    <a class="header" href="/vendor/sales/resolutions"><span class="category">In Resolution</span> <span class="count">({{user.sales.resolution|default:0}})</span></a>
+  </li>
+  <li>
+    <a class="header" href="/vendor/sales/past"><span class="category">Past</span> <span class="count">({{user.sales.finalize|default:0}})</span></a>
+  </li>
+</ul>
+{% endblock %}
+{% block container %}
+<h1 class="jumbo">Sales Overview</h1>
+{% if not sales|empty? %}
+<table class="table">
+  <thead>
+    <tr>
+      <th>order #</th>
+      <th>item</th>
+      <th>postage type</th>
+      <th>quantity</th>
+      <th>buyer</th>
+      <th>freshness</th>
+      <th>status</th>
+    </tr>
+  </thead>
+  <tfoot>
+  <tr>
+    <td colspan="7">
+      {{page|pagination}}
+    </td>
+  </tr>
+  </tfoot>
+  <tbody>
+  {% for order in sales %}
+  <tr>
+    <td><a href="/vendor/sale/{{order.id}}">{{order.id}}</a></td>
+    <td><a href="/listing/{{order.listing_id}}">{{order.title}}</a></td>
+    <td>{{order.postage_title}}</td>
+    <td>{{order.quantity}}</td>
+    <td><a href="/user/{{order.user_id}}">{{order.alias}}</a></td>
+    <td>
+      {% if order.updated_on %}
+        <span class="pretty-time" title="{{listing.updated_on|date:fullDateTime}}">
+          {{order.updated_on|date:shortDate}}
+        </span>
+      {% else %}
+        <span class="pretty-time" title="{{listing.created_on|date:fullDateTime}}">
+          {{order.created_on|date:shortDate}}
+        </span>
+      {% endif %}
+    </td>
+    <td>
+      {% if order.arbitration %}
+      <em>awaiting arbitration</em>
+      {% else %}
+        {% ifequal order.status "2" %}
+          <a href="/vendor/sale/{{order.id}}">
+            {{order.status|status}}
+          </a>
+        {% else %}
+          <em> {{order.status|status}}</em>
+        {% endifequal %}
+      {% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+  <p class="well">No sales to display.</p>
+{% endif %}
+{% endblock %}

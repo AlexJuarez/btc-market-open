@@ -78,9 +78,9 @@
     (mem/delete key)))
 
 (defmacro cache! [key & forms]
-  (let [value# (get ~key)]
-    (if (nil? value#)
-      (let [v# (do ~@forms)]
-        (set ~key v#)
-        v#)
-      value#)))
+  `(let [value# (get ~key)]
+     (if (nil? value#)
+       (let [v# (do ~@forms)]
+         (set ~key v#)
+         v#)
+       value#)))

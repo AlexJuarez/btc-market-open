@@ -1,0 +1,15 @@
+<nav class="links">
+  <a  href="/">Market</a>
+  {% if user.logged_in %}
+  <a href="/messages">Inbox ({{user.messages.unread}})</a>
+  <a href="/orders">Orders ({{user.orders}})</a>
+  {% if user.vendor %}
+  <a href="/vendor/sales">Sold ({{user.sales.total}})</a>
+  <a href="/vendor/listings">Sell ({{user.listings}})</a>
+  {% endif %}
+  <a href="/account/wallet">Wallet {{user.currency_symbol|safe}}{{user.balance|double-format:4}}</a>
+  {% if user.mod %}
+  <a href="/moderate">Mod</a>
+  {% endif %}
+  {% endif %}
+</nav>

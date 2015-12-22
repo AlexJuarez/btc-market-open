@@ -1,0 +1,66 @@
+{% extends "layout/side-menu.html" %}
+{% block links %}
+{% include "links/mod.html" %}
+{% endblock %}
+{% block content %}
+<div class="mod">
+<h1 class="jumbo">Support</h1>
+<div class="p">
+  <strong>ticket id#:</strong><span> {{id}}, created </span><span title="{{ticket.created_on|date:shortDate}}">{{ticket.created_on|freshness}}</span>
+  <br />
+  <strong>Subject:</strong> <span>{{ticket.subject}}</span>
+  <p>
+    {{ticket.content}}
+  </p>
+</div>
+{% if not messages|empty? %}
+<a class="right" href="/messages/{{user_id}}/download">download thread</a>
+<table class="table thread">
+  <thead>
+  <tr>
+    <th>from</th>
+    <th class="large-column">message</th>
+    <th>freshness</th>
+    <th>&nbsp;</th>
+  </tr>
+  </thead>
+  <tbody>
+  {% for message in messages %}
+  <tr>
+    <td>
+      {% ifequal user.id message.sender_id %}
+      <span class="sender">{{user.alias}}</span>
+      {% else %}
+      <a href="/user/{{message.sender_id}}" class="sender">{{message.user_alias}}</a>
+      {% endifequal %}
+    </td>
+    <td>
+      {% if not message.subject|empty? %}
+      <div class="header">
+        <strong class="subject">Subject: {{message.subject}}</strong>
+      </div>
+      {% endif %}
+      <pre class="content">{{message.content}}</pre>
+    </td>
+    <td><span title="{{message.created_on|date:fullDateTime}}" class="pretty-time">{{message.create_on|date:shortDate}}</span></td>
+    <td>{% ifequal message.user_id user.id %}<a href="/message/{{message.id}}/delete">delete</a>{% endifequal %}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% if ticket.alias %}
+<form method="POST">
+  <p>Compose a message to: <a href="/user/{{ticket.alias}}">{{ticket.alias}}</a></p>
+  {% if errors.content %}
+  <p>{{errors.content|join:", "}}</p>
+  {% endif %}
+  <p>
+    <textarea rows="6" name="content" class="form-control">{{content}}</textarea>
+  </p>
+  <input type="submit" class="btn btn-primary p" value="send" />
+  {% csrf-token %}
+</form>
+{% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends "layout/side-menu.html" %}
+{% block links %}
+  {% include "links/messages.html" %}
+{% endblock %}
+{% block menu %}
+  <div class="title">
+    My messages
+  </div>
+  <ul class="category-tree">
+    <li>
+      <a class="header active" href="/messages"><span class="category">Inbox</span> <span class="count">({{user.messages.unread}})</span></a>
+    </li>
+    <li>
+      <a class="header" href="/messages/sent"><span class="category">Sent</span></a>
+    </li>
+  </ul>
+{% endblock %}
+{% block container %}
+<div class="inbox">
+  <h1 class="jumbo">Inbox</h1>
+</div>
+{% if not messages|empty? %}
+<table class="table normal messages">
+  <thead>
+  <tr>
+    <th>from</th>
+    <th>subject</th>
+    <th>freshness</th>
+    <th>&nbsp;</th>
+  </tr>
+  </thead>
+  <tfoot>
+  <tr>
+    <td colspan="4">
+      {{page|pagination}}
+    </td>
+  </tr>
+  </tfoot>
+  <tbody>
+  {% for message in messages %}
+  <tr class="message">
+    <td>
+      {% if message.feedback_id %}
+      <span class="support">Support Staff</span>
+      {% else %}
+      <span class="sender">{{message.user_alias}}</span>
+      {% endif %}
+    </td>
+    <td>{% if message.subject %}{{message.subject}}{% else %}no subject{% endif %}</td>
+    <td><span title="{{message.created_on|date:fullDateTime}}" class="age pretty-time">{{message.created_on|date:shortDate}}</span></td>
+    <td>
+      {% if message.feedback_id %}
+      <span class="subject"><a href="/messages/support/{{message.feedback_id}}">read</a></span>
+      {% else %}
+      {% if message.read %}
+      <span class="subject"><a href="/messages/{{message.sender_id}}">read</a></span>
+      {% else %}
+          <span class="subject">
+            <strong><a href="/messages/{{message.sender_id}}">read</a></strong>
+          </span>
+      {% endif %}
+      {% endif %}
+      | <a href="/message/{{message.id}}/delete">delete</a>
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="well">You do not have any messages</div>
+{% endif %}
+{% if not news|empty? %}
+<h2>News from followed vendors</h2>
+<table class="table normal messages">
+  <thead>
+  <tr>
+    <th>from</th>
+    <th>subject</th>
+    <th>freshness</th>
+    <th>&nbsp;</th>
+  </tr>
+  </thead>
+  <tbody>
+  {% for article in news %}
+  <tr class="message">
+    <td>
+      <a href="/user/{{article.alias}}">{{article.alias}}</a>
+    </td>
+    <td><a href="/news/{{article.id}}">{{article.subject}}</a></td>
+    <td><span title="{{article.created_on|date:fullDateTime}}" class="age pretty-time">{{article.created_on|freshness}}</span></td>
+    <td><a href="/news/{{article.id}}">read</a></td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% endblock %}

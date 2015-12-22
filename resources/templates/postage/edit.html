@@ -1,0 +1,59 @@
+{% extends "layout/side-menu.html" %}
+{% block links %}
+{% include "links/sell.html" %}
+{% endblock %}
+{% block menu %}
+<div class="title">
+  Vendor Dashboard
+</div>
+<ul class="category-tree">
+  <li>
+    <a class="header" href="/vendor/listings"><span class="category">Listings</span></a>
+  </li>
+  <li>
+    <a class="header" href="/vendor/listings/create"><span class="category">Add listing</span></a>
+  </li>
+  <li>
+    <a class="header active" href="/vendor/postage/create"><span class="category">Add postage</span></a>
+  </li>
+  <!-- <li>
+    <a class="header" href="/vendor/form/create"><span class="category">create an order form</span></a>
+  </li> -->
+  <li>
+    <a class="header" href="/vendor/news"><span class="category">Manage Followers</span></a>
+  </li>
+  <li>
+    <a class="header" href="/vendor/images"><span class="category">manage images</span></a>
+  </li>
+</ul>
+{% endblock %}
+{% block container %}
+<form action="/postage/{{id}}/edit" method="POST">
+  {% csrf-token %}
+  <p>
+    {% if errors.title %}
+    <p>{{errors.title|join:", "}}</p>
+    {% endif %}
+    <label for="title">Title</label>
+    <input name="title" id="title" class="input" type="text" value="{{title}}" />
+  </p>
+  <p {% if errors.price %}class="errors"{% endif %}>
+    <label for="price">Price: </label>
+    <input name="price" id="price" class="input" type="text" value="{{price}}" />
+    {% if errors.price  %}
+      {{errors.price|join:", "}}
+    {% endif %}
+  </p>
+  <p>
+    <label for="currency_id">Currency: </label>
+    <select name="currency_id" id="currency_id">
+      {% for currency in currencies %}
+      <option value="{{currency.id}}" {% ifequal currency.id currency_id %}selected="selected"{% endifequal %}>{{currency.name}}</option>
+      {% endfor %}
+    </select>
+  </p>
+  <span class="submit">
+    <input type="submit" class="btn" value="update" />
+  </span>
+</form>
+{% endblock %}
