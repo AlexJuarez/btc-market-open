@@ -3,7 +3,7 @@
          [korma.core]
          [flight.db.core])
   (:require
-   [flight.util.user :as user-util]))
+   [flight.util.core :as util]))
 
 (defn prep [order_id slug user-id]
   (let [order (first (select orders
@@ -55,8 +55,8 @@
         seller-amount (- amount user-amount)
         user-audit {:amount user-amount :user_id user_id :role "refund"}
         seller-audit {:amount seller-amount :user_id seller_id :role "refund"}]
-    (user-util/update-session user_id :orders :sales)
-    (user-util/update-session seller_id :orders :sales)
+    (util/update-session user_id :orders :sales)
+    (util/update-session seller_id :orders :sales)
     (if amount
       (transaction
         (insert audits (values [user-audit seller-audit]))

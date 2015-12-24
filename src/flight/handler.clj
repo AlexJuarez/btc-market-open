@@ -7,6 +7,7 @@
             [flight.env :refer [env]]
             [flight.layout :refer [error-page]]
             [flight.middleware :as middleware]
+            [flight.routes.core :refer [core-routes]]
             [flight.routes.home :refer [home-routes]]
             [mount.core :as mount]
             [selmer.parser :as parser]
@@ -51,6 +52,7 @@
 (def app-routes
   (routes
     (wrap-routes #'home-routes middleware/wrap-csrf)
+    (wrap-routes #'core-routes middleware/wrap-csrf)
     (route/not-found
       (:body
         (error-page {:status 404

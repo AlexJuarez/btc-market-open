@@ -15,7 +15,7 @@
   (map #(get-in context-map (parse-args %)) args))
 
 (defn- data-file [route]
-  (if-let [path (io/resource route)]
+  (if-let [path (io/resource "public" route)]
   (slurp
    (io/file path))
     ""))

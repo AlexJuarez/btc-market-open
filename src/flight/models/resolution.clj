@@ -3,8 +3,7 @@
         [korma.core]
         [flight.db.core])
   (:require
-        [flight.validator :as v]
-        [flight.util.user :as user-util]))
+        [flight.validator :as v]))
 
 (def actions #{"refund" "extension"})
 
@@ -44,8 +43,8 @@
         seller-amount (- amount user-amount)
         user-audit {:amount user-amount :user_id user_id :role "refund"}
         seller-audit {:amount seller-amount :user_id seller_id :role "refund"}]
-    (user-util/update-session user_id :orders :sales)
-    (user-util/update-session seller_id :orders :sales)
+    (util/update-session user_id :orders :sales)
+    (util/update-session seller_id :orders :sales)
     (if amount
       (transaction
         (update resolutions

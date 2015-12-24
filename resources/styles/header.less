@@ -1,0 +1,183 @@
+/*
+ * header styling
+ */
+
+.cell.header {
+  background: #fff;
+}
+
+#header {
+  position: relative;
+  padding: 0 48px;
+  height: 50px;
+
+  .links {
+    height: 100%;
+    a {
+      display: inline-block;
+      height: 100%;
+      padding-top: 14px;
+      margin-right: 12px;
+      font-size: 13px;
+      letter-spacing: 1.2px;
+      position: relative;
+      &:hover:after, &.active:after {
+         content: "";
+         width: 100%;
+         position: absolute;
+         height: 4px;
+         bottom: 0;
+         left: 0;
+         background: #999;
+      }
+
+      &.active {
+        color: #39BDD1;
+      }
+
+      &.active:after {
+        background: #39BDD1;
+      }
+    }
+  }
+
+  .account-cart {
+    height: 100%;
+    color: #4D4D4D;
+    float: right;
+    text-align: right;
+  }
+
+  .settings {
+    &.active {
+      > a {
+        color: #fff;
+        background: #2c394a;
+      }
+    }
+    .drop-down {
+      ul {
+        padding: 5px 0;
+        margin: 0;
+        list-style: none;
+      }
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: #2c394a;
+      text-align: left;
+      z-index: 10;
+      transition: max-height .15s ease-out;
+      max-height: 0;
+      overflow: hidden;
+      li > a {
+        color: #fff;
+        display: block;
+        padding: 3px 20px;
+        line-height: 1.4285;
+        white-space: nowrap;
+        &:hover {
+          background: #485B70;
+          color: #999999;
+        }
+      }
+    }
+
+    &:hover {
+      > a {
+        color: #fff;
+        background: #2c394a;
+        transition-delay: 0;
+      }
+      .drop-down {
+        max-height: 500px;
+        transition: max-height .25s ease-in;
+      }
+    }
+
+    > a {
+      display: inline-block;
+      height: 100%;
+      font-size: 13px;
+      letter-spacing: 1.2px;
+      padding: 14px 14px 0 14px;
+    }
+
+    float: left;
+    height: 100%;
+    margin-right: 12px;
+    position: relative;
+  }
+
+  .account {
+    margin-top: 14px;
+    float: left;
+    margin-right: 12px;
+  }
+
+  .cart {
+    float: left;
+  }
+}
+
+#banner {
+  margin: 8px 72px 0 0;
+  float: left;
+
+  .icon-feather {
+    display: inline-block;
+    height: 32px;
+    width: 32px;
+    vertical-align: top;
+  }
+
+  a {
+    text-align: center;
+    display: inline-block;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    font-size: 25px;
+    color: #999999;
+    position: relative;
+    overflow: hidden;
+  }
+  a:hover {
+    color: #CECECE;
+    path {
+      fill: #CECECE !important;
+    }
+  }
+}
+
+@media only screen and (max-device-width: 480px) {
+  #header {
+    .nav-search {
+      float: none;
+      button {
+        width: 100%;
+        margin-top: 5px;
+        display: block;
+      }
+    }
+
+    #banner {
+      float: none;
+    }
+
+    .account-cart {
+      float: none;
+      display: block;
+      overflow: hidden;
+
+      .account {
+        float: left;
+      }
+      .cart {
+        float: right;
+      }
+    }
+  }
+}
+
+/* end header styling */

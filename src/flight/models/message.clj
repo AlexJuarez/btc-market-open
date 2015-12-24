@@ -6,7 +6,7 @@
   (:require
         [flight.cache :as cache]
         [flight.util.pgp :as pgp]
-        [flight.util.user :as user-util]))
+        [flight.util.core :as util]))
 
 ;;Gets
 (defn count [id]
@@ -49,7 +49,7 @@
   ([id receiver-id]
    (let [rid receiver-id]
      (do
-       (when (not (empty? (update! id rid))) (user-util/update-session id :messages))
+       (when (not (empty? (update! id rid))) (util/update-session id :messages))
        (select messages
                (fields :id :subject :content :created_on :user_id :sender_id :read)
                (with senders (fields [:alias :user_alias]))
@@ -63,14 +63,14 @@
      :sender_id sender_id}))
 
 (defn store! [message user-id receiver-id]
-  (user-util/update-session receiver-id :messages)
+  (util/update-session receiver-id :messages)
   (insert messages (values (prep (merge message {:user_id receiver-id :sender_id user-id})))))
 
 (defn store-support! [message user-id ticket-id]
   (insert messages (values (merge (prep message) {:feedback_id ticket-id :sender_id user-id}))))
 
 (defn remove! [id user-id]
-  (user-util/update-session user-id :messages)
+  (util/update-session user-id :messages)
   (delete messages (where {:id id :user_id user-id})))
 
 (defn add-support! [message user-id ticket-id]

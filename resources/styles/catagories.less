@@ -1,0 +1,49 @@
+/*
+ * Categories
+ */
+
+.category-tree {
+  .header {
+    &:hover {
+      .category {
+        color: #999;
+      }
+    }
+
+    &:before {
+      height: 30px;
+      position: absolute;
+      left: 0;
+      right: 0;
+      content: "";
+    }
+
+    &.active:after {
+      content: "";
+      width: 5px;
+      height: 30px;
+      background: #39BDD1;
+      position: absolute;
+      left: 0;
+      display: inline-block;
+      float:left;
+    }
+
+    &.active:before, &:hover:before {
+      background: #485B70;
+    }
+  }
+
+  .category {
+    color: #fff;
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: .6px;
+    font-size: 13px;
+    display: inline-block;
+    line-height: 30px;
+    height: 30px;
+    position: relative;
+  }
+}
+

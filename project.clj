@@ -20,7 +20,7 @@
                  [korma "0.4.2" :exclusions [c3p0/c3p0]] ;;sql dsl
                  [lobos "1.0.0-beta3"]
                  [markdown-clj "0.9.82"]
-                 [metosin/compojure-api "0.24.0"]
+                 [metosin/compojure-api "0.24.3"]
                  [metosin/ring-http-response "0.6.5"]
                  [metosin/ring-middleware-format "0.6.0"]
                  [metosin/ring-swagger "0.22.0"]
@@ -51,13 +51,9 @@
   :migratus {:store :database}
 
   :plugins [[lein-environ "1.0.1"]
-            [lein-less "1.7.5"]
             [migratus-lein "0.2.0"]
             [org.clojars.punkisdead/lein-cucumber "1.0.4"]]
   :cucumber-feature-paths ["test/features"]
-  :less {:source-path ["resources/styles"]
-         :target-path "resources/public/css"}
-  :hooks [leiningen.less]
   :profiles
   {:uberjar {:omit-source true
              :env {:production true}

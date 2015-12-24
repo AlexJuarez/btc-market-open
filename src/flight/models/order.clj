@@ -9,8 +9,7 @@
         [flight.models.listing :as listings]
         [flight.validator :as v]
         [flight.util.session :as session]
-        [flight.util.core :as util]
-        [flight.util.user :as user-util]))
+        [flight.util.core :as util]))
 
 ;;Order status numbers
 ;;0 - processing
@@ -75,7 +74,7 @@
         {:keys [user_id seller_id listing_id quantity] :as order} (dissoc order :listing_quantity :listing_pubic :category_id)
         escr {:from user_id :hedged (:hedged order) :to seller_id :currency_id currency_id :amount cost :btc_amount btc_cost :status "hold"}
         audit {:user_id user-id :role "purchase" :amount (* -1 btc_cost)}]
-    (user-util/update-session seller_id :sales)
+    (util/update-session seller_id :sales)
     (let [order (transaction
       (insert audits (values audit))
       (update users (set-fields {:btc (raw (str "btc - " btc_cost))}) (where {:id user-id :pin pin}))
@@ -96,8 +95,8 @@
                          (set-fields {:updated_on (raw "now()") :quantity (raw (str "quantity + " quantity))})
                          (where {:id listing_id}))]
      (when-not (empty? escrow)
-       (user-util/update-session seller_id :sales :orders)
-       (user-util/update-session user_id :sales :orders)
+       (util/update-session seller_id :sales :orders)
+       (util/update-session user_id :sales :orders)
        (transaction
         (insert audits (values {:user_id user_id :role "refund" :amount (:btc_amount escr)}))
         (update users (set-fields {:btc (raw (str "btc + " (:btc_amount escr)))}) (where {:id user_id}))
@@ -145,7 +144,7 @@
     (if (empty? errors)
       (do
         (session/put! :cart {})
-        (user-util/update-session user-id :orders :sales)
+        (util/update-session user-id :orders :sales)
         (doall (map #(store! (prep % address user-id) user-id pin) cart)))
       {:address address :errors errors})))
 
@@ -155,7 +154,7 @@
 
 (defn update-sales [sales seller-id status]
   (when (not (empty? sales))
-    (if (= status 1) (user-util/update-session seller-id :sales :orders))
+    (if (= status 1) (util/update-session seller-id :sales :orders))
     (let [statuses {:status status :updated_on (raw "(now())")}
           statuses (if (= status 1) (assoc statuses :auto_finalize (raw "(now() + interval '17 days')")) statuses)
           audits (map #(hash-map :user_id seller-id :order_id % :status status) sales)]
@@ -171,7 +170,7 @@
 
 ;;use update instead of select... genius
 (defn finalize [id user-id]
-  (user-util/update-session user-id :orders :sales)
+  (util/update-session user-id :orders :sales)
   (let [{:keys [hedge_fee seller_id listing_id hedged]} (update orders (set-fields {:finalized true :updated_on (raw "now()")}) (where {:id id :finalized false :user_id user-id}))
         {amount :amount currency_id :currency_id} (update escrow (set-fields {:status "done" :updated_on (raw "now()")}) (where {:order_id id :from user-id :status "hold"}))
         amount (util/convert-price currency_id 1 amount)
@@ -186,10 +185,10 @@
         (insert order-audit (values {:user_id user-id :status 3 :order_id id}))
         (update users (set-fields {:btc (raw (str "btc + " (- amount fee_amount)))}) (where {:id seller_id}))
         (update listings (set-fields {:sold (raw "sold + 1") :updated_on (raw "now()")}) (where {:id listing_id})))
-      (user-util/update-session seller_id))))
+      (util/update-session seller_id))))
 
 (defn resolution [id user-id]
-  (user-util/update-session user-id :orders :sales)
+  (util/update-session user-id :orders :sales)
   (let [{:keys [seller_id] :as order}
         (update orders
                 (set-fields {:status 2 :updated_on (raw "now()")})

@@ -11,7 +11,6 @@
         [hiccup.util :as hc]
         [clojure.string :as s]
         [flight.util.core :as util]
-        [flight.util.user :as user-util]
         [flight.util.pgp :as pgp]
         [noir.session :as session]
         [flight.models.order :as order]
@@ -110,11 +109,11 @@
 ;; Operations
 
 (defn update-pin! [id slug]
-  (let [user (user-util/current)
+  (let [user (util/current-user)
         check (v/user-pin-validator slug)]
     (if (empty? check)
       (do
-        (let [user (user-util/current)]
+        (let [user (util/current-user)]
           (update users
                   (set-fields {:pin (:pin slug)})
                   (where {:id id}))
@@ -127,7 +126,7 @@
   (let [updates (clean slug)
         check (valid-update? updates)]
     (if (empty? check)
-      (let [user (user-util/current)]
+      (let [user (util/current-user)]
         (session/put! :user
                       (merge
                        (update users
@@ -141,7 +140,7 @@
   (let [updates (clean-pgp pub_key)
         check (valid-pgp? updates)]
     (if (empty? check)
-      (let [user (user-util/current)
+      (let [user (util/current-user)
             update  (update users
                             (set-fields updates)
                             (where {:id (:id user)}))]
@@ -150,7 +149,7 @@
 
 (defn update-btc-address! [id]
   (let [new-address (btc/newaddress id)]
-    (session/put! :user (merge (user-util/current-user) {:wallet new-address}))
+    (session/put! :user (merge (util/current-user-user) {:wallet new-address}))
     (transaction
       (insert wallets (values {:wallet new-address :user_id id}))
       (update users (set-fields {:wallet new-address}) (where {:id id})))))
@@ -166,7 +165,7 @@
          (update users (set-fields {:btc (raw (str "btc - " amount))}) (where {:id user-id}))
          (insert withdrawals (values {:amount amount :address address :user_id user-id}))
          (insert audits (values audit)))
-        (user-util/update-session user-id))
+        (util/update-session user-id))
       {:errors errors})
     ))
 

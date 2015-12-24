@@ -1,0 +1,58 @@
+
+.side-menu {
+  padding-top: 8px;
+  background: @dark-blue;
+  position: relative;
+
+  .title {
+    color: #888888;
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 2px;
+    margin: 16px 24px 16px 24px;
+  }
+
+  > .header {
+    height: 8px;
+    background: #FF931E;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    .green {
+      width: 33%;
+      height: 100%;
+      position: absolute;
+      left: 0;
+      top: 0;
+      background: #BEC86E;
+    }
+    .pink {
+      width: 33%;
+      height: 100%;
+      position: absolute;
+      right: 0;
+      top: 0;
+      background: #FF247D;
+    }
+  }
+  white-space: nowrap;
+  min-width: 230px;
+}
+
+.side-menu ul {
+  list-style: none;
+  padding-left: 0;
+  margin-left: 10px;
+}
+
+.side-menu > ul {
+  margin:0 24px 0 24px;
+}
+
+.side-menu .count {
+  font-weight: bold;
+  color: #ccc;
+  position: relative;
+  letter-spacing: .6px;
+}

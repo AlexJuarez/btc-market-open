@@ -6,7 +6,6 @@
         [flight.db.core])
   (:require
    [flight.util.core :as util]
-   [flight.util.user :as user-util]
    [flight.models.category :as cat]
    [clojure.string :as string]
    [hiccup.util :as hc]))
@@ -44,7 +43,7 @@
   (.createArrayOf (.getConnection (:datasource (get-connection db))) "integer" (object-array v)))
 
 ;;TODO 26 is usd find a better way to set up this var
-(defn prep [{:keys [to price currency_id] :as listing}]
+(defn prep [{:keys [description to price currency_id] :as listing}]
   (let [to (if (some #{1} to) [1] to)]
   (merge
    listing
@@ -105,7 +104,7 @@
 (defn remove! [id user-id]
   (if-let [{:keys [public quantity] :as listing} (get id user-id)]
     (let [category-id (:category_id listing)]
-      (user-util/update-session user-id)
+      (util/update-session user-id)
       (transaction
         (update users (set-fields {:listings (raw "listings - 1")}) (where {:id user-id}))
         (if (and public (> quantity 0)) (update category (set-fields {:count (raw "count - 1")}) (where {:id category-id})))
@@ -116,7 +115,7 @@
   (let [category-id (:category_id listing)
         listing (prep listing)
         listing-values (assoc listing :user_id user-id)]
-    (user-util/update-session user-id)
+    (util/update-session user-id)
     (let [l (transaction
       (update users (set-fields {:listings (raw "listings + 1")}) (where {:id user-id}))
       (if (and public (> quantity 0)) (update category (set-fields {:count (raw "count + 1")}) (where {:id category-id})))
@@ -160,10 +159,10 @@
           (= sort_by "title") (-> query (order :title :asc))
           (= sort_by "newest") (-> query (order :created_on :desc))
           :else (-> query (order :sold :desc)))
-          query (if (and (not (= (:region_id (user-util/current)) 1)) ships_to)
-                  (-> query (where (raw (str (:region_id (user-util/current)) " = any (\"listing\".\"to\")")))) query)
-          query (if (and (not (= (:region_id (user-util/current)) 1)) ships_from)
-                  (-> query (where {:from (:region_id (user-util/current))})) query)]
+          query (if (and (not (= (:region_id (util/current-user)) 1)) ships_to)
+                  (-> query (where (raw (str (:region_id (util/current-user)) " = any (\"listing\".\"to\")")))) query)
+          query (if (and (not (= (:region_id (util/current-user)) 1)) ships_from)
+                  (-> query (where {:from (:region_id (util/current-user))})) query)]
     query))
 
 (defn- gen-public-query []
