@@ -30,7 +30,6 @@
                  (session/flash-get :redirect))
         default (or d "/")
         url (or url default)]
-    (println url)
     (resp/redirect url)))
 
 (defn finish-login [{:keys [id vendor auth pub_key] :as user}]
