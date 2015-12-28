@@ -31,8 +31,7 @@
                (text :description)
                (text :pub_key)
                (boolean :banned (default false))
-               (varchar :pass 60)
-               (varchar :salt 32);;The salt comes out to 30ish characters?
+               (varchar :pass 128)
                (varchar :wallet 34 :unique)
                (varchar :pin 60)
                (integer :transactions (default 0))

@@ -3,7 +3,8 @@
          [korma.core]
          [flight.db.core])
   (:require
-   [flight.util.core :as util]))
+   [flight.util.core :as util]
+   [flight.validator :as v]))
 
 (defn prep [order_id slug user-id]
   (let [order (first (select orders
@@ -38,7 +39,7 @@
   (transaction
    (update modresolutions
            (set-fields {:votes (raw "votes + 1")})
-           (where {:id res}))
+           (where {:id id}))
    (insert modvotes (values {:modresolution_id id :user_id user-id}))))
 
 (defn remove-vote! [res user-id]

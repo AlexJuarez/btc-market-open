@@ -1,0 +1,11 @@
+[
+    {"name": "Luxary Goods", "id": 1, "gt": 0, "lte": 10, "parent": 0},
+    {"name": "Lobster", "id": 2, "gt": 1, "lte": 4, "parent": 1},
+    {"name": "black", "id": 3, "gt": 2, "lte": 3, "parent": 2},
+    {"name": "red", "id": 4, "gt": 3, "lte": 4, "parent": 2},
+    {"name": "Tea", "id": 5, "gt": 4, "lte": 9, "parent": 1},
+    {"name": "White", "id": 6, "gt": 5, "lte": 7, "parent": 5},
+    {"name": "jasmine", "id": 7, "gt": 6, "lte": 7, "parent": 6},
+    {"name": "Green", "id": 8, "gt": 7, "lte": 9, "parent": 5},
+    {"name": "Sencha", "id": 9, "gt": 8, "lte": 9, "parent": 8}
+]

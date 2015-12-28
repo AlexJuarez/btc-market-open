@@ -1,5 +1,5 @@
 (ns flight.models.listing
-  (:refer-clojure :exclude [get get-in count])
+  (:refer-clojure :exclude [get get-in count update])
   (:use [korma.db :only (get-connection transaction)]
         [flight.db.predicates]
         [korma.core]

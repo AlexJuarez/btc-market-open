@@ -1,4 +1,5 @@
 (ns flight.handler
+  (:use [flight.util.schema])
   (:require [compojure.core :refer [defroutes routes wrap-routes]]
             [compojure.route :as route]
             [flight.cache :as cache]

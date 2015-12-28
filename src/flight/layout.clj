@@ -1,12 +1,15 @@
 (ns flight.layout
-  (:require [selmer.parser :as parser]
-            [selmer.filters :as filters]
-            [markdown.core :refer [md-to-html-string]]
-            [ring.util.http-response :refer [content-type ok]]
-            [ring.util.anti-forgery :refer [anti-forgery-field]]
-            [ring.middleware.anti-forgery :refer [*anti-forgery-token*]])
+  (:require
+   [flight.util.error :as error]
+   [selmer.parser :as parser]
+   [selmer.filters :as filters]
+   [markdown.core :refer [md-to-html-string]]
+   [ring.util.http-response :refer [content-type ok]]
+   [ring.util.anti-forgery :refer [anti-forgery-field]]
+   [ring.middleware.anti-forgery :refer [*anti-forgery-token*]])
   (:use flight.layout.filters
-        flight.layout.tags))
+        flight.layout.tags
+        flight.layout.helpers))
 
 (declare ^:dynamic *identity*)
 (declare ^:dynamic *app-context*)
@@ -17,11 +20,13 @@
 (defn render
   "renders the HTML template located relative to resources/templates"
   [template & [params]]
+  (println (merge {:errors (error/all)} (get-info) params))
   (content-type
     (ok
       (parser/render-file
         template
-        (assoc params
+        (assoc
+          (merge {:errors (error/all)} (get-info) params)
           :page template
           :csrf-token *anti-forgery-token*
           :servlet-context *app-context*)))

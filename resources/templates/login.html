@@ -7,8 +7,8 @@
   {% endif %}
   <form method="POST">
   {% csrf-token %}
-    <div {% if error %}class="has-error"{% endif %}>
-      {{error}}
+    <div {% if errors.login %}class="has-error"{% endif %}>
+      {{errors.login}}
       <input id="handle" class="form-control" name="login" type="text" placeholder="Username" value="{{login}}"/>
       <input id="pass" class="form-control" name="pass" type="password" placeholder="Password" />
     </div>

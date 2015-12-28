@@ -80,3 +80,30 @@
               resp
               (assoc-in resp [:session] @*session*))
             (assoc resp :session @*session*)))))))
+
+;; ## Flash
+
+(declare ^:dynamic *flash*)
+
+(defn flash-put!
+  "Store a value that will persist for this request and the next."
+  [k v]
+  (clojure.core/swap! *flash* assoc-in [:outgoing k] v))
+
+(defn flash-get
+  "Retrieve the flash stored value."
+  ([k]
+     (flash-get k nil))
+  ([k not-found]
+   (let [in (clojure.core/get-in @*flash* [:incoming k])
+         out (clojure.core/get-in @*flash* [:outgoing k])]
+     (or out in not-found))))
+
+(defn wrap-flash [handler]
+  (fn [request]
+    (binding [*flash* (atom {:incoming (:flash request)})]
+      (let [resp (handler request)
+            outgoing-flash (:outgoing @*flash*)]
+        (if (and resp outgoing-flash)
+          (assoc resp :flash outgoing-flash)
+          resp)))))

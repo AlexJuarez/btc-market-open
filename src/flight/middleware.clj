@@ -8,11 +8,11 @@
             [flight.env :refer [env]]
             [flight.layout :refer [*app-context* error-page]]
             [flight.layout :refer [*identity*]]
-            [immutant.web.middleware :refer [wrap-session]]
+            [flight.util.error :as error]
+            [flight.util.session :as session]
             [ring-ttl-session.core :refer [ttl-memory-store]]
             [ring.middleware.anti-forgery :refer [wrap-anti-forgery]]
             [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
-            [ring.middleware.flash :refer [wrap-flash]]
             [ring.middleware.format :refer [wrap-restful-format]]
             [ring.middleware.webjars :refer [wrap-webjars]]
             [taoensso.timbre :as log])
@@ -43,13 +43,21 @@
                      :title "Something very bad has happened!"
                      :message "We've dispatched a team of highly trained gnomes to take care of the problem."})))))
 
+(defn remove-anti-forgery-token [handler]
+  (fn [request]
+    (let [request (-> request
+                      (update-in [:form-params] dissoc "__anti-forgery-token")
+                      (update-in [:multipart-param] dissoc "__anti-forgery-token"))]
+    (handler request))))
+
 (defn wrap-csrf [handler]
   (wrap-anti-forgery
-    handler
-    {:error-response
-     (error-page
-       {:status 403
-        :title "Invalid anti-forgery token"})}))
+   (remove-anti-forgery-token
+    handler)
+   {:error-response
+    (error-page
+     {:status 403
+      :title "Invalid anti-forgery token"})}))
 
 (defn wrap-formats [handler]
   (wrap-restful-format handler {:formats [:json-kw :transit-json :transit-msgpack]}))
@@ -78,8 +86,9 @@
       wrap-auth
       wrap-formats
       wrap-webjars
-      wrap-flash
-      (wrap-session {:cookie-attrs {:http-only true}})
+      session/wrap-flash
+      session/wrap-session
+      error/wrap-error
       (wrap-defaults
         (-> site-defaults
             (assoc-in [:security :anti-forgery] false)

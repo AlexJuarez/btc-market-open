@@ -1,0 +1,158 @@
+[
+    {
+        "name": "Bitcoin (BTC)",
+        "key": "BTC",
+        "symbol": "&#3647;",
+        "hedge_fee": 0.06
+    },
+    {
+        "name": "Argentine Peso (ARS)",
+        "key": "ARS",
+        "symbol": "&#36;",
+        "hedge_fee": 0.25
+    },
+    {
+        "name": "Australian Dollar (AUD)",
+        "key": "AUD",
+        "symbol": "&#36;",
+        "hedge_fee": 0.25
+    },
+    {
+        "name": "Bahamian Dollar (BSD)",
+        "key": "BSD",
+        "symbol": "&#36;",
+        "hedge_fee": 0.25
+    },
+    {
+        "name": "Brazilian Real (BRL)",
+        "key": "BRL",
+        "symbol": "&#36;",
+        "hedge_fee": 0.25
+    },
+    {
+        "name": "British Pound (GBP)",
+        "key": "GBP",
+        "symbol": "&#163;",
+        "hedge_fee": 0.25
+    },
+    {
+        "name": "Canadian Dollar (CAD)",
+        "key": "CAD",
+        "symbol": "&#36;",
+        "hedge_fee": 0.25
+    },
+    {
+        "name": "Cayman Islands Dollar (KYD)",
+        "key": "KYD",
+        "symbol": "&#36;",
+        "hedge_fee": 0.25
+    },
+    {
+        "name": "Chilean Peso (CLP)",
+        "key": "CLP",
+        "symbol": "&#36;",
+        "hedge_fee": 0.25
+    },
+    {
+        "name": "Chinese Renminbi Yuan (CNY)",
+        "key": "CNY",
+        "symbol": "&#165;",
+        "hedge_fee": 0.25
+    },
+    {
+        "name": "Colombian Peso (COP)",
+        "key": "COP",
+        "symbol": "&#36;",
+        "hedge_fee": 0.25
+    },
+    {
+        "name": "Costa Rican Colón (CRC)",
+        "key": "CRC",
+        "symbol": "&#8353;",
+        "hedge_fee": 0.25
+    },
+    {
+        "name": "Cuban Peso (CUP)",
+        "key": "CUP",
+        "symbol": "&#8369;",
+        "hedge_fee": 0.25
+    },
+    {
+        "name": "Egyptian Pound (EGP)",
+        "key": "EGP",
+        "symbol": "&#163;",
+        "hedge_fee": 0.25
+    },
+    {
+        "name": "Euro (EUR)",
+        "key": "EUR",
+        "symbol": "&#8364;",
+        "hedge_fee": 0.25
+    },
+    {
+        "name": "Fijian Dollar (FJD)",
+        "key": "FJD",
+        "symbol": "&#36;",
+        "hedge_fee": 0.25
+    },
+    {
+        "name": "Hong Kong Dollar (HKD)",
+        "key": "HKD",
+        "symbol": "&#36;",
+        "hedge_fee": 0.25
+    },
+    {
+        "name": "Indian Rupee (INR)",
+        "key": "INR",
+        "symbol": "&#8360;",
+        "hedge_fee": 0.25
+    },
+    {
+        "name": "Japanese Yen (JPY)",
+        "key": "JPY",
+        "symbol": "&#165;",
+        "hedge_fee": 0.25
+    },
+    {
+        "name": "Mexican Peso (MXN)",
+        "key": "MXN",
+        "symbol": "&#36;",
+        "hedge_fee": 0.25
+    },
+    {
+        "name": "New Zealand Dollar (NZD)",
+        "key": "NZD",
+        "symbol": "&#36;",
+        "hedge_fee": 0.25
+    },
+    {
+        "name": "North Korean Won (KPW)",
+        "key": "KPW",
+        "symbol": "&#8361;",
+        "hedge_fee": 0.25
+    },
+    {
+        "name": "Norwegian Krone (NOK)",
+        "key": "NOK",
+        "symbol": "kr",
+        "hedge_fee": 0.25
+    },
+    {
+        "name": "Russian Ruble (RUB)",
+        "key": "RUB",
+        "symbol": "&#8381;",
+        "hedge_fee": 0.25
+    },
+    {
+        "name": "Swedish Krona (SEK)",
+        "key": "SEK",
+        "symbol": "kr",
+        "hedge_fee": 0.25
+    },
+    {
+        "name": "United States Dollar (USD)",
+        "key": "USD",
+        "symbol": "&#36;",
+        "hedge_fee": 0.25
+    }
+]

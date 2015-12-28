@@ -5,8 +5,9 @@
 
   :dependencies [[bouncer "0.3.3"]
                  [buddy "0.8.1"]
-                 [clj-btc "0.1.2"]
+                 [clj-btc "0.11.2"]
                  [clj-http "2.0.0"];;for reading bitcoins prices from coinbase.com
+                 [clojurewerkz/scrypt "1.2.0"]
                  [clojurewerkz/spyglass "1.1.0"];;couchbase interface
                  [com.fzakaria/slf4j-timbre "0.2.1"]
                  [com.mchange/c3p0 "0.9.5.1"] ;;connection pooling
@@ -20,6 +21,7 @@
                  [korma "0.4.2" :exclusions [c3p0/c3p0]] ;;sql dsl
                  [lobos "1.0.0-beta3"]
                  [markdown-clj "0.9.82"]
+                 [metis "0.3.3"];;validator
                  [metosin/compojure-api "0.24.3"]
                  [metosin/ring-http-response "0.6.5"]
                  [metosin/ring-middleware-format "0.6.0"]
@@ -27,6 +29,7 @@
                  [metosin/ring-swagger-ui "2.1.3-4"]
                  [migratus "0.8.7"]
                  [mount "0.1.4" :exclusions [ch.qos.logback/logback-classic]]
+                 [net.sf.jlue/jlue-core "1.3"];;captcha creation
                  [org.bouncycastle/bcpg-jdk15on "1.50"]
                  [org.clojure/clojure "1.7.0"]
                  [org.clojure/core.match "0.3.0-alpha4"]
@@ -41,6 +44,7 @@
                  [ring-webjars "0.1.1"]
                  [ring/ring-defaults "0.1.5"]
                  [selmer "0.9.5"] ;;templating
+                 [slingshot "0.12.2"] ;;smarter error handling
                  [to-jdbc-uri "0.2.0"]];;jdbc uri parser
 
   :min-lein-version "2.5.2"

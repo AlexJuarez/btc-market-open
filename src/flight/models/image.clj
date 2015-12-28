@@ -25,15 +25,15 @@
   (not (nil? (get id user-id))))
 
 (defn remove! [id user-id]
-  (if-let [image (get id user-id)]
-    (do
-      (try
+  (when-let [image (get id user-id)]
+    (try
+      (do
         (io/delete-file (image-util/file-path id "_max.jpg"))
-        (io/delete-file (image-util/file-path id "_thumb.jpg"))
-        (catch Exception ex
-          (log/error "failed to delete image" id))
+        (io/delete-file (image-util/file-path id "_thumb.jpg")))
+      (catch Exception ex
+        (log/error "failed to delete image" id)))
       (delete images
-              (where {:user_id user-id :id id}))))))
+              (where {:user_id user-id :id id}))))
 
 (defn update! [id data]
   (update images

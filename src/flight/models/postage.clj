@@ -1,5 +1,5 @@
 (ns flight.models.postage
-  (:refer-clojure :exclude [get count])
+  (:refer-clojure :exclude [get count update])
   (:use [korma.db :only (defdb)]
         [korma.core]
         [flight.db.core])

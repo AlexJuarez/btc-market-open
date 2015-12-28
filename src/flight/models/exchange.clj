@@ -10,7 +10,6 @@
    [taoensso.timbre :as log]
    [cheshire.core :as jr]
    [flight.cache :as cache]
-   [flight.models.currency :as currency]
    [clj-http.client :as client]))
 
 (defonce remote-opts
@@ -33,7 +32,7 @@
    (apply merge)))
 
 (defn- create-currency-map [slug]
-  (let [currencies (get-currency-map (currency/all))]
+  (let [currencies (get-currency-map (select currency))]
     (->>
      (map #(let [s (split (name (key %)) #"_")]
              {:from (currencies (.substring (first s) 0 3))
@@ -46,12 +45,10 @@
   (let [response (get-from-remote (env :remote-bitcoin-values))
         prep (create-currency-map response)]
     (if-not (empty? response)
-      (do
-        (dorun (map #(cache/set (str (:from %) "-" (:to %)) (:value %)) prep))
-        (transaction
-          (delete exchange)
-          (insert exchange
-                  (values prep)))))))
+      (transaction
+       (delete exchange)
+       (insert exchange
+               (values prep))))))
 
 (defn get [from to]
   (when-not (or (nil? from) (nil? to))

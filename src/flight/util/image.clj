@@ -1,6 +1,7 @@
 (ns flight.util.image
   (:require
-    [clojure.java.io :as io])
+    [clojure.java.io :as io]
+    [flight.env :refer [env]])
   (:use hiccup.core)
   (:import
     (org.apache.commons.io IOUtils)
@@ -11,9 +12,6 @@
   (str (clojure.java.io/resource "uploads")
        id
        &suffix))
-
-;;this means that we will use a data;mime type to embed the image instead
-(def img-data true)
 
 (defn read-image [id]
   (let [path (file-path id ".jpg")
@@ -29,7 +27,7 @@
       (str "data:image/jpeg;base64," data))))
 
 (defn create-image [id extension]
-    (if img-data
+    (if (env :embed-image)
       (let [data (image-data id extension)]
         (html [:img {:src data}]))
       (let [url (str "/uploads/" id extension ".jpg")]

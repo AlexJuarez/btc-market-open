@@ -3,6 +3,7 @@
    [flight.db.core]
    [korma.core])
   (:require
+   [taoensso.timbre :as log]
    [flight.cache :as cache]
    [flight.util.session :as session]
    [clojure.string :as s]
@@ -22,6 +23,16 @@
               {:currency_id 26}
               (-> (select users (with currency (fields [:key :currency_key] [:symbol :currency_symbol]))
                           (where {:id (session/get :user_id)})) first (dissoc :salt :pass)))))
+
+(defn create-uuid [string]
+ "creates a uuid from a string"
+ (try
+  (java.util.UUID/fromString string)
+  (catch Exception ex
+   (log/error ex "an error has occured while creating the uuid from string"))))
+
+(defn user-id []
+  (session/get :user_id ))
 
 (defmacro update-session
   [user-id & terms]
