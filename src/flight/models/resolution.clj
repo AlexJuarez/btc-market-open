@@ -3,7 +3,8 @@
         [korma.core]
         [flight.db.core])
   (:require
-        [flight.validator :as v]))
+   [flight.util.core :as util]
+   [flight.validator :as v]))
 
 (def actions #{"refund" "extension"})
 

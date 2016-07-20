@@ -1,5 +1,5 @@
 [
-    {"name": "Luxary Goods", "id": 1, "gt": 0, "lte": 10, "parent": 0},
+    {"name": "Luxury Goods", "id": 1, "gt": 0, "lte": 10, "parent": 0},
     {"name": "Lobster", "id": 2, "gt": 1, "lte": 4, "parent": 1},
     {"name": "black", "id": 3, "gt": 2, "lte": 3, "parent": 2},
     {"name": "red", "id": 4, "gt": 3, "lte": 4, "parent": 2},

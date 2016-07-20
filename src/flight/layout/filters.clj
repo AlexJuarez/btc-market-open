@@ -44,7 +44,7 @@
 
 (add-filter! :pagination
              (fn [x]
-               (let [page (if (nil? (:page x)) 1 (:page x))
+               (let [page (or (:page x) 1)
                      m (:max x)
                      params (or (:params x) {})
                      pages (paginate page m)

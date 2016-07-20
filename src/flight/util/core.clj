@@ -9,6 +9,11 @@
    [clojure.string :as s]
    [flight.models.exchange :as exchange]))
 
+(defn page-max [items per-page]
+  {:pre (> 0 per-page)}
+  (let [items (or items 0)]
+    (+ (if (> (mod items per-page) 0) 1 0) (int (/ items per-page)))))
+
 (defmacro session! [key func]
   `(let [value# (session/get ~key)]
     (if (nil? value#)
