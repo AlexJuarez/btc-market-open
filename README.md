@@ -26,6 +26,10 @@ There are several scripts that will setup postgres, and couchbase for first time
 
 To reset the postgres db run `./scripts/db-run-down.sh`
 
+### Check dependencies
+
+To check if all dependencies are up to date run lein ancient - https://github.com/xsc/lein-ancient
+
 ## Prerequisites
 
 You will need [Leiningen][1] 2.0 or above installed. You need [Postgresql][2] 9.1.10
@@ -41,7 +45,7 @@ To check on the application stats visit http://ubuntu:8091/index.html
 
 To start a web server for the application, run:
 
-    lein ring server
+    lein run
 
 ## License
 

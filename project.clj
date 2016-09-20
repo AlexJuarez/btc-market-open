@@ -54,8 +54,8 @@
   :main flight.core
   :migratus {:store :database}
 
-  :plugins [[lein-environ "1.0.1"]
-            [migratus-lein "0.2.0"]
+  :plugins [[lein-ancient "0.6.10"]
+            [lein-environ "1.0.1"]
             [org.clojars.punkisdead/lein-cucumber "1.0.4"]]
   :cucumber-feature-paths ["test/features"]
   :profiles
@@ -82,10 +82,22 @@
                   :env {:dev        true
                         :port       3000
                         :nrepl-port 7000
+                        :remote-bitcoin-values "https://api.coinbase.com/v1/currencies/exchange_rates"
+                        :dbspec {:classname "org.postgresql.Driver"
+                                  :subprotocol "postgresql"
+                                  :subname "//localhost/whitecity"
+                                  :user "devil"
+                                  :password "admin"}
                         :log-level  :trace}}
    :project/test {:env {:test       true
                         :port       3001
                         :nrepl-port 7001
-                        :log-level  :trace}}
+                        :log-level  :trace
+                        :dbspec {:classname "org.postgresql.Driver"
+                                  :subprotocol "postgresql"
+                                  :subname "//localhost/whitecity"
+                                  :user "devil"
+                                  :password "admin"}}}
+
    :profiles/dev {}
    :profiles/test {}})

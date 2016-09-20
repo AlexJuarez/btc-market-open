@@ -1,7 +1,7 @@
 (ns lobos.migrations
   (:refer-clojure
      :exclude [alter drop bigint boolean char double float time])
-       (:use (lobos [migration :only [defmigration]] core schema config helpers)))
+  (:use (lobos [migration :only [defmigration]] core schema config helpers)))
 
 (defmigration add-currencies-table
   (up [] (create
@@ -210,8 +210,8 @@
                 (text :content)
                 (integer :transaction)
                 (smallint :rating :not-null (default 5))
-                (boolean :shipped (default true))
-                )))
+                (boolean :shipped (default true)))))
+                
   (down [] (drop (table :review))))
 
 (defmigration add-audits-table

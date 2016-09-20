@@ -60,8 +60,8 @@
 (defn set [key value & ttl]
   (if-not (nil? @*ce*)
     (c/set (get-connection) key (or (first ttl) (+ (* 60 10) (rand-int 600))) value)
-    (mem/set key value)
-    ));;Prevent stampede
+    (mem/set key value)))
+    ;;rand-int adds variation on key expiration
 
 (defn get [key]
   (if-not (nil? @*ce*)

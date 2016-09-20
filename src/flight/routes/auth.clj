@@ -15,7 +15,8 @@
    [flight.util.session :as session]
    [schema-tools.core :as st]
    [slingshot.slingshot :refer [try+ throw+]]
-   [schema.core :as s]))
+   [schema.core :as s]
+   [taoensso.timbre :as log]))
 
 (defonce words ["the" "and" "for" "are" "but" "not" "can" "one" "day"
                 "get" "man" "new" "now" "old" "two" "boy" "put" "her" "dad" "zoo"
@@ -50,13 +51,17 @@
 (defn registration-page
   ([]
    (layout/render "register.html" {:captcha (captcha/gen)}))
-  ([{:keys [login pass confirm] :as slug}]
-   (let [user (users/add! {:login login :pass pass :confirm confirm})]
-     (if (error/empty?)
-       (do
-         (finish-login user)
-         (redirect-url))
-       (layout/render "register.html" (merge slug {:captcha (captcha/gen)}))))))
+  ([{:keys [login pass confirm] :as slug} cookies]
+   (do
+     (users/add! {:login login :pass pass :confirm confirm})
+     (let [session (:value (cookies "session"))
+           user (users/login! login pass session)]
+       (if (error/empty?)
+         (do
+           (log/debug user)
+           (finish-login user)
+           (redirect-url))
+         (layout/render "register.html" (merge slug {:captcha (captcha/gen)})))))))
 
 (defn login-page
   ([referer]
@@ -64,7 +69,7 @@
    (layout/render "login.html"))
   ([{:keys [login pass] :as slug} cookies]
    (let [session (:value (cookies "session"))
-         user (users/login! login pass cookies)]
+         user (users/login! login pass session)]
      (if (error/empty?)
        (do
          (finish-login user)
@@ -118,7 +123,11 @@
    "/register" []
    (GET* "/" []
          (registration-page))
-   (POST* "/" []
+   (POST* "/" {cookies :cookies}
           :form [info Register]
-          (registration-page info)
-  )))
+          (registration-page info cookies)
+  ))
+  (GET* "/logout" []
+        (session/clear!)
+        (resp/redirect "/"))
+  )
