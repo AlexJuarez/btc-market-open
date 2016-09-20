@@ -14,6 +14,18 @@ dump a raw blob of unstructured data.
 
 sudo apt-get install bitcoind
 
+## Setup
+
+There are several scripts that will setup postgres, and couchbase for first time installation.
+
+[1]: to install couchbase run `./scripts/install-couchbase.sh`
+[2]: to install postgres run `./scripts/install-postgres.sh`
+[3]: to create the db run `./scripts/db-run-up.sh`
+
+### Reseting the postgres db
+
+To reset the postgres db run `./scripts/db-run-down.sh`
+
 ## Prerequisites
 
 You will need [Leiningen][1] 2.0 or above installed. You need [Postgresql][2] 9.1.10
