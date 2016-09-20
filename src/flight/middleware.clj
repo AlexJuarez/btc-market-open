@@ -92,6 +92,7 @@
       (wrap-defaults
         (-> site-defaults
             (assoc-in [:security :anti-forgery] false)
+            (assoc-in [:session :cookie-name] "session")
             (assoc-in [:session :store] (if (env :couchbase)
                                           (cache/create-couchbase-session-store)
                                           (ttl-memory-store (* 60 30))))))

@@ -4,11 +4,12 @@
         [korma.core]
         [flight.db.core])
   (:require
-        [flight.cache :as cache]
         [flight.util.pgp :as pgp]
         [flight.util.core :as util]))
 
-;;Gets
+(defn exists? [id]
+   (not (nil? (select messages (where {:id id})))))
+
 (defn count [id]
   (let [counts (select messages
                        (aggregate (count :*) :cnt)

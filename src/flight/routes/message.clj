@@ -91,15 +91,18 @@
                   :query-params [{page :- Long 1}]
                   (messages-page page))
             (GET* "/sent" [] (messages-sent))
-            (context* "/:id" [id]
+            (context* "/:id" []
+                      :path-params [id :- (s/both Long (s/pred user/exists? 'user/exists?))]
                       (GET* "/" [] (messages-thread id))
                       (GET* "/download" [] (messages-download id))
                       (POST* "/" []
                              :form [message Message]
                              (message-create message id))))
-            (context* "/message/:id" [message-id]
+            (context* "/message/:id" []
+                      :path-params [message-id :- (s/both Long (s/pred message/exists? 'message/exists?))]
                       (GET* "/delete" {{referer "referer"} :headers} (message-delete message-id referer)))
             (context* "/support/:tid" [tid]
+                      :path-params [tid :- Long]
                       (GET* "/" [] (support-thread tid))
                       (POST* "/" []
                              :form [message Message]

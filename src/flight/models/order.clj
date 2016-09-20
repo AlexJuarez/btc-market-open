@@ -26,6 +26,9 @@
                  (with sellers (fields :login :alias))
                  (where {:id id :user_id user-id}))))
 
+(defn exists? [id user-id]
+  (not (nil? (get-order id user-id))))
+
 (defn get-sale [id seller-id]
   (first (select orders
                  (with users (fields :login :alias))

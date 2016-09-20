@@ -6,18 +6,19 @@
         [korma.db :only (transaction)]
         [korma.core])
   (:require
-   [flight.util.btc :as btc]
-   [flight.validator :as v]
-   [hiccup.util :as hc]
-   [clojure.string :as s]
-   [flight.util.core :as util]
-   [flight.util.error :as error]
-   [flight.util.pgp :as pgp]
-   [flight.util.session :as session]
-   [flight.models.order :as order]
-   [flight.models.message :as message]
-   [flight.models.currency :as currency]
-   [flight.util.crypt :as warden]))
+    [flight.cache :as cache]
+    [flight.util.btc :as btc]
+    [flight.validator :as v]
+    [hiccup.util :as hc]
+    [clojure.string :as s]
+    [flight.util.core :as util]
+    [flight.util.error :as error]
+    [flight.util.pgp :as pgp]
+    [flight.util.session :as session]
+    [flight.models.order :as order]
+    [flight.models.message :as message]
+    [flight.models.currency :as currency]
+    [flight.util.crypt :as warden]))
 
 ;; Gets
 
@@ -37,19 +38,6 @@
       (with currency (fields [:key :currency_key] [:symbol :currency_symbol]))
       (where {:login (s/lower-case login) :banned false}))))
 
-(defn exists? [login]
-  (not (nil? (get-by-login login))))
-
-(defn track-login [{:keys [id last_attempted_login login_tries] :as user}]
-  (if (or (= login_tries 0) (nil? last_attempted_login) (> (- (.getTime (java.util.Date.)) (.getTime last_attempted_login)) 86400000))
-    (update users
-            (set-fields {:last_attempted_login (raw "now()") :login_tries 1})
-            (where {:id id}))
-    (update users
-            (set-fields {:login_tries (raw "login_tries + 1")})
-            (where {:id id})))
-   user)
-
 (defn get-by-alias [a]
   (first (select users
           (where {:alias a}))))
@@ -62,6 +50,20 @@
                 (where {:id id}))
         first)
     (get-by-alias id)) :pass))
+
+(defn exists? [login]
+  (cache/cache! (str "user/exists?:" login)
+                (not (nil? (get login)))))
+
+(defn track-login [{:keys [id last_attempted_login login_tries] :as user}]
+  (if (or (= login_tries 0) (nil? last_attempted_login) (> (- (.getTime (java.util.Date.)) (.getTime last_attempted_login)) 86400000))
+    (update users
+            (set-fields {:last_attempted_login (raw "now()") :login_tries 1})
+            (where {:id id}))
+    (update users
+            (set-fields {:login_tries (raw "login_tries + 1")})
+            (where {:id id})))
+   user)
 
 (defn get-with-pin [id pin]
   (first (select users
