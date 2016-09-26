@@ -4,11 +4,13 @@
     [flight.util.hashids :as hashids]
     [flight.util.core :as util :refer [user-id]]
     [flight.models.image :as image]
+    [flight.models.report :as report]
     [image-resizer.core :as resizer]
     [image-resizer.format :as format]
     [flight.util.image :refer [resource-path upload-file save-file]]
     [clojure.string :as string]
-    [taoensso.timbre :as log]))
+    [taoensso.timbre :as log]
+    [ring.util.response :as resp]))
 
 (defn is-user-logged-in? []
   (and
@@ -51,3 +53,11 @@
           (catch Exception ex
             (log/error ex (str "File upload failed for image " image_id))))
           image_id))))
+
+(defn report-add [object-id user-id table referer]
+  (report/add! object-id user-id table)
+  (resp/redirect referer))
+
+(defn report-remove [object-id user-id table referer]
+  (report/remove! object-id user-id table)
+  (resp/redirect referer))
