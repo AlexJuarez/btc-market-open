@@ -11,11 +11,8 @@
    (select region
            (where {:id id}))))
 
-(defn- *all []
-  (select region))
-
 (defn all []
-  (cache/cache! "regions" *all))
+  (cache/cache! "region/all" (select region)))
 
 (defn add! [regions]
   (insert region (values regions)))

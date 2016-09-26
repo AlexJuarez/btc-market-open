@@ -4,6 +4,7 @@
     [flight.routes.market :refer [market-routes]]
     [flight.routes.message :refer [message-routes]]
     [flight.routes.orders :refer [order-routes]]
+    [flight.routes.account :refer [account-routes]]
     [flight.middleware :as middleware]
     [compojure.api.sweet :refer :all]))
 
@@ -12,4 +13,5 @@
   auth-routes
   market-routes
   message-routes
-  order-routes)
+  order-routes
+  account-routes)

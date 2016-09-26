@@ -7,7 +7,9 @@
    [flight.cache :as cache]
    [flight.util.session :as session]
    [clojure.string :as s]
-   [flight.models.exchange :as exchange]))
+   [flight.models.exchange :as exchange])
+  (:import
+    [org.apache.commons.codec.binary Base64]))
 
 (defn page-max [items per-page]
   {:pre (> 0 per-page)}
@@ -86,3 +88,11 @@
     ([time] (format-time time "dd MMM, yyyy"))
     ([time fmt]
          (.format (new java.text.SimpleDateFormat fmt) time)))
+
+(defn bytes-to-base64 [bytes]
+  (.toString (Base64/encodeBase64String bytes)))
+
+(defn generate-salt []
+  (let [b (byte-array 20)]
+    (.nextBytes (java.security.SecureRandom.) b)
+    (bytes-to-base64 b)))

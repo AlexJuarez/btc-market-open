@@ -1,12 +1,16 @@
 (ns flight.util.image
   (:require
+    [clojure.string :as string]
     [clojure.java.io :as io]
-    [flight.env :refer [env]])
+    [flight.env :refer [env]]
+    [image-resizer.fs :as fs]
+    [clojure.java.io :as io])
   (:use hiccup.core)
   (:import
-    (org.apache.commons.io IOUtils)
-    (org.apache.commons.codec.binary Base64)))
-
+    [java.io File FileInputStream FileOutputStream]
+    [org.apache.commons.io IOUtils]
+    [org.apache.commons.codec.binary Base64]
+    [javax.imageio ImageIO]))
 
 (defn file-path [id &suffix]
   (str (clojure.java.io/resource "uploads")
@@ -39,3 +43,25 @@
     (if data
       (html [:img {:src (image-data url "_max") :title title :alt alt}])
       (html [:span {:class "warn"} (str "invalid image " url)]))))
+
+(defn- filename-path [path & [filename]]
+  (java.net.URLDecoder/decode
+    (str path File/separator filename)
+    "utf-8"))
+
+(defn resource-path []
+  (clojure.java.io/resource "uploads"))
+
+(defn upload-file
+  "uploads a file to the target folder"
+  [path {:keys [tempfile size filename]}]
+  (try
+    (with-open [in (new FileInputStream tempfile)
+                out (new FileOutputStream (filename-path path filename))]
+      (let [source (.getChannel in)
+            dest (.getChannel out)]
+        (.transferFrom dest source 0 (.size source))
+        (.flush out)))))
+
+(defn save-file [buffered-file path]
+  (ImageIO/write buffered-file (fs/extension path) (File. path)))

@@ -18,6 +18,7 @@
                  [crypto-random "1.2.0"] ;;crypto lib
                  [environ "1.0.1"]
                  [hashobject/hashids "0.2.0"];;for anon hashing
+                 [image-resizer "0.1.9"]
                  [korma "0.4.2" :exclusions [c3p0/c3p0]] ;;sql dsl
                  [lobos "1.0.0-beta3"]
                  [markdown-clj "0.9.82"]
