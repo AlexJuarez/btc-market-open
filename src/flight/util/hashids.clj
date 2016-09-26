@@ -1,6 +1,7 @@
 ;;This is a thin wrapper around hashidsJava
 (ns flight.util.hashids
-  (:import (hashids Hashids)))
+  (:import (hashids Hashids))
+  (:require [schema.core :as s]))
 
 ;;The salt was generated using java.secure.SecureRandom
 (def ^:private salt "w~nwvJxext~PYqj|R`w3m0&c6pYE+a7jkGH{mj")
@@ -28,3 +29,7 @@
     (if (> (count nums) 1)
       nums
       (first nums))))
+
+(s/defn Hashid :- Long
+  [h :- String]
+  (java.lang.Long. (decrypt h)))

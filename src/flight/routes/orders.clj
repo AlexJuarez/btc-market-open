@@ -5,16 +5,11 @@
     [flight.layout :as layout]
     [flight.models.order :as order]
     [flight.models.review :as review]
-    [flight.util.hashids :as hashids]
+    [flight.util.hashids :as hashids :refer [Hashid]]
     [flight.models.resolution :as resolution]
     [ring.util.response :as resp]
     [flight.util.core :as util :refer [user-id]]
-    [schema.core :as s]
 ))
-
-(s/defn Hashid :- Long
-  [h :- String]
-  (java.lang.Long. (hashids/decrypt h)))
 
 (defn orders-page
   ([]
