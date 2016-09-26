@@ -32,14 +32,6 @@
 
 (def sort-options ["lowest" "highest" "title" "newest"])
 
-(defn report-add [object-id user-id table referer]
-  (report/add! object-id user-id table)
-  (resp/redirect referer))
-
-(defn report-remove [object-id user-id table referer]
-  (report/remove! object-id user-id table)
-  (resp/redirect referer))
-
 (defn market-page [url {:keys [cid page sort_by ships_to ships_from] :as params}]
   (let [cid (or cid 1)
         page (or page 1)

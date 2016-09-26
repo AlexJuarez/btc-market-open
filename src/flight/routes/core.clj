@@ -8,6 +8,7 @@
     [flight.routes.sales :refer [sales-routes]]
     [flight.routes.listings :refer [listing-routes]]
     [flight.routes.postage :refer [postage-routes]]
+    [flight.routes.cart :refer [cart-routes]]
     [flight.middleware :as middleware]
     [compojure.api.sweet :refer :all]))
 
@@ -20,4 +21,5 @@
   account-routes
   sales-routes
   listing-routes
-  postage-routes)
+  postage-routes
+  cart-routes)

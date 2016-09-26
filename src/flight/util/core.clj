@@ -96,3 +96,6 @@
   (let [b (byte-array 20)]
     (.nextBytes (java.security.SecureRandom.) b)
     (bytes-to-base64 b)))
+
+(defn parse-int [s]
+  (java.lang.Long. s))
