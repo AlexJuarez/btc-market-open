@@ -2,7 +2,9 @@
   (:require
     [flight.routes.helpers :refer :all]
     [compojure.api.sweet :refer :all]
-    [flight.layout :as layout]
+    [compojure.api.meta :refer [restructure-param]]
+    [buddy.auth.accessrules :refer [restrict]]
+    [flight.layout :as layout :refer [error-page]]
     [flight.models.user :as user]
     [flight.models.fan :as follower]
     [flight.models.audit :as audit]
@@ -18,6 +20,8 @@
     [flight.util.pgp :as pgp]
     [flight.util.markdown :as md]
     [schema.core :as s]
+    [flight.access :as access]
+    [ring.util.http-response :refer :all]
     ))
 
 (defonce reviews-per-page 25)
@@ -40,10 +44,10 @@
   (let [errors (:errors (user/update-pin! (user-id) slug))
         user (util/current-user)
         transactions (audit/all (user-id))]
-    (layout/render "account/wallet.html" (merge
-                                                (if (empty? errors) {:pin-success "Your pin has been changed"})
-                                                {:pinerrors errors :transactions transactions
-                                                 :balance (not (= (:currency_id user) 1))}))))
+    (layout/render "account/wallet.html"
+                   (if (empty? errors) {:pin-success "Your pin has been changed"})
+                   {:pinerrors errors :transactions transactions
+                    :balance (not (= (:currency_id user) 1))})))
 
 (defn wallet-page
   ([]
@@ -147,18 +151,18 @@
 (defn news-view [id]
   (let [article (post/get id)
         content (md/md->html (:content article))]
-    (layout/render "news/view.html" (merge article {:content content}))
+    (layout/render "news/view.html" article {:content content})
   ))
 
 (defn news-edit
   ([id]
    (let [ article (post/get id)
          content (md/md->html (:content article))]
-     (layout/render "news/create.html" (merge article {:preview content}))))
+     (layout/render "news/create.html" article {:preview content})))
   ([id slug]
    (let [article (post/update! slug (user-id))
          content (md/md->html (:content article))]
-     (layout/render "news/create.html" (merge article {:preview content})))))
+     (layout/render "news/create.html" article {:preview content}))))
 
 (defn pgp-page
   ([]
@@ -225,73 +229,90 @@
    :shipped Boolean
    :content String})
 
-(defroutes* account-routes
-  (context*
+(defn access-error [_ _]
+  (error-page
+    {:status 401
+     :title "You need to be logged in to access this page."}))
+
+(defn wrap-restricted [handler rule]
+  (restrict handler {:handler  rule
+                     :on-error access-error}))
+
+(defmethod restructure-param :auth-rules
+  [_ rule acc]
+  (update-in acc [:middleware] conj [wrap-restricted rule]))
+
+(defroutes account-routes
+  (context
     "/account" []
-    (GET* "/" [] (account-page))
-    (POST* "/" []
+    :auth-rules access/authenticated?
+    (GET "/" [] (account-page))
+    (POST "/" []
            :form [info Account]
            (account-update info))
-    (GET* "/pgp" [] (pgp-page))
-    (POST* "/pgp" []
+    (GET "/pgp" [] (pgp-page))
+    (POST "/pgp" []
            :form [info PGP]
            (pgp-page info))
-    (GET* "/pgp/verify" [] (pgp-verify))
-    (POST* "/pgp/verify" []
+    (GET "/pgp/verify" [] (pgp-verify))
+    (POST "/pgp/verify" []
            :form [response :- String] (pgp-verify response))
-    (GET* "/password" [] (password-page))
-    (POST* "/password" []
+    (GET "/password" [] (password-page))
+    (POST "/password" []
            :form [update Password] (password-page update))
-    (GET* "/wallet" [] (wallet-page))
-    (POST* "/wallet" []
+    (GET "/wallet" [] (wallet-page))
+    (POST "/wallet" []
            :form [slug Wallet]
            (wallet-page slug))
-    (GET* "/wallet/new" [] (wallet-new))
-    (GET* "/favorites" [] (favorites-page))
-    (GET* "/reviews" []
+    (GET "/wallet/new" [] (wallet-new))
+    (GET "/favorites" [] (favorites-page))
+    (GET "/reviews" []
           :query-params [{page :- Long 1}] (reviews-page page)))
 
-  (GET* "/news/:id" []
+  (GET "/news/:id" []
         :path-params [id :- Long]
         (news-view id))
 
-  (context*
+  (context
     "/vendor" []
-    (context*
+    :auth-rules access/authenticated?
+    (context
       "/news" []
-      (GET* "/" [] (news-page))
-      (GET* "/create" [] (news-create))
-      (POST* "/create" []
+      (GET "/" [] (news-page))
+      (GET "/create" [] (news-create))
+      (POST "/create" []
              :form [article Article]
              (news-create article))
-      (context*
+      (context
         "/:id" []
         :path-params [id :- Long]
-        (GET* "/edit" [] (news-edit id))
-        (POST* "/edit" []
+        (GET "/edit" [] (news-edit id))
+        (POST "/edit" []
                :form [article Article]
                (news-edit id article))
-        (GET* "/publish" [] (news-publish id))
-        (GET* "/delete" [] (news-delete id))))
-    (context*
+        (GET "/publish" [] (news-publish id))
+        (GET "/delete" [] (news-delete id))))
+    (context
       "/images" []
-      (GET* "/" [] (images-page))
-      (POST* "/edit" {params :params} (images-edit params))
-      (GET* "/edit" [] (images-edit))
-      (GET* "/:id/delete" [id] (image-delete id))
-      (POST* "/upload" {params :params} (images-upload params))
-      (GET* "/upload" [] (images-upload))))
+      (GET "/" [] (images-page))
+      (POST "/edit" {params :params} (images-edit params))
+      (GET "/edit" [] (images-edit))
+      (GET "/:id/delete" [id] (image-delete id))
+      (POST "/upload" {params :params} (images-upload params))
+      (GET "/upload" [] (images-upload))))
 
-   (context*
+   (context
     "/review/:id" []
+     :auth-rules access/authenticated?
      :path-params [id :- Long]
-     (GET* "/edit" [] (review-edit id))
-     (POST* "/edit" []
+     (GET "/edit" [] (review-edit id))
+     (POST "/edit" []
             :form [review Review]
             (review-edit id review)))
 
-   (context*
+   (context
     "/user/:id" [id]
+     :auth-rules access/authenticated?
      :path-params [id :- Long]
-     (GET* "/follow" [] (user-follow id))
-     (GET* "/unfollow" {{referer "referer"} :headers} (user-unfollow id referer))))
+     (GET "/follow" [] (user-follow id))
+     (GET "/unfollow" {{referer "referer"} :headers} (user-unfollow id referer))))

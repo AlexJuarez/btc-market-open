@@ -97,14 +97,14 @@
                                           :total total :btc-total btc-total
                                           :listings listings} order)))))
 
-(defroutes* cart-routes
-  (context*
+(defroutes cart-routes
+  (context
    "/cart" []
-   (GET* "/" [] (cart-view))
-   (POST* "/" {params :params} (cart-submit params))
-   (GET* "/checkout" [] (cart-checkout))
-   (GET* "/empty" [] (cart-empty))
-   (GET* "/add/:id" []
+   (GET "/" [] (cart-view))
+   (POST "/" {params :params} (cart-submit params))
+   (GET "/checkout" [] (cart-checkout))
+   (GET "/empty" [] (cart-empty))
+   (GET "/add/:id" []
          :path-params [id :- Long] (cart-add id))
-   (GET* "/:id/remove" []
+   (GET "/:id/remove" []
          :path-params [id :- Long] (cart-remove id))))

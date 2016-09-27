@@ -61,7 +61,7 @@
            (log/debug user)
            (finish-login user)
            (redirect-url))
-         (layout/render "register.html" (merge slug {:captcha (captcha/gen)})))))))
+         (layout/render "register.html" slug {:captcha (captcha/gen)}))))))
 
 (defn login-page
   ([referer]
@@ -105,29 +105,29 @@
    :confirm String
    :captcha (s/both String (s/pred valid-captcha? 'valid-captcha?))})
 
-(defroutes* auth-routes
-  (context*
+(defroutes auth-routes
+  (context
    "/login" []
-   (GET* "/"
+   (GET "/"
          {{referer "referer"} :headers}
          (login-page referer))
-   (POST* "/" {cookies :cookies}
+   (POST "/" {cookies :cookies}
           :form [info Login]
           (login-page info cookies))
-   (GET* "/auth" []
+   (GET "/auth" []
          (auth-page))
-   (POST* "/auth" []
+   (POST "/auth" []
           :form [slug {:response (s/both String (s/pred 'check-auth 'check-auth))}]
           (auth-page slug)))
-  (context*
+  (context
    "/register" []
-   (GET* "/" []
+   (GET "/" []
          (registration-page))
-   (POST* "/" {cookies :cookies}
+   (POST "/" {cookies :cookies}
           :form [info Register]
           (registration-page info cookies)
   ))
-  (GET* "/logout" []
+  (GET "/logout" []
         (session/clear!)
         (resp/redirect "/"))
   )

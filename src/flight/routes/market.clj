@@ -40,10 +40,10 @@
         params (into {} (filter (comp identity second) {:sort_by sort_by :ships_to ships_to :ships_from ships_from}))
         listings (listing/public cid page listings-per-page params)]
     (layout/render "market/index.html"
-                   (conj {:paginate {:page page :max pagemax :url url :params params}
-                          :listings listings
-                          :categories {:tree categories :params params :id cid}}
-                         params))))
+                   {:paginate {:page page :max pagemax :url url :params params}
+                    :listings listings
+                    :categories {:tree categories :params params :id cid}}
+                   params)))
 
 (defn home-page [params]
   (market-page "/" params))
@@ -70,14 +70,14 @@
         description (md/md->html (:description user))
         listings (:listings user)
         pagemax (util/page-max listings user-listings-per-page)]
-    (layout/render "users/view.html" (merge user {:paginate {:page page :max pagemax :url (str "/user/" id)}
-                                                  :listings-all (listing/public-for-user id page user-listings-per-page)
-                                                  :description description
-                                                  :posts (post/get-updates id)
-                                                  :feedback-rating (int (* (/ (:rating user) 5) 100))
-                                                  :review (review/for-seller id)
-                                                  :reported (report/reported? id (user-id) "user")
-                                                  :followed (follower/exists? id (user-id))}))))
+    (layout/render "users/view.html" user {:paginate {:page page :max pagemax :url (str "/user/" id)}
+                                           :listings-all (listing/public-for-user id page user-listings-per-page)
+                                           :description description
+                                           :posts (post/get-updates id)
+                                           :feedback-rating (int (* (/ (:rating user) 5) 100))
+                                           :review (review/for-seller id)
+                                           :reported (report/reported? id (user-id) "user")
+                                           :followed (follower/exists? id (user-id))})))
 
 (defn search-page [query cid]
   (if (and (>= (count query) 3) (<= (count query) 100))
@@ -88,15 +88,15 @@
           categories (category/public cid q)
           category-results (category/search q)
           message (if (and (empty? users) (empty? listings) (empty? categories)) "Nothing was found for your query. Please try again.")]
-      (layout/render "market/search.html" (conj {:users users :listings listings :categories {:tree categories :id cid} :category-results category-results :query query :message message})))
-    (layout/render "market/search.html" (conj {:message "Your query is too short it needs to be longers than three characters and less than 100."} ))))
+      (layout/render "market/search.html" {:users users :listings listings :categories {:tree categories :id cid} :category-results category-results :query query :message message}))
+    (layout/render "market/search.html" {:message "Your query is too short it needs to be longers than three characters and less than 100."} )))
 
 (defn support-page
   ([]
    (layout/render "support.html"))
   ([slug]
    (let [post (feedback/add! slug (user-id))])
-   (layout/render "support.html" (conj {:message "Your request for support has been recieved."}))))
+   (layout/render "support.html" {:message "Your request for support has been recieved."})))
 
 (defn api-vendors [api_key]
   (map #(assoc % :uri (str "/user/" (:alias %))) (user/vendor-list)))
@@ -141,7 +141,7 @@
         revs (:reviews listing)
         description (md/md->html (:description listing))
         pagemax (util/page-max revs per-page)]
-    (layout/render "listings/view.html" (merge {:categories {:tree categories :id (:category_id listing)} :review reviews :page {:page page :max pagemax :url (str "/listing/" id)} :reported (report/reported? id (user-id) "listing") :bookmarked (bookmark/exists? id (user-id))} listing {:description description}))))
+    (layout/render "listings/view.html" {:categories {:tree categories :id (:category_id listing)} :review reviews :page {:page page :max pagemax :url (str "/listing/" id)} :reported (report/reported? id (user-id) "listing") :bookmarked (bookmark/exists? id (user-id))} listing {:description description})))
 
 (defn resolution-accept [id referer]
   (resolution/accept id (user-id))
@@ -153,33 +153,33 @@
    (s/optional-key :ships_to) Boolean
    (s/optional-key :ships_from) Boolean})
 
-(defroutes* market-routes
-  (context* "" []
+(defroutes market-routes
+  (context "" []
             :query [params Market]
-            (GET* "/" []
+            (GET "/" []
                   (home-page params))
-            (GET* "/search" []
+            (GET "/search" []
                   :query-params [q :- String
                                  {cid :- Long 1}]
                   (search-page q cid))
-            (GET* "/category/:id" []
+            (GET "/category/:id" []
                   :path-params [{id :- Long 1}]
                   (category-page id params)))
-  (GET* "/about" [] (about-page))
-  (GET* "/support" [] (support-page))
-  (POST* "/support" {params :params} (support-page params))
+  (GET "/about" [] (about-page))
+  (GET "/support" [] (support-page))
+  (POST "/support" {params :params} (support-page params))
 
-  (GET* "/api/vendors" [api_key] (api-vendors api_key))
-  (GET* "/api/listings" {params :params {sign "sign"} :headers} (api-listings params sign))
+  (GET "/api/vendors" [api_key] (api-vendors api_key))
+  (GET "/api/listings" {params :params {sign "sign"} :headers} (api-listings params sign))
 
   ;;public routes
-  (GET* "/user/:id" {{id :id page :page} :params} (user-view id page))
-  (GET* "/user/:id/key" [id] (user-key id))
-  (GET* "/listing/:id" {{id :id page :page} :params} (listing-view id page))
+  (GET "/user/:id" {{id :id page :page} :params} (user-view id page))
+  (GET "/user/:id/key" [id] (user-key id))
+  (GET "/listing/:id" {{id :id page :page} :params} (listing-view id page))
 
   ;;restricted routes
-  (GET* "/resolution/:id/accept" {{id :id} :params {referer "referer"} :headers} (resolution-accept id referer))
-  (context*
+  (GET "/resolution/:id/accept" {{id :id} :params {referer "referer"} :headers} (resolution-accept id referer))
+  (context
    "/user/:id" [id]
-   (GET* "/report" {{id :id} :params {referer "referer"} :headers} (report-add id (user-id) "user" referer))
-   (GET* "/unreport" {{id :id} :params {referer "referer"} :headers} (report-remove id (user-id) "user" referer))))
+   (GET "/report" {{id :id} :params {referer "referer"} :headers} (report-add id (user-id) "user" referer))
+   (GET "/unreport" {{id :id} :params {referer "referer"} :headers} (report-remove id (user-id) "user" referer))))

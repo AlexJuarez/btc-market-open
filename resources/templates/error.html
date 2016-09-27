@@ -1,7 +1,9 @@
-{% extends "base.html" %}
-{% block content %}
+{% extends "layout/side-menu.html" %}
+{% block menu %}
+{% endblock %}
+{% block container %}
 <div class="error">
-  <h1>{{title}}</h1>
-  <p>{{message}}</p>
+    <h1>{{title}}</h1>
+    <p>{{message}}</p>
 </div>
 {% endblock %}

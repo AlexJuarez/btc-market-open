@@ -61,20 +61,20 @@
   [page]
   (let [pagemax (util/page-max (get-sales :total) sales-per-page)
         sales (-> (order/sold (user-id) page sales-per-page) encrypt-ids arbitration)]
-     (layout/render "sales/overview.html" (merge {:sales sales :page {:page page :max pagemax :url "/vendor/sales"}}))))
+     (layout/render "sales/overview.html" {:sales sales :page {:page page :max pagemax :url "/vendor/sales"}})))
 
 (defn sales-view
   ([id]
     (let [order (-> (order/get-sale id (user-id)) encrypt-id convert-order-price)
           arbitration (and (= (:status order) 2) (<= (.getTime (:auto_finalize order)) (.getTime (java.util.Date.))))
           resolutions (estimate-refund (resolution/all-sales id (user-id)) order)]
-      (layout/render "sales/resolution.html" (merge {:errors {} :arbitration arbitration
-                                                     :action "extension" :resolutions resolutions} order))))
+      (layout/render "sales/resolution.html" {:arbitration arbitration
+                                              :action "extension" :resolutions resolutions} order)))
   ([id slug]
     (let [res (resolution/add! slug id (user-id))
           order (-> (order/get-sale id (user-id)) encrypt-id convert-order-price)
           resolutions (estimate-refund (resolution/all-sales id (user-id)) order)]
-        (layout/render "sales/resolution.html" (merge {:errors {} :resolutions resolutions} res slug order)))))
+      (layout/render "sales/resolution.html" {:resolutions resolutions} res slug order))))
 
 (defn sales-page
   ([] (sales-overview 1))
@@ -99,20 +99,20 @@
         (content-type "text/plain")
         (resp/header "Content-Disposition" (str "attachment;filename=" (util/format-time (java.util.Date. ) "MM-dd-yyyy") "-sales-" (name state) "-" page ".csv")))))
 
-(defroutes* sales-routes
-   (context*
+(defroutes sales-routes
+   (context
     "/vendor/sales" []
      :query-params [{page :- Long 1}]
-     (GET* "/" [] (sales-overview page))
-     (GET* "/new" [] (sales-new page))
-     (GET* "/new/download" [] (sales-download 0 page))
-     (GET* "/shipped" [] (sales-shipped page))
-     (GET* "/shipped/download" [] (sales-download 1 page))
-     (GET* "/resolutions" [] (sales-disputed page))
-     (GET* "/past" [] (sales-finailized page))
-     (POST* "/new" {params :params} (sales-page params)))
-   (context*
+     (GET "/" [] (sales-overview page))
+     (GET "/new" [] (sales-new page))
+     (GET "/new/download" [] (sales-download 0 page))
+     (GET "/shipped" [] (sales-shipped page))
+     (GET "/shipped/download" [] (sales-download 1 page))
+     (GET "/resolutions" [] (sales-disputed page))
+     (GET "/past" [] (sales-finailized page))
+     (POST "/new" {params :params} (sales-page params)))
+   (context
     "/vendor/sale/" []
      :path-params [id :- Hashid]
-     (GET* "/" [] (sales-view id))
-     (POST* "/" {params :params} (sales-view id params))))
+     (GET "/" [] (sales-view id))
+     (POST "/" {params :params} (sales-view id params))))

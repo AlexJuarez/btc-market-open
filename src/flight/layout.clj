@@ -19,14 +19,13 @@
 
 (defn render
   "renders the HTML template located relative to resources/templates"
-  [template & [params]]
-  (println (merge {:errors (error/all)} (get-info) params))
+  [template & params]
   (content-type
     (ok
       (parser/render-file
         template
         (assoc
-          (merge {:errors (error/all)} (get-info) params)
+          (apply merge {:errors (error/all)} (get-info) params)
           :page template
           :csrf-token *anti-forgery-token*
           :servlet-context *app-context*)))
@@ -43,4 +42,4 @@
   [error-details]
   {:status  (:status error-details)
    :headers {"Content-Type" "text/html; charset=utf-8"}
-   :body    (parser/render-file "error.html" error-details)})
+   :body    (parser/render-file "error.html" (merge error-details (get-info)))})

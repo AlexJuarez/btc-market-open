@@ -3,8 +3,8 @@
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
 
-  :dependencies [[bouncer "0.3.3"]
-                 [buddy "0.8.1"]
+  :dependencies [[bouncer "1.0.0"]
+                 [buddy "1.1.0"]
                  [clj-btc "0.11.2"]
                  [clj-http "2.0.0"];;for reading bitcoins prices from coinbase.com
                  [clojurewerkz/scrypt "1.2.0"]
@@ -13,7 +13,7 @@
                  [com.mchange/c3p0 "0.9.5.1"] ;;connection pooling
                  [com.taoensso/timbre "4.1.4"]
                  [com.taoensso/tower "3.0.2"]
-                 [compojure "1.4.0"]
+                 [compojure "1.5.1"]
                  [conman "0.2.7"]
                  [crypto-random "1.2.0"] ;;crypto lib
                  [environ "1.0.1"]
@@ -23,7 +23,7 @@
                  [lobos "1.0.0-beta3"]
                  [markdown-clj "0.9.82"]
                  [metis "0.3.3"];;validator
-                 [metosin/compojure-api "0.24.3"]
+                 [metosin/compojure-api "1.1.8"]
                  [metosin/ring-http-response "0.6.5"]
                  [metosin/ring-middleware-format "0.6.0"]
                  [metosin/ring-swagger "0.22.0"]
@@ -43,7 +43,7 @@
                  [ring "1.4.0" :exclusions [ring/ring-jetty-adapter]]
                  [ring-ttl-session "0.1.1"]
                  [ring-webjars "0.1.1"]
-                 [ring/ring-defaults "0.1.5"]
+                 [ring/ring-defaults "0.2.1"]
                  [selmer "0.9.5"] ;;templating
                  [slingshot "0.12.2"] ;;smarter error handling
                  [to-jdbc-uri "0.2.0"]];;jdbc uri parser

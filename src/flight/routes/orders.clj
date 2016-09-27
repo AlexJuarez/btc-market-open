@@ -9,6 +9,7 @@
     [flight.models.resolution :as resolution]
     [ring.util.response :as resp]
     [flight.util.core :as util :refer [user-id]]
+    [schema.core :as s]
 ))
 
 (defn orders-page
@@ -20,7 +21,7 @@
                            (assoc % :resolve res :arbitration arbitration :id (hashids/encrypt (:id %)))) orders)
           pending-review (filter #(and (not (:reviewed %)) (:finalized %)) orders)
           orders (filter #(< (:status %) 3) orders)]
-       (layout/render "orders/index.html" (merge {:errors {} :orders orders :pending-review pending-review :user-id (user-id)}))))
+       (layout/render "orders/index.html" {:orders orders :pending-review pending-review :user-id (user-id)})))
   ([{:keys [rating shipped content] :as slug}]
    (let [prep (map #(let [id (key %) value (val %)] {:order_id (s/with-fn-validation (Hashid id)) :rating value :shipped (shipped id) :content (content id)}) rating)
          order-ids (map #(s/with-fn-validation (Hashid (key %))) rating)
@@ -39,13 +40,13 @@
     (let [order (-> (order/get-order id (user-id)) encrypt-id convert-order-price)
           arbitration (and (= (:status order) 2) (<= (.getTime (:auto_finalize order)) (.getTime (java.util.Date.))))
           resolutions (estimate-refund (resolution/all id (user-id)) order)]
-      (layout/render "orders/resolution.html" (merge {:errors {} :action "extension" :arbitration arbitration :resolutions resolutions :order order} order))))
+      (layout/render "orders/resolution.html" {:action "extension" :arbitration arbitration :resolutions resolutions :order order} order)))
 
 (defn order-add-resolution [id slug]
     (let [res (resolution/add! slug id (user-id))
           order (-> (order/get-order id (user-id)) encrypt-id convert-order-price)
           resolutions (estimate-refund (resolution/all id (user-id)) order)]
-      (layout/render "orders/resolution.html" (merge {:errors {} :resolutions resolutions} slug res order))))
+      (layout/render "orders/resolution.html" {:resolutions resolutions} slug res order)))
 
 (defn order-resolve [id]
   (order/resolution id (user-id))
@@ -72,19 +73,19 @@
    (s/optional-key :refund) Long
    (s/optional-key :content) String})
 
-(defroutes* order-routes
-  (context*
+(defroutes order-routes
+  (context
     "/orders" []
-    (GET* "/" [] (orders-page))
-    (POST* "/" []
+    (GET "/" [] (orders-page))
+    (POST "/" []
            :form [reviews Reviews] (orders-page reviews)))
-   (context*
+   (context
      "/order/:id" []
      :path-params [id :- Hashid]
-     (GET* "/resolve" [] (order-resolve id))
-     (GET* "/cancel" [] (order-cancel id))
-     (GET* "/" [] (order-view id))
-     (POST* "/" []
+     (GET "/resolve" [] (order-resolve id))
+     (GET "/cancel" [] (order-cancel id))
+     (GET "/" [] (order-view id))
+     (POST "/" []
             :form [resolution Resolution]
             (order-add-resolution id resolution))
-     (GET* "/finalize" [] (order-finalize id))))
+     (GET "/finalize" [] (order-finalize id))))

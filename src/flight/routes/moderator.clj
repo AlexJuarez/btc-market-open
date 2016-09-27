@@ -80,26 +80,26 @@
         res (moderate/add! id slug (user-id))]
     (moderator-view raw_id res)))
 
-(defroutes* moderator-routes
-  (context*
+(defroutes moderator-routes
+  (context
     "/moderate" []
-    (GET* "/" []
+    (GET "/" []
           :query-params [{page :- Long 1}] (moderator-page page))
-    (context*
+    (context
       "/:id" []
       :path-params [id :- Hashid]
-      (GET* "/" [] (moderator-view id))
-      (POST* "/" {params :params} (moderator-add-resolution id params)))
+      (GET "/" [] (moderator-view id))
+      (POST "/" {params :params} (moderator-add-resolution id params)))
 
-    (context*
+    (context
       "/support/:id" []
       :path-params [id :- String]
-      (GET* "/" [] (support-view id))
-      (POST* "/" {params :params} (support-view id params)))
-    (context* "/:id/:res" []
+      (GET "/" [] (support-view id))
+      (POST "/" {params :params} (support-view id params)))
+    (context "/:id/:res" []
               :path-params [id :- Long
                             res :- Long]
-              (GET* "/upvote" [id res] (moderator-add-vote id res))
-              (GET* "/downvote" [id res] (moderator-remove-vote id res))))
+              (GET "/upvote" [id res] (moderator-add-vote id res))
+              (GET "/downvote" [id res] (moderator-remove-vote id res))))
 
-  (GET* "/admin/:id/:res/resolve" [id res] (apply-resolution id res)))
+  (GET "/admin/:id/:res/resolve" [id res] (apply-resolution id res)))

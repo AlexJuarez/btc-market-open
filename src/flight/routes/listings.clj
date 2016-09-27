@@ -56,28 +56,28 @@
 (defn listing-edit [id]
   (let [listing (listing/get id (user-id))
         success (session/flash-get :success)]
-    (layout/render "listings/create.html" (merge {:regions (region/all) :min-price (util/convert-currency 1 0.01)
-                                                  :edit true :success success :id id
-                                                  :recent (listing/recent-shipping (user-id))
-                                                  :images (image/get (user-id))
-                                                  :categories (create-categories (category/all))
-                                                  :currencies (currency/all)} listing))))
+    (layout/render "listings/create.html" {:regions (region/all) :min-price (util/convert-currency 1 0.01)
+                                           :edit true :success success :id id
+                                           :recent (listing/recent-shipping (user-id))
+                                           :images (image/all (user-id))
+                                           :categories (create-categories (category/all))
+                                           :currencies (currency/all)} listing)))
 
 (defn listing-save [id {:keys [image image_id] :as slug}]
   (let [listing (listing/update! (assoc slug :image_id (parse-image image_id image)) id (user-id))]
-    (layout/render "listings/create.html" (merge listing
-                                                 {:regions (region/all) :min-price (util/convert-currency 1 0.01)
-                                                  :edit true :success "updated" :id id
-                                                  :recent (listing/recent-shipping (user-id))
-                                                  :images (image/get (user-id))
-                                                  :categories (create-categories (category/all))
-                                                  :currencies (currency/all)}))))
+    (layout/render "listings/create.html" listing
+                   {:regions (region/all) :min-price (util/convert-currency 1 0.01)
+                    :edit true :success "updated" :id id
+                    :recent (listing/recent-shipping (user-id))
+                    :images (image/all (user-id))
+                    :categories (create-categories (category/all))
+                    :currencies (currency/all)})))
 
 (defn listing-create
   "Listing creation page"
   ([]
    (layout/render "listings/create.html" {:regions (region/all)
-                                          :images (image/get (user-id))
+                                          :images (image/all (user-id))
                                           :recent (listing/recent-shipping (user-id))
                                           :categories (create-categories (category/all))
                                           :currencies (currency/all)}))
@@ -88,7 +88,7 @@
         (session/flash-put! :success "listing created")
         (resp/redirect (str "/vendor/listing/" (:id listing) "/edit")))
       (layout/render "listings/create.html" {:regions (region/all)
-                                             :images (image/get (user-id))
+                                             :images (image/all (user-id))
                                              :recent (listing/recent-shipping (user-id))
                                              :categories (create-categories (category/all))
                                              :currencies (currency/all)} listing)))))
@@ -119,32 +119,32 @@
    :description String
    })
 
-(defroutes* listing-routes
-   (context*
+(defroutes listing-routes
+   (context
     "/listing/:id" []
      :path-params  [id :- Long]
-     (GET* "/bookmark" [] (listing-bookmark id))
-     (GET* "/unbookmark" {{referer "referer"} :headers} (listing-unbookmark id referer))
-     (GET* "/report" {{referer "referer"} :headers} (report-add id (user-id) "listing" referer))
-     (GET* "/unreport" {{referer "referer"} :headers} (report-remove id (user-id) "listing" referer)))
+     (GET "/bookmark" [] (listing-bookmark id))
+     (GET "/unbookmark" {{referer "referer"} :headers} (listing-unbookmark id referer))
+     (GET "/report" {{referer "referer"} :headers} (report-add id (user-id) "listing" referer))
+     (GET "/unreport" {{referer "referer"} :headers} (report-remove id (user-id) "listing" referer)))
 
-   (context*
+   (context
     "/vendor/forms" []
-    (GET* "/" []
+    (GET "/" []
           :query-params [{page :- Long 1}] (forms-page page)))
 
-   (context*
+   (context
     "/vendor/listings" []
-    (GET* "/" []
+    (GET "/" []
           :query-params [{page :- Long 1}] (listings-page page))
-    (GET* "/create" [] (listing-create))
-    (POST* "/create" []
+    (GET "/create" [] (listing-create))
+    (POST "/create" []
            :form [listing Listing] (listing-create listing)))
 
-   (context*
+   (context
      "/vendor/listing/:id" []
      :path-params [id :- Long]
-     (GET* "/edit" [] (listing-edit id))
-     (GET* "/remove" [] (listing-remove id))
-     (POST* "/edit" []
+     (GET "/edit" [] (listing-edit id))
+     (GET "/remove" [] (listing-remove id))
+     (POST "/edit" []
             :form [listing Listing] (listing-save id listing))))

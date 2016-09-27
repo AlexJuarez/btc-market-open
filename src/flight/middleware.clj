@@ -1,13 +1,11 @@
 (ns flight.middleware
-  (:require [buddy.auth :refer [authenticated?]]
-            [buddy.auth.accessrules :refer [restrict]]
+  (:require [buddy.auth.accessrules :refer [restrict]]
             [buddy.auth.backends.session :refer [session-backend]]
-            [buddy.auth.middleware :refer [wrap-authentication]]
+            [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]]
             [flight.cache :as cache]
             [flight.config :refer [defaults]]
             [flight.env :refer [env]]
-            [flight.layout :refer [*app-context* error-page]]
-            [flight.layout :refer [*identity*]]
+            [flight.layout :refer [*identity* *app-context* error-page]]
             [flight.util.error :as error]
             [flight.util.session :as session]
             [ring-ttl-session.core :refer [ttl-memory-store]]
@@ -67,8 +65,8 @@
     {:status 403
      :title (str "Access to " (:uri request) " is not authorized")}))
 
-(defn wrap-restricted [handler]
-  (restrict handler {:handler authenticated?
+(defn wrap-restricted [handler rule]
+  (restrict handler {:handler rule
                      :on-error on-error}))
 
 (defn wrap-identity [handler]
@@ -77,9 +75,11 @@
       (handler request))))
 
 (defn wrap-auth [handler]
-  (-> handler
-      wrap-identity
-      (wrap-authentication (session-backend))))
+  (let [backend (session-backend)]
+    (-> handler
+        wrap-identity
+        (wrap-authentication backend)
+        (wrap-authorization backend))))
 
 (defn wrap-base [handler]
   (-> ((:middleware defaults) handler)

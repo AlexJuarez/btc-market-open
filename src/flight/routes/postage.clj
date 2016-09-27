@@ -26,8 +26,8 @@
        (layout/render "postage/create.html" {:currencies (currency/all)}  post)))))
 
 (defn postage-edit [id]
-  (let [postage (postage/get id (user-id))]
-    (layout/render "postage/create.html" {:currencies (currency/all)} postage)))
+  (let [post (postage/get id (user-id))]
+    (layout/render "postage/create.html" {:currencies (currency/all)} post)))
 
 (defn postage-save [id slug]
   (let [post (postage/update! slug id (user-id))]
@@ -40,16 +40,16 @@
   (do (session/flash-put! :success {:success "postage removed"})
     (resp/redirect "/vendor/listings")))))
 
-(defroutes* postage-routes
-  (context*
+(defroutes postage-routes
+  (context
     "/vendor/postage" []
-    (GET* "/create" [] (postage-create))
-    (POST* "/create" []
+    (GET "/create" [] (postage-create))
+    (POST "/create" []
            :form [postage Postage] (postage-create postage))
-    (context* "/:id" []
+    (context "/:id" []
               :path-params [id :- Long]
-              (GET* "/edit" [] (postage-edit id))
-              (POST* "/edit" []
+              (GET "/edit" [] (postage-edit id))
+              (POST "/edit" []
                      :form [postage Postage] (postage-save id postage))
-              (GET* "/remove" [] (postage-remove id)))))
+              (GET "/remove" [] (postage-remove id)))))
 
