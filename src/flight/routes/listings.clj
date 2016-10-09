@@ -1,22 +1,21 @@
 (ns flight.routes.listings
   (:require
-    [flight.util.session :as session]
+    [clojure.string :as string]
     [compojure.api.sweet :refer :all]
     [compojure.api.upload :as upload]
     [flight.layout :as layout]
-    [ring.util.response :as resp]
-    [flight.models.listing :as listing]
-    [flight.models.category :as category]
     [flight.models.bookmark :as bookmark]
-    [flight.models.review :as review]
-    [flight.models.region :as region]
-    [flight.models.report :as report]
-    [flight.routes.helpers :refer :all]
-    [flight.models.image :as image]
-    [clojure.string :as string]
-    [flight.models.postage :as postage]
+    [flight.models.category :as category]
     [flight.models.currency :as currency]
+    [flight.models.image :as image]
+    [flight.models.listing :as listing]
+    [flight.models.postage :as postage]
+    [flight.models.region :as region]
+    [flight.routes.helpers :refer :all]
     [flight.util.core :as util :refer [user-id]]
+    [flight.util.error :as error]
+    [flight.util.session :as session]
+    [ring.util.response :as resp]
     [schema.core :as s]))
 
 (def per-page 10)
@@ -30,11 +29,11 @@
 
 (defn listing-remove [id]
   (let [record (listing/remove! id (user-id))]
-  (if (nil? record)
-    (resp/redirect "/vendor/")
-  (do
-    (session/flash-put! :success "listing removed")
-    (resp/redirect "/vendor/listings")))))
+    (if (nil? record)
+      (resp/redirect "/vendor/")
+      (do
+        (session/flash-put! :success "listing removed")
+        (resp/redirect "/vendor/listings")))))
 ;;Check convert currency set this to a global constant
 
 (defn walk-current [lis c]
@@ -56,42 +55,43 @@
 (defn listing-edit [id]
   (let [listing (listing/get id (user-id))
         success (session/flash-get :success)]
-    (layout/render "listings/create.html" {:regions (region/all) :min-price (util/convert-currency 1 0.01)
-                                           :edit true :success success :id id
-                                           :recent (listing/recent-shipping (user-id))
-                                           :images (image/all (user-id))
+    (layout/render "listings/create.html" {:regions    (region/all) :min-price (util/convert-currency 1 0.01)
+                                           :edit       true :success success :id id
+                                           :recent     (listing/recent-shipping (user-id))
+                                           :images     (image/all (user-id))
                                            :categories (create-categories (category/all))
                                            :currencies (currency/all)} listing)))
 
 (defn listing-save [id {:keys [image image_id] :as slug}]
   (let [listing (listing/update! (assoc slug :image_id (parse-image image_id image)) id (user-id))]
     (layout/render "listings/create.html" listing
-                   {:regions (region/all) :min-price (util/convert-currency 1 0.01)
-                    :edit true :success "updated" :id id
-                    :recent (listing/recent-shipping (user-id))
-                    :images (image/all (user-id))
+                   {:regions    (region/all) :min-price (util/convert-currency 1 0.01)
+                    :edit       true :success "updated" :id id
+                    :recent     (listing/recent-shipping (user-id))
+                    :images     (image/all (user-id))
                     :categories (create-categories (category/all))
                     :currencies (currency/all)})))
 
 (defn listing-create
   "Listing creation page"
   ([]
-   (layout/render "listings/create.html" {:regions (region/all)
-                                          :images (image/all (user-id))
-                                          :recent (listing/recent-shipping (user-id))
+   (layout/render "listings/create.html" {:regions    (region/all)
+                                          :images     (image/all (user-id))
+                                          :recent     (listing/recent-shipping (user-id))
                                           :categories (create-categories (category/all))
                                           :currencies (currency/all)}))
   ([{:keys [image image_id] :as slug}]
+   (println slug)
    (let [listing (listing/add! (assoc slug :image_id (parse-image image_id image)) (user-id))]
      (if (empty? (:errors listing))
-      (do
-        (session/flash-put! :success "listing created")
-        (resp/redirect (str "/vendor/listing/" (:id listing) "/edit")))
-      (layout/render "listings/create.html" {:regions (region/all)
-                                             :images (image/all (user-id))
-                                             :recent (listing/recent-shipping (user-id))
-                                             :categories (create-categories (category/all))
-                                             :currencies (currency/all)} listing)))))
+       (do
+         (session/flash-put! :success "listing created")
+         (resp/redirect (str "/vendor/listing/" (:id listing) "/edit")))
+       (layout/render "listings/create.html" {:regions    (region/all)
+                                              :images     (image/all (user-id))
+                                              :recent     (listing/recent-shipping (user-id))
+                                              :categories (create-categories (category/all))
+                                              :currencies (currency/all)} listing)))))
 
 (defn forms-page [page]
   (let []))
@@ -106,45 +106,50 @@
   (resp/redirect referer))
 
 (s/defschema Listing
-  {(s/optional-key :image) upload/TempFileUpload
+  {(s/optional-key :image)    upload/TempFileUpload
    (s/optional-key :image_id) Long
-   (s/optional-key :public) Boolean
-   (s/optional-key :hedged) Boolean
-   :title String
-   :price Double
-   :curreny_id Long
-   :quantity Long
-   :from Long
-   :to [Long]
-   :description String
+   (s/optional-key :public)   Boolean
+   (s/optional-key :hedged)   Boolean
+   :title                     String
+   :price                     Double
+   :currency_id               Long
+   :quantity                  Long
+   :from                      Long
+   :to                        [Long]
+   :description               String
+   :category_id               Long
    })
 
 (defroutes listing-routes
-   (context
+  (context
     "/listing/:id" []
-     :path-params  [id :- Long]
-     (GET "/bookmark" [] (listing-bookmark id))
-     (GET "/unbookmark" {{referer "referer"} :headers} (listing-unbookmark id referer))
-     (GET "/report" {{referer "referer"} :headers} (report-add id (user-id) "listing" referer))
-     (GET "/unreport" {{referer "referer"} :headers} (report-remove id (user-id) "listing" referer)))
+    :path-params [id :- Long]
+    (GET "/bookmark" [] (listing-bookmark id))
+    (GET "/unbookmark" {{referer "referer"} :headers} (listing-unbookmark id referer))
+    (GET "/report" {{referer "referer"} :headers} (report-add id (user-id) "listing" referer))
+    (GET "/unreport" {{referer "referer"} :headers} (report-remove id (user-id) "listing" referer)))
 
-   (context
+  (context
     "/vendor/forms" []
     (GET "/" []
-          :query-params [{page :- Long 1}] (forms-page page)))
+      :query-params [{page :- Long 1}] (forms-page page)))
 
-   (context
+  (context
     "/vendor/listings" []
     (GET "/" []
-          :query-params [{page :- Long 1}] (listings-page page))
+      :query-params [{page :- Long 1}] (listings-page page))
     (GET "/create" [] (listing-create))
     (POST "/create" []
-           :form [listing Listing] (listing-create listing)))
+      :multipart-form [listing Listing]
+      :middleware [upload/wrap-multipart-params]
+      (listing-create listing)))
 
-   (context
-     "/vendor/listing/:id" []
-     :path-params [id :- Long]
-     (GET "/edit" [] (listing-edit id))
-     (GET "/remove" [] (listing-remove id))
-     (POST "/edit" []
-            :form [listing Listing] (listing-save id listing))))
+  (context
+    "/vendor/listing/:id" []
+    :path-params [id :- Long]
+    (GET "/edit" [] (listing-edit id))
+    (GET "/remove" [] (listing-remove id))
+    (POST "/edit" []
+      :multipart-form [listing Listing]
+      :middleware [upload/wrap-multipart-params]
+      (listing-save id listing))))

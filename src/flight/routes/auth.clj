@@ -13,7 +13,6 @@
    [flight.util.error :as error]
    [flight.util.pgp :as pgp]
    [flight.util.session :as session]
-   [schema-tools.core :as st]
    [slingshot.slingshot :refer [try+ throw+]]
    [schema.core :as s]
    [taoensso.timbre :as log]))

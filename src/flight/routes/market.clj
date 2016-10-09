@@ -51,9 +51,6 @@
 (defn category-page [id params]
   (market-page (str "/category/" id) (assoc params :cid id)))
 
-(defn error-page []
-  (layout/render "error.html"))
-
 (defn about-page []
   (layout/render "about.html"))
 

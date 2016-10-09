@@ -1,14 +1,14 @@
 (ns flight.models.listing
   (:refer-clojure :exclude [get get-in count update])
-  (:use [korma.db :only (get-connection transaction)]
-        [flight.db.predicates]
-        [korma.core]
-        [flight.db.core])
   (:require
-   [flight.util.core :as util]
-   [flight.models.category :as cat]
-   [clojure.string :as string]
-   [hiccup.util :as hc]))
+    [flight.db.core :refer :all]
+    [flight.db.predicates :refer :all]
+    [korma.core :refer :all]
+    [korma.db :refer [get-connection transaction]]
+    [flight.util.core :as util]
+    [flight.models.category :as cat]
+    [clojure.string :as string]
+    [hiccup.util :as hc]))
 
 (defn convert-post [postage]
   (map #(assoc % :price (util/convert-currency %)) postage))
@@ -111,15 +111,14 @@
         (delete listings
           (where {:id id :user_id user-id}))))))
 
-(defn store! [{:keys [category_id public to quantity] :as listing} user-id]
+(defn store! [{:keys [public to quantity] :as listing} user-id]
   (let [category-id (:category_id listing)
-        listing (prep listing)
-        listing-values (assoc listing :user_id user-id)]
+        listing (assoc (prep listing) :user_id user-id)]
     (util/update-session user-id)
     (let [l (transaction
       (update users (set-fields {:listings (raw "listings + 1")}) (where {:id user-id}))
       (if (and public (> quantity 0)) (update category (set-fields {:count (raw "count + 1")}) (where {:id category-id})))
-      (insert listings (values listing-values)))]
+      (insert listings (values listing)))]
       (insert ships-to (values (map #(hash-map :user_id user-id :region_id % :listing_id (:id l)) to)))
       l)))
 

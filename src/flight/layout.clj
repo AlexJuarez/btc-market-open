@@ -42,4 +42,4 @@
   [error-details]
   {:status  (:status error-details)
    :headers {"Content-Type" "text/html; charset=utf-8"}
-   :body    (parser/render-file "error.html" (merge error-details (get-info)))})
+   :body    (parser/render-file "error/raw.html" error-details)})

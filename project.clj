@@ -88,8 +88,9 @@
                                   :subprotocol "postgresql"
                                   :subname "//localhost/whitecity"
                                   :user "devil"
-                                  :password "admin"}
-                        :log-level  :trace}}
+                                  :password "admin"
+                                  :make-pool? true}
+                        :log-level  :debug}}
    :project/test {:env {:test       true
                         :port       3001
                         :nrepl-port 7001
