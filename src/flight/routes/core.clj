@@ -14,7 +14,8 @@
     [compojure.api.sweet :refer :all]))
 
 (defapi core-routes
-  {:format {:formats [:json-kw]}}
+  {:format {:formats [:json-kw]}
+   :exceptions nil}
   auth-routes
   market-routes
   message-routes

@@ -15,6 +15,8 @@
     "Username does not exist."
     ['not ['valid-captcha? value]]
     "The captcha was entered incorrectly."
+    ['not ['instance? type value]]
+    "the value is invalid"
     :else
     (str x))
     (cons []))

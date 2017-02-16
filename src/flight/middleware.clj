@@ -8,6 +8,7 @@
             [flight.layout :refer [*identity* *app-context* error-page]]
             [flight.util.error :as error]
             [flight.util.session :as session]
+            [ring.util.response :as resp]
             [ring-ttl-session.core :refer [ttl-memory-store]]
             [ring.middleware.anti-forgery :refer [wrap-anti-forgery]]
             [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
@@ -45,7 +46,7 @@
   (fn [request]
     (let [request (-> request
                       (update-in [:form-params] dissoc "__anti-forgery-token")
-                      (update-in [:multipart-param] dissoc "__anti-forgery-token"))]
+                      (update-in [:multipart-params] dissoc "__anti-forgery-token"))]
     (handler request))))
 
 (defn wrap-csrf [handler]
@@ -96,5 +97,4 @@
             (assoc-in [:session :store] (if (env :couchbase)
                                           (cache/create-couchbase-session-store)
                                           (ttl-memory-store (* 60 30))))))
-      wrap-context
-      wrap-internal-error))
+      wrap-context))

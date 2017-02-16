@@ -86,7 +86,7 @@
    (resp/redirect "/account/reviews")))
 
 (defn images-page []
-  (let [images (image/get (user-id)) success (session/flash-get :success)]
+  (let [images (image/all (user-id)) success (session/flash-get :success)]
     (layout/render "images/index.html" {:images images :success success})))
 
 (defn images-upload
@@ -95,12 +95,12 @@
   ([{image :image}]
    (parse-image nil image)
    (session/flash-put! :success "image uploaded")
-   (resp/redirect "/account/images")))
+   (resp/redirect "/vendor/images")))
 
 (defn image-delete [id]
   (image/remove! id (user-id))
   (session/flash-put! :success "image deleted")
-  (resp/redirect "/account/images"))
+  (resp/redirect "/vendor/images"))
 
 (defn password-page
   ([]
@@ -112,7 +112,7 @@
 
 (defn images-edit
   ([]
-    (let [images (image/get (user-id))]
+    (let [images (image/all (user-id))]
       (layout/render "images/edit.html"{:images images})))
   ([{:keys [name] :as slug}]
     (dorun (map #(image/update! (key %) {:name (val %)}) name))
@@ -230,9 +230,7 @@
    :content String})
 
 (defn access-error [_ _]
-  (error-page
-    {:status 401
-     :title "You need to be logged in to access this page."}))
+  (resp/redirect "/"))
 
 (defn wrap-restricted [handler rule]
   (restrict handler {:handler  rule
@@ -297,9 +295,12 @@
       (GET "/" [] (images-page))
       (POST "/edit" {params :params} (images-edit params))
       (GET "/edit" [] (images-edit))
-      (GET "/:id/delete" [id] (image-delete id))
       (POST "/upload" {params :params} (images-upload params))
-      (GET "/upload" [] (images-upload))))
+      (GET "/upload" [] (images-upload)))
+    (context
+      "/image/:id" []
+      :path-params [id :- Long]
+      (GET "/delete" [] (image-delete id))))
 
    (context
     "/review/:id" []
@@ -311,7 +312,7 @@
             (review-edit id review)))
 
    (context
-    "/user/:id" [id]
+    "/user/:id" []
      :auth-rules access/authenticated?
      :path-params [id :- Long]
      (GET "/follow" [] (user-follow id))

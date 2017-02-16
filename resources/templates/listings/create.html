@@ -58,7 +58,7 @@
     {% if images %}
     <div class="form-group">
       <label for="images">Select an image:</label>
-      <div> 
+      <div>
         <select id="images" name="image_id">
         <option value {% if not image_id %}selected="selected"{% endif %}>None</option>
         {% for image in images %}
@@ -79,14 +79,14 @@
   <div class="clear-float"></div>
   <div class="form-group public">
       <label for="public">Public?</label>
-      <div> 
+      <div>
         <input id="public" type="checkbox" {% if public %}checked="checked"{% endif %}  name="public" value="true">
         (check for yes)
       </div>
   </div>
   <div class="form-group hedged">
       <label for="hedged">Hedged?</label>
-      <div> 
+      <div>
         <input id="hedged" type="checkbox" name="hedged" {% if hedged %}checked="checked"{% endif %} value="true">
         (check for yes)
       </div>
@@ -101,7 +101,7 @@
   </div>
   <div class="form-group{% if errors.price %} has-error{% endif %}">
     <label for="price" title="Must be greater than {{user.currency_symbol|safe}}{{min-price}}">
-    Price: 
+    Price:
     <input name="price" id="price" class="input" type="text" value="{{price}}" />
     </label>
     <select title="currency" name="currency_id" id="currency_id">
@@ -126,7 +126,7 @@
   </div>
   <div class="form-group">
     <label for="ships_from">Ships from:</label>
-    <select id="ships_from" name="from">
+    <select id="ships_from" name="from" required>
       {% for region in regions %}
       <option value="{{region.id}}" {% ifequal region.id from %}selected="selected"{% endifequal %}>{{region.name}}</option>
       {% endfor %}
@@ -134,7 +134,7 @@
   </div>
   <div class="form-group">
     <label for="ships_to">Ships to:</label>
-    <select id="ships_to" name="to[]" size="10" multiple>
+    <select id="ships_to" name="to[]" size="10" multiple required>
       {% shipping-selectors regions to recent %}
     </select>
   </div>

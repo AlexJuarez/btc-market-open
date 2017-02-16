@@ -12,8 +12,12 @@
     [org.apache.commons.codec.binary Base64]
     [javax.imageio ImageIO]))
 
+(defn resource-path []
+  (if-let [path (io/resource "uploads/")]
+    (.getPath path)))
+
 (defn file-path [id &suffix]
-  (str (clojure.java.io/resource "uploads")
+  (str (resource-path)
        id
        &suffix))
 
@@ -49,15 +53,12 @@
     (str path File/separator filename)
     "utf-8"))
 
-(defn resource-path []
-  (clojure.java.io/resource "uploads"))
-
 (defn upload-file
   "uploads a file to the target folder"
-  [path {:keys [tempfile size filename]}]
+  [{:keys [tempfile size filename]}]
   (try
     (with-open [in (new FileInputStream tempfile)
-                out (new FileOutputStream (filename-path path filename))]
+                out (new FileOutputStream (filename-path (resource-path) filename))]
       (let [source (.getChannel in)
             dest (.getChannel out)]
         (.transferFrom dest source 0 (.size source))

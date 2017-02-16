@@ -46,7 +46,7 @@
       (let [image_id (:id (image/add! (user-id)))]
         (try
           (do
-            (upload-file (resource-path) (assoc image :filename (str image_id ".jpg")))
+            (upload-file (assoc image :filename (str image_id ".jpg")))
             (save-file (resizer/resize-and-crop (clojure.java.io/file (str (resource-path) "/" image_id ".jpg")) 400 300) (str (resource-path) "/" image_id "_max.jpg"))
             (save-file (resizer/resize-and-crop (clojure.java.io/file (str (resource-path) "/" image_id ".jpg")) 180 135) (str (resource-path) "/" image_id "_thumb.jpg"))
             (clojure.java.io/delete-file (str (resource-path) "/" image_id ".jpg")))

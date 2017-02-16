@@ -83,6 +83,9 @@
                   :env {:dev        true
                         :port       3000
                         :nrepl-port 7000
+                        :couchbase true
+                        :embed-image true
+                        :couchbase-server-uri "127.0.0.1:11211"
                         :remote-bitcoin-values "https://api.coinbase.com/v1/currencies/exchange_rates"
                         :dbspec {:classname "org.postgresql.Driver"
                                   :subprotocol "postgresql"

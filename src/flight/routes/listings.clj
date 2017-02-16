@@ -64,6 +64,7 @@
 
 (defn listing-save [id {:keys [image image_id] :as slug}]
   (let [listing (listing/update! (assoc slug :image_id (parse-image image_id image)) id (user-id))]
+    (prn (error/all))
     (layout/render "listings/create.html" listing
                    {:regions    (region/all) :min-price (util/convert-currency 1 0.01)
                     :edit       true :success "updated" :id id
@@ -81,9 +82,8 @@
                                           :categories (create-categories (category/all))
                                           :currencies (currency/all)}))
   ([{:keys [image image_id] :as slug}]
-   (println slug)
    (let [listing (listing/add! (assoc slug :image_id (parse-image image_id image)) (user-id))]
-     (if (empty? (:errors listing))
+     (if (error/empty?)
        (do
          (session/flash-put! :success "listing created")
          (resp/redirect (str "/vendor/listing/" (:id listing) "/edit")))
@@ -115,7 +115,7 @@
    :currency_id               Long
    :quantity                  Long
    :from                      Long
-   :to                        [Long]
+   (s/optional-key (keyword "to[]")) [Long]
    :description               String
    :category_id               Long
    })

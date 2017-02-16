@@ -170,8 +170,11 @@
   (GET "/api/listings" {params :params {sign "sign"} :headers} (api-listings params sign))
 
   ;;public routes
-  (GET "/user/:id" {{id :id page :page} :params} (user-view id page))
-  (GET "/user/:id/key" [id] (user-key id))
+  (context "/user/:id" []
+           :path-params [id :- Long]
+           :query-params [{page :- Long 1}]
+           (GET "/" [] (user-view id page))
+           (GET "/key" [] (user-key id)))
   (GET "/listing/:id" {{id :id page :page} :params} (listing-view id page))
 
   ;;restricted routes

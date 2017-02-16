@@ -28,12 +28,12 @@
 
 (defmethod compojure.api.meta/restructure-param :form
   [_ [value schema] acc]
-  (-> acc
-      (update-in [:lets] into [value (src-coerce! schema :form-params :string)])
-      (assoc-in [:swagger :consumes] ["application/x-www-form-urlencoded"])))
+    (-> acc
+        (update-in [:lets] into [value (src-coerce! schema :form-params :string)])
+        (assoc-in [:swagger :consumes] ["application/x-www-form-urlencoded"])))
 
 (defmethod compojure.api.meta/restructure-param :multipart-form
   [_ [value schema] acc]
-  (-> acc
-      (update-in [:lets] into [value (src-coerce! schema :multipart-params :string)])
-      (assoc-in [:swagger :consumes] ["multipart/form-data"])))
+    (-> acc
+        (update-in [:lets] into [value (src-coerce! schema :multipart-params :string)])
+        (assoc-in [:swagger :consumes] ["multipart/form-data"])))
