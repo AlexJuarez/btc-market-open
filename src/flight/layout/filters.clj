@@ -3,6 +3,7 @@
             [flight.util.session :as session]
             [flight.cache :as cache]
             [flight.models.region :as regions]
+            [flight.models.currency :as currency]
             [flight.util.core :as util])
   (:use selmer.filters
         hiccup.core))

@@ -18,11 +18,10 @@
     ['not ['instance? type value]]
     "the value is invalid"
     ['not [['greater-than? min] value]]
-    (str "needs to be " (if (number? value) "greater" "longer") " than " min)
+    (str "needs to be " (if (number? value) "greater than or equal to " "longer than ") min)
     ['not [['less-than? min] value]]
     (str "needs to be "
-         (if (number? value) "smaller" "shorter")
-         " than " max)
+         (if (number? value) "smaller than " "shorter than or equal to") max)
     ['not ['availible? value]]
     (str value " is not availible")
     :else

@@ -34,10 +34,10 @@
         {:keys [price currency_id] :as postage} (postages id)]
     (if (nil? postage)
       0
-      (util/convert-price currency_id 1 price))))
+      (util/convert-price currency_id (:currency_id (util/current-user)) price))))
 
 (defn calculate-listing-price [{:keys [price currency_id postage lid] :as listing} slug]
-  (let [listing-total (util/convert-price currency_id 1 (* price (get-in (cart) [lid :quantity])))
+  (let [listing-total (util/convert-price currency_id (:currency_id (util/current-user)) (* price (get-in (cart) [lid :quantity])))
         postage-total (postage-price (get-in (cart) [lid :postage]) postage)
         errors (or (get-in (error/all) [:cart (keyword (str lid))]) {})]
   (assoc listing :total (+ listing-total postage-total) :subtotal listing-total :errors errors)))
@@ -51,7 +51,7 @@
   ([]
    (or (reduce + (map #(:total %) (listings))) 0))
   ([currency_id]
-   (util/convert-price 1 currency_id (total))))
+   (util/convert-price (:currency_id (util/current-user)) currency_id (total))))
 
 (defn update!
   ([items]

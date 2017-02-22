@@ -66,17 +66,15 @@
     listings))
 
 (defn cart-view
-  ([slug]
+  ([&[slug]]
    (when (error/empty?)
      (cart/update! (:cart slug)))
    (let [listings (cart/listings)
-         btc-total (cart/total)
-         total (util/convert-price 1 (:currency_id (util/current-user)) btc-total)]
-     (prn (error/all))
-     (prn listings)
-     (layout/render "cart/index.html" {:convert (not (= (:currency_id (util/current-user)) 1))
+         btc-total (cart/total 1)
+         total (cart/total)]
+     (layout/render "cart/index.html" {:currency_id (:currency_id (util/current-user))
                                        :total total
-                                       :btc-total btc-total
+                                       :btc_total btc-total
                                        :listings listings}))))
 
 (defn cart-submit [{:keys [items address pin submit] :as slug}]

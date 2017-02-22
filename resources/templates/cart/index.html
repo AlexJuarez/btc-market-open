@@ -39,7 +39,7 @@
     <td>
       <input class="quantity-input" type="text" name="quantity[{{listing.lid}}]" value="{{listing.lid|count-cart}}" />
       <em>max: {{listing.quantity}}</em>
-      {% if listing.errors.quantity %}<strong class="error">{{listing.errors.quantity|join:", "}}</strong>{% endif %}
+      {% if listing.errors.quantity %}<div class="error">{{listing.errors.quantity|join:", "}}</div>{% endif %}
     </td>
     <td>{{user.currency_symbol|safe}}{{listing.subtotal|double-format:5}}</td>
     <td>
@@ -57,9 +57,13 @@
   {% endfor %}
   </tbody>
 </table>
+<h3 class="text-right">
+  Total: {% ifunequal user.currency_id 1 %}(&#3647; {{btc_total|double-format:4}}){% endifunequal %} {{user.currency_symbol|safe}}{{total}}
+</h3>
+<hr />
 <p>
-  <input class="btn btn-primary" type="submit" name="submit" value="Checkout" />
-  <input class="btn btn-gray" type="submit" name="submit" value="Update Cart" />
+  <input class="btn btn-gray left" type="submit" name="submit" value="Update Cart" />
+  <input class="btn btn-primary right" type="submit" name="submit" value="Checkout" />
 </p>
 </form>
 {% else %}
