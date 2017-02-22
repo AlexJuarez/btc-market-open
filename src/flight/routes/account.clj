@@ -17,7 +17,7 @@
     [ring.util.response :as resp]
     [flight.util.session :as session]
     [flight.util.core :as util :refer [user-id]]
-    [flight.util.pgp :as pgp]
+    [flight.routes.account.pgp :refer [pgp-routes]]
     [flight.util.markdown :as md]
     [schema.core :as s]
     [flight.access :as access]
@@ -31,15 +31,15 @@
 
 (defn account-update [slug]
   (let [user (user/update! (user-id) slug)]
-    (layout/render "account/index.html" {:regions (region/all) :currencies (currency/all)})))
+    (account-page)))
 
 (defn withdrawal [{:keys [amount address pin] :as slug}]
   (let [errors (:errors (user/withdraw-btc! slug (user-id)))
         user (util/current-user)
         transactions (audit/all (user-id))]
     (layout/render "account/wallet.html" {:amount amount :address address
-                                                            :errors errors :transactions transactions
-                                                            :balance (not (= (:currency_id user) 1))})))
+                                          :errors errors :transactions transactions
+                                          :balance (not (= (:currency_id user) 1))})))
 (defn change-pin [slug]
   (let [errors (:errors (user/update-pin! (user-id) slug))
         user (util/current-user)
@@ -164,47 +164,13 @@
          content (md/md->html (:content article))]
      (layout/render "news/create.html" article {:preview content}))))
 
-(defn pgp-page
-  ([]
-   (layout/render "account/pgp.html" {:message (session/flash-get :message)}))
-  ([{:keys [pub_key verification] :as slug}]
-   (let [errors (user/valid-pgp? slug)
-         message (session/flash-get :pgp-message)]
-     (if (empty? errors)
-       (do
-         (session/put! :pub_key pub_key)
-         (resp/redirect "/account/pgp/verify"))
-       (layout/render "account/pgp.html" {:errors errors :pub_key pub_key})))))
-
-(defn pgp-verify
-  ([]
-   (let [pub_key (session/get :pub_key)
-         secret (util/generate-salt)
-         decode (pgp/encode pub_key secret)
-         message (session/flash-get :message)]
-     (session/flash-put! :pgp-verify secret)
-     (layout/render "account/pgp-verification.html" {:message message :decode decode :pub_key pub_key}))
-   )
-  ([response]
-   (let [secret (session/flash-get :pgp-verify)]
-     (if (= secret response)
-       (do
-         (session/flash-put! :message "success")
-         (user/update-pgp! (session/get :pub_key))
-         (pgp-page))
-       (do
-         (session/flash-put! :message "please try again")
-         (pgp-verify))))))
 
 (s/defschema Account
-  {(s/optional-key :alias) String
+  {(s/optional-key :alias) (s/both String (in-range? 3 64) (is-alphanumeric?) (s/pred user/alias-availible? 'user/alias-availible?))
    (s/optional-key :currency_id) Long
    (s/optional-key :region_id) Long
    (s/optional-key :auth) Boolean
    (s/optional-key :description) String})
-
-(s/defschema PGP
-  {(s/optional-key :pub_key) String})
 
 (s/defschema Password
   {:password String
@@ -244,17 +210,12 @@
   (context
     "/account" []
     :auth-rules access/authenticated?
+    pgp-routes
     (GET "/" [] (account-page))
     (POST "/" []
            :form [info Account]
            (account-update info))
-    (GET "/pgp" [] (pgp-page))
-    (POST "/pgp" []
-           :form [info PGP]
-           (pgp-page info))
-    (GET "/pgp/verify" [] (pgp-verify))
-    (POST "/pgp/verify" []
-           :form [response :- String] (pgp-verify response))
+
     (GET "/password" [] (password-page))
     (POST "/password" []
            :form [update Password] (password-page update))

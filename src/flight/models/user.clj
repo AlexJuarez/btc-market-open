@@ -36,11 +36,15 @@
   (first
     (select users
       (with currency (fields [:key :currency_key] [:symbol :currency_symbol]))
-      (where {:login (s/lower-case login) :banned false}))))
+      (where {:login (s/lower-case login) :banned false})
+            (limit 1))))
 
 (defn get-by-alias [a]
   (first (select users
-          (where {:alias a}))))
+          (where {:alias a}) (limit 1))))
+
+(defn alias-availible? [a]
+  (nil? (get-by-alias a)))
 
 (defn get [id]
   (dissoc
@@ -98,9 +102,6 @@
   {:pub_key (if (empty? pub_key) nil (clojure.string/trim pub_key))
    :pub_key_id (if (empty? pub_key) nil (pgp/get-id pub_key))})
 
-(defn valid-pgp? [user]
-  (when (and (not (empty? (:pub_key user))) (nil? (pgp/get-key-ring (:pub_key user)))) {:pub_key "Invalid pgp key"}))
-
 ;; Operations
 
 (defn update-pin! [id slug]
@@ -118,29 +119,26 @@
       )))
 
 (defn update! [id slug]
-  (let [updates (clean slug)
-        check (valid-update? updates)]
-    (if (empty? check)
+  (let [updates (clean slug)]
+    (if (error/empty?)
       (let [user (util/current-user)]
         (session/put! :user
                       (merge
-                       (update users
-                        (set-fields updates)
-                        (where {:id id}))
+                       (transaction
+                         (update users
+                                 (set-fields updates)
+                                 (where {:id id}))
+                         (first (select users (where {:id id}) (limit 1))))
                        (if-not (= (:curreny_id updates) (:currency_id user))
                          {:currency_symbol (:symbol (currency/get (:currency_id updates)))}))))
-      {:errors check})))
+      slug)))
 
-(defn update-pgp! [pub_key]
-  (let [updates (clean-pgp pub_key)
-        check (valid-pgp? updates)]
-    (if (empty? check)
-      (let [user (util/current-user)
-            update  (update users
+(defn update-pgp! [pub_key user-id]
+  (let [updates (clean-pgp pub_key)]
+      (let [update (update users
                             (set-fields updates)
-                            (where {:id (:id user)}))]
-        (session/put! :user (assoc user :pub_key (update :pub_key))))
-      {:errors check})))
+                            (where {:id user-id}))]
+        (session/assoc-in! [:user :pub_key] (update :pub_key)))))
 
 (defn update-btc-address! [id]
   (let [new-address (btc/newaddress id)]

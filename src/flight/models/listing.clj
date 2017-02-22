@@ -45,18 +45,14 @@
   (.createArrayOf (.getConnection (:datasource (get-connection db))) "integer" (object-array v)))
 
 ;;TODO 26 is usd find a better way to set up this var
-(defn prep [{:keys [description price currency_id] :as listing}]
-  (let [to ((keyword "to[]") listing)
-        to (if (some #{1} to) [1] to)]
-    (merge
-      (dissoc listing :image (keyword "to[]"))
-      {:description (hc/escape-html description)
-       :to (if (empty? to) nil (sort (distinct to)))
-       :converted_price (util/convert-price currency_id 26 price)
-       :updated_on (raw "now()")})))
+(defn prep [{:keys [description price currency_id to] :as listing}]
+  (assoc
+    listing
+    :description (hc/escape-html description)
+    :to (if (empty? to) nil (vec->array (sort (distinct to))))
+    :converted_price (util/convert-price currency_id 26 price)
+    :updated_on (raw "now()")))
 
-(defn clean [{:keys [to] :as listing}]
-  (assoc listing :to (if (empty? to) nil (vec->array to))))
 
 (defn get
   ([id]
@@ -119,7 +115,7 @@
 
 (defn store! [{:keys [public quantity to] :as listing} user-id]
   (let [category-id (:category_id listing)
-        listing (assoc (clean listing) :user_id user-id)]
+        listing (assoc listing :user_id user-id)]
     (util/update-session user-id)
     (let [l (transaction
               (update users (set-fields {:listings (raw "listings + 1")}) (where {:id user-id}))
@@ -129,23 +125,16 @@
       l)
     ))
 
-(defn- check [listing]
-  (let [listing (prep listing)
-        check (v/listing-validator listing)]
-    (when (not (empty? check)) (error/set! check))
+(defn add! [listing user-id]
+  (if (error/empty?)
+    (store! listing user-id)
     listing))
 
-(defn add! [listing user-id]
-  (let [listing (check listing)]
-    (if (error/empty?)
-      (store! listing user-id)
-      listing)))
-
-(defn update! [listing id user-id]
-  (let [{category_id_old :category_id public_old :public quantity_old :quantity} (first (select listings (fields :category_id :public :quantity) (where {:id id :user_id user-id})))
-        {:keys [category_id public quantity to] :as listing} (check listing)
-        ships (map #(hash-map :user_id user-id :region_id % :listing_id id) (if (some #{"1"} to) [1] to))]
-    (if (error/empty?)
+(defn update! [{:keys [to] :as slug} id user-id]
+  (if (error/empty?)
+    (let [{category_id_old :category_id public_old :public quantity_old :quantity} (first (select listings (fields :category_id :public :quantity) (where {:id id :user_id user-id})))
+          {:keys [category_id public quantity] :as listing} (prep slug)
+          ships (map #(hash-map :user_id user-id :region_id % :listing_id id) (if (some #{"1"} to) [1] to))]
       (add-shipping
         (transaction
           (if (and (not (= category_id category_id_old)) public_old public (> quantity 0) (> quantity_old 0))
@@ -161,11 +150,10 @@
           (delete ships-to (where {:listing_id id}))
           (insert ships-to (values ships))
           (update listings
-                  (set-fields (clean listing))
+                  (set-fields listing)
                   (where {:id id :user_id user-id}))
-          (first (select listings (where {:id id :user_id user-id}) (limit 1)))))
-      listing)
-    listing))
+          (first (select listings (where {:id id :user_id user-id}) (limit 1))))))
+    slug))
 
 (defn- sortby [query page per-page {:keys [sort_by ships_to ships_from]}]
   (let [query (-> query

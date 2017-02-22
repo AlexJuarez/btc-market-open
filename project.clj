@@ -16,7 +16,7 @@
                  [compojure "1.5.1"]
                  [conman "0.2.7" :exclusions [instaparse]]
                  [crypto-random "1.2.0"] ;;crypto lib
-                 [environ "1.0.1"]
+                 [cprop "0.1.10"]
                  [hashobject/hashids "0.2.0"];;for anon hashing
                  [image-resizer "0.1.9"]
                  [korma "0.4.2" :exclusions [c3p0/c3p0]] ;;sql dsl
@@ -30,14 +30,16 @@
                  [metosin/ring-swagger "0.22.0"]
                  [metosin/ring-swagger-ui "2.1.3-4"]
                  [migratus "0.8.7"]
-                 [mount "0.1.4" :exclusions [ch.qos.logback/logback-classic]]
+                 [mount "0.1.11" :exclusions [ch.qos.logback/logback-classic]]
                  [net.sf.jlue/jlue-core "1.3"];;captcha creation
                  [org.bouncycastle/bcpg-jdk15on "1.50"]
                  [org.clojure/clojure "1.8.0"]
                  [org.clojure/core.match "0.3.0-alpha4"]
                  [org.clojure/java.jdbc "0.3.7"]
-                 [org.clojure/tools.nrepl "0.2.12"]
-                 [org.immutant/web "2.1.1" :exclusions [ch.qos.logback/logback-classic]]
+                 [org.clojure/tools.cli "0.3.5"]
+                 [org.clojure/tools.logging "0.3.1"]
+                 [luminus-immutant "0.2.3"]
+                 [luminus-nrepl "0.1.4"]
                  [org.slf4j/log4j-over-slf4j "1.7.12"]
                  [org.postgresql/postgresql "9.3-1102-jdbc41"] ;;postgres adapter
                  [prismatic/schema "1.0.3"]
@@ -52,12 +54,13 @@
   :min-lein-version "2.5.2"
   :uberjar-name "flight.jar"
   :jvm-opts ["-server"]
-
+  :resource-paths ["resources"]
   :main flight.core
   :migratus {:store :database}
 
   :plugins [[lein-ancient "0.6.10"]
-            [lein-environ "1.0.1"]
+            [lein-cprop "1.0.1"]
+            [lein-immutant "2.1.0"]
             [org.clojars.punkisdead/lein-cucumber "1.0.4"]]
   :cucumber-feature-paths ["test/features"]
   :profiles
@@ -77,25 +80,12 @@
                                  [mvxcvi/puget "1.0.0"]]
 
                   :source-paths ["env/dev/clj"]
+                  :resource-paths ["env/dev/resources"]
                   :repl-options {:init-ns flight.core}
                   :injections [(require 'pjstadig.humane-test-output)
                                (pjstadig.humane-test-output/activate!)]
                   ;;when :nrepl-port is set the application starts the nREPL server on load
-                  :env {:dev        true
-                        :port       3000
-                        :nrepl-port 7000
-                        :couchbase true
-                        :log-path "./flight-rotor.log"
-                        :embed-image true
-                        :couchbase-server-uri "127.0.0.1:11211"
-                        :remote-bitcoin-values "https://api.coinbase.com/v1/currencies/exchange_rates"
-                        :dbspec {:classname "org.postgresql.Driver"
-                                  :subprotocol "postgresql"
-                                  :subname "//localhost/whitecity"
-                                  :user "devil"
-                                  :password "admin"
-                                  :make-pool? true}
-                        :log-level  :info}}
+                  }
    :project/test {:env {:test       true
                         :port       3001
                         :nrepl-port 7001

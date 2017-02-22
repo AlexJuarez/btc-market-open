@@ -1,6 +1,6 @@
 (ns flight.models.currency
   (:refer-clojure :exclude [get find])
-  (:require 
+  (:require
         [flight.cache :as cache]
         [korma.core :refer [where values select insert]]
         [korma.db :refer [defdb]])
@@ -10,6 +10,9 @@
   (first
     (select currency
             (where {:id id}))))
+
+(defn exists? [id]
+  (not (nil? (get id))))
 
 (defn all
   ([cache?] (select currency))

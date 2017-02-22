@@ -9,8 +9,6 @@
   (:import net.spy.memcached.compat.log.Log4JLogger
            org.apache.log4j.BasicConfigurator))
 
-(def ^:private address (env :couchbase-server-uri))
-
 (defn create-connection [address]
   (if-not (empty? address)
     (try
@@ -27,7 +25,7 @@
         (System/setProperties props)
         (org.apache.log4j.BasicConfigurator/configure))
       (log/info "Starting couchbase connection")
-      (atom (create-connection address)))
+      (atom (create-connection (env :couchbase-server-uri))))
     (atom nil)))
 
 (defn shutdown-connection [ce]

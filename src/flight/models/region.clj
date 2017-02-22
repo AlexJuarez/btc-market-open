@@ -11,6 +11,9 @@
    (select region
            (where {:id id}))))
 
+(defn exists? [id]
+  (not (nil? (get id))))
+
 (defn all []
   (cache/cache! "region/all" (select region)))
 

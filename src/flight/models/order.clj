@@ -2,9 +2,9 @@
   (:refer-clojure :exclude [count update])
   (:use [korma.db :only (transaction)]
         [korma.core]
-        [environ.core :only [env]]
         [flight.db.core])
   (:require
+        [flight.env :refer [env]]
         [flight.models.postage :as postage]
         [flight.models.listing :as listings]
         [flight.validator :as v]

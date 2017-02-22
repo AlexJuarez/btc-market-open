@@ -32,7 +32,7 @@
                   regions-remaining (sort (keys (apply dissoc regions (concat [1] common recent))))
                   ]
               (str
-               (html [:option (merge {:value 1} (if (or (nil? select) (some #{1} select)) {:selected "selected"})) "Worldwide"])
+               (html [:option (merge {:value 1} (if (or (string? select) (nil? select) (some #{1} select)) {:selected "selected"})) "Worldwide"])
                (when (not (empty? recent))
                  (html [:optgroup {:label "Recent"}
                         (map #(vector :option (merge {:value %} (if (some #{%} select) {:selected "selected"})) (regions %)) recent)

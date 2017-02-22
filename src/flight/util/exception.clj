@@ -17,6 +17,12 @@
     "The captcha was entered incorrectly."
     ['not ['instance? type value]]
     "the value is invalid"
+    ['not [['greater-than? min] value]]
+    (str "needs to be " (if (number? value) "greater" "longer") " than " min)
+    ['not [['less-than? min] value]]
+    (str "needs to be "
+         (if (number? value) "smaller" "shorter")
+         " than " max)
     :else
     (str x))
     (cons []))

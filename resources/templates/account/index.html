@@ -32,7 +32,7 @@
 {% endblock %}
 {% block container %}
 <h1 class="jumbo">Settings</h1>
-<form action="/account" enctype="multipart/form-data" method="POST">
+<form action="/account" method="POST">
   {% csrf-token %}
   <div class="form-group {% if errors.alias %}has-error{% endif %}">
     <label for="alias">Alias:

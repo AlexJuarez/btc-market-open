@@ -2,11 +2,13 @@
   (:refer-clojure :exclude [update])
   (:use [korma.core]
         [flight.db.helpers])
-  (:require [korma.db :refer [defdb get-connection]]
+  (:require [korma.db :refer [create-db default-connection]]
             [korma.core :refer :all]
-            [flight.env :refer [env]]))
+            [flight.env :refer [env]]
+            [mount.core :as mount]))
 
-(defdb db (env :dbspec))
+(mount/defstate db
+  :start (default-connection (create-db (env :dbspec))))
 
 (declare
   audits

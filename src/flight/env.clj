@@ -1,6 +1,9 @@
 (ns flight.env
-  (:require [environ.core :as environ]))
+  (:require [cprop.core :refer [load-config]]
+            [cprop.source :as source]
+            [mount.core :refer [args defstate]]))
 
-(defonce ^{:doc "A map of enviroment variables including external configuration"}
-  env
-  environ/env)
+(defstate env
+  :start (load-config :merge [(args)
+                              (source/from-system-props)
+                              (source/from-env)]))

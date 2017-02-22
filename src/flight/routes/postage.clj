@@ -12,9 +12,9 @@
 ))
 
 (s/defschema Postage
-  {:title String
-   :price Double
-   :currency_id Long})
+  {:title (s/both String (in-range? 4 100))
+   :price (s/both Double (in-range? 0))
+   :currency_id (s/both Long (s/pred currency/exists? 'currency/exists?))})
 
 (defn postage-create
   ([]

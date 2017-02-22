@@ -14,8 +14,9 @@
 
 (defmigration add-regions-table
   (up [] (create
-           (tbl :region
-                (varchar :name 64))))
+           (table :region
+                  (varchar :name 64)
+                  (timestamp :created_on (default (now))))))
   (down [] (drop (table :region))))
 
 (defmigration add-users-table
@@ -211,7 +212,7 @@
                 (integer :transaction)
                 (smallint :rating :not-null (default 5))
                 (boolean :shipped (default true)))))
-                
+
   (down [] (drop (table :review))))
 
 (defmigration add-audits-table

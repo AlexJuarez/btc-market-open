@@ -175,11 +175,16 @@
            :query-params [{page :- Long 1}]
            (GET "/" [] (user-view id page))
            (GET "/key" [] (user-key id)))
-  (GET "/listing/:id" {{id :id page :page} :params} (listing-view id page))
+  (GET "/listing/:id" []
+       :path-params [id :- Long]
+       :query-params [{page :- Long 1}]
+       (listing-view id page))
 
   ;;restricted routes
-  (GET "/resolution/:id/accept" {{id :id} :params {referer "referer"} :headers} (resolution-accept id referer))
-  (context
-   "/user/:id" [id]
-   (GET "/report" {{id :id} :params {referer "referer"} :headers} (report-add id (user-id) "user" referer))
-   (GET "/unreport" {{id :id} :params {referer "referer"} :headers} (report-remove id (user-id) "user" referer))))
+  (GET "/resolution/:id/accept" {{referer "referer"} :headers}
+       :path-params [id :- Long]
+       (resolution-accept id referer))
+  (context "/user/:id" []
+           :path-params [id :- Long]
+           (GET "/report" {{referer "referer"} :headers} (report-add id (user-id) "user" referer))
+           (GET "/unreport" {{referer "referer"} :headers} (report-remove id (user-id) "user" referer))))

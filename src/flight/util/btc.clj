@@ -6,24 +6,22 @@
 
 (defonce digits58 "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz")
 
-(defonce config (env :btcspec))
-
 (defn address [account]
   (try
-    (btc/getaccountaddress :account (str account) :config config)
+    (btc/getaccountaddress :account (str account) :config (env :btcspec))
     (catch Exception ex
       (log/error ex "Address creation error"))))
 
 (defn newaddress [account]
   (try
-    (btc/getnewaddress :account (str account) :config config)
+    (btc/getnewaddress :account (str account) :config (env :btcspec))
     (catch Exception ex
       (log/error ex "Address creation error - new address"))))
 
 (defn privkey [address]
   (if (string? address)
     (try
-      (btc/dumpprivkey :bitcoinaddress address :config config)
+      (btc/dumpprivkey :bitcoinaddress address :config (env :btcspec))
       (catch Exception ex
         (log/error ex "Address private key retrieval failed")))))
 

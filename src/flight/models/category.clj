@@ -14,6 +14,9 @@
   (first
     (select category (where {:id id}))))
 
+(defn exists? [id]
+  (not (nil? (get id))))
+
 (defn search [query]
   (select category
           (where {:name [ilike query]})

@@ -84,20 +84,6 @@
   [:amount [:presence :numericality {:greater-than-or-equal-to 0 :less-than-or-equal-to 2147483647} :check-amount]]
   [:pin [:presence :pin-match]])
 
-(v/defvalidator listing-validator
-  [:title [:presence :in-range {:start 4 :end 100}]]
-  [:price [:presence :numericality {:greater-than-or-equal-to 0 :less-than-or-equal-to 2147483647}]]
-  [:currency_id [:presence]]
-  [:quantity [:presence :numericality {:greater-than-or-equal-to 0 :less-than-or-equal-to 2147483647}]])
-
-(v/defvalidator postage-validator
-  [:price [:presence :numericality {:greater-than-or-equal-to 0 :less-than-or-equal-to 2147483647}]]
-  [:title [:presence :in-range {:start 4 :end 100}]])
-
-(v/defvalidator message-validator
-  [:content [:presence :length {:is-not-greater-than 6000}]]
-  [:title :length {:is-not-greater-than 100}])
-
 (v/defvalidator news-validator
   [:content [:presence :length {:is-not-greater-than 6000}]]
   [:subject :length {:is-not-greater-than 100}]

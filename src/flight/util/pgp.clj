@@ -51,3 +51,6 @@
   (catch Exception ex
     (log/error ex "Encoding failed")
     "the encoding has failed")))
+
+(defn valid? [s]
+  (not (nil? (get-key-ring s))))

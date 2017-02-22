@@ -14,9 +14,10 @@
     [schema.core :as s]
     [ring.util.response :as resp]
     [clojure.string :as string]
+    [mount.core :refer [defstate]]
     ))
 
-(defonce per-page (or (env :messages-per-page) 25))
+(defonce per-page 25)
 
 (defn encrypt-feedback-ids [messages]
   (map #(assoc % :feedback_id (if (not (nil? (:feedback_id %))) (hashids/encrypt-ticket-id (:feedback_id %)))) messages))
@@ -25,7 +26,7 @@
   (let [pagemax (util/page-max (:total (util/session! :messages (message/count (user-id)))) per-page)
         news (post/get-news (user-id)) ;;TODO: add pagination
         messages (encrypt-feedback-ids (message/all (user-id) page per-page))]
-    (layout/render "messages/index.html"{:page {:page page :max pagemax}
+    (layout/render "messages/index.html" {:paginate {:page page :max pagemax}
                                          :news news
                                          :messages messages})))
 
@@ -82,8 +83,8 @@
                      :user_id (:id receiver) :messages (message/all (user-id) (:id receiver))} message)))
 
 (s/defschema Message
-  {(s/optional-key :subject) String
-   :content String})
+  {(s/optional-key :subject) (s/both String (less-than? 100))
+   :content (s/both String (less-than? 6000))})
 
 (defroutes message-routes
   (context "/messages" []
@@ -99,8 +100,8 @@
                              :form [message Message]
                              (message-create message id))))
             (context "/message/:id" []
-                      :path-params [message-id :- (s/both Long (s/pred message/exists? 'message/exists?))]
-                      (GET "/delete" {{referer "referer"} :headers} (message-delete message-id referer)))
+                      :path-params [id :- (s/both Long (s/pred message/exists? 'message/exists?))]
+                      (GET "/delete" {{referer "referer"} :headers} (message-delete id referer)))
             (context "/support/:tid" [tid]
                       :path-params [tid :- Long]
                       (GET "/" [] (support-thread tid))
