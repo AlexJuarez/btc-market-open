@@ -21,7 +21,7 @@
   <span class="price">{{user.currency_symbol|safe}}{{price|double-format:4}}</span>
   <form action="/cart/add/{{lid}}" method="post">
     {% csrf-token %}
-    <button class="btn cart-link" type="submit">add to cart</button>
+    <button class="btn-clr cart-link" type="submit">add to cart</button>
     <p>
       {% if reported %}
       <a href="/listing/{{lid}}/unreport">remove my report</a>
