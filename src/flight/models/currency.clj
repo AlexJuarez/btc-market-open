@@ -15,9 +15,10 @@
     (cache/cache! "currencies" (select currency))))
 
 (defn get [id]
-  (first
-    (select currency
-            (where {:id id}))))
+  (cache/cache! (str "currency:" id)
+                (first
+                  (select currency
+                          (where {:id id})))))
 
 (defn exists? [id]
   (not (nil? (get id))))

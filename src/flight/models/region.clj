@@ -7,9 +7,10 @@
    [flight.cache :as cache]))
 
 (defn get [id]
-  (first
-   (select region
-           (where {:id id}))))
+  (cache/cache! (str "region:" id)
+                (first
+                  (select region
+                          (where {:id id})))))
 
 (defn exists? [id]
   (not (nil? (get id))))
