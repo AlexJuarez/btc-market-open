@@ -98,4 +98,5 @@
     (bytes-to-base64 b)))
 
 (defn parse-int [s]
-  (java.lang.Long. s))
+  (try (java.lang.Long/parseLong s)
+       (catch Exception ex s)))
