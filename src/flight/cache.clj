@@ -56,17 +56,20 @@
    (->CouchBaseSessionStore namespace (* 60 60 10))))
 
 (defn set [key value & ttl]
-  (if-not (nil? @*ce*)
-    (c/set (get-connection) key (or (first ttl) (+ (* 60 10) (rand-int 600))) value)
-    (mem/set key value)))
+  (mem/set key value)
+  (when-not (nil? @*ce*)
+    (c/set (get-connection) key (or (first ttl) (+ (* 60 10) (rand-int 600))) value)))
     ;;rand-int adds variation on key expiration
 
 (defn get [key]
-  (if-not (nil? @*ce*)
-    (when-let [val (c/get (get-connection) key)]
-      (log/info "cache get" key)
-      val)
-    (mem/get key)))
+  (let [mem-val (mem/get key)]
+    (if (not (nil? mem-val))
+      mem-val
+      (when-not (nil? @*ce*)
+        (when-let [val (c/get (get-connection) key)]
+          (log/info "cache get" key)
+          (mem/set key val)
+          val)))))
 
 (defn delete [key]
   (if-not (nil? @*ce*)

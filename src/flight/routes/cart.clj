@@ -91,14 +91,25 @@
                                           :total total :btc-total btc-total
                                           :listings listings} order)))))
 
+(defn cart-checkout []
+
+  )
+
 (defn map-item [item k m]
   (reduce-kv #(assoc-in %1 [%2 k] %3) item m))
+
+(defn- filter-empty [m]
+  (into {} (filter (comp not clojure.string/blank? val) m)))
+
+(defn remove-empty-values [m]
+  (into {} (map #(vector (key %) (filter-empty (val %))) m)))
 
 (defn create-items [{:keys [postage quantity]}]
   (-> {}
       (map-item "postage" postage)
       (map-item "quantity" quantity)
-      (map-item "id" (into {} (map #(vector (key %) (key %)) postage)))))
+      (map-item "id" (into {} (map #(vector (key %) (key %)) postage)))
+      remove-empty-values))
 
 (defn create-cart-params [params]
   (fn [p]
@@ -115,9 +126,9 @@
 (s/defschema Cart
   {:cart {s/Keyword {
     :id (s/both Long (s/pred listing/exists? 'exists?))
-    :postage (s/conditional clojure.string/blank? String :else (s/both Long (s/pred postage/exists? 'exists?)))
+    (s/optional-key :postage) (s/both Long (s/pred postage/exists? 'exists?))
     :quantity (s/both Long (greater-than? 0))}}
-   (s/optional-key :submit) String})
+    (s/optional-key :submit) String})
 
 (defroutes cart-routes
   (context
@@ -127,6 +138,7 @@
          :middleware [consolidate-cart]
          :form [cart Cart]
          (cart-submit cart))
+   (GET "/checkout" [] (cart-checkout))
    (GET "/empty" [] (cart-empty))
    (context "/add/:id" []
             :path-params [id :- Long]

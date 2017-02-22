@@ -44,7 +44,7 @@
     <td>{{user.currency_symbol|safe}}{{listing.subtotal|double-format:5}}</td>
     <td>
       <select name="postage[{{listing.lid}}]">
-        <option value="">select one</option>
+        {% if not listing.lid|postage-cart %}<option value="">select one</option>{% endif %}
         {% for postage in listing.postage %}
         <option {% ifequal listing.lid|postage-cart postage.id %}selected{% endifequal %} value="{{postage.id}}">{{postage.title}} - {{user.currency_symbol|safe}}{{postage.price|double-format:5}}</option>
         {% endfor %}
