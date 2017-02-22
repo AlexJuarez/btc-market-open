@@ -141,24 +141,21 @@
   (resolution/accept id (user-id))
   (resp/redirect referer))
 
-(s/defschema Market
-  {(s/optional-key :page) Long
-   (s/optional-key :sort_by) (s/enum :lowest :highest :title :newest :bestselling)
-   (s/optional-key :ships_to) Boolean
-   (s/optional-key :ships_from) Boolean})
-
 (defroutes market-routes
   (context "" []
-            :query [params Market]
+            :query-params [{page :- Long 1}
+                           {sort_by :- (s/enum "lowest" "highest" "title" "newest" "bestselling") "bestselling"}
+                           {ships_to :- Boolean false}
+                           {ships_from :- Boolean false}]
             (GET "/" []
-                  (home-page params))
+                  (home-page {:page page :sort_by sort_by :ships_to ships_to :ships_from ships_from}))
             (GET "/search" []
                   :query-params [q :- String
                                  {cid :- Long 1}]
                   (search-page q cid))
             (GET "/category/:id" []
                   :path-params [{id :- Long 1}]
-                  (category-page id params)))
+                  (category-page id {:page page :sort_by sort_by :ships_to ships_to :ships_from ships_from})))
   (GET "/support" [] (support-page))
   (POST "/support" {params :params} (support-page params))
 

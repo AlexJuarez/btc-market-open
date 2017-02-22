@@ -8,27 +8,20 @@
     [flight.models.currency :as currency]
     [flight.models.order :as orders]
     [ring.util.response :as resp]
+    [flight.util.error :as error]
     [flight.validator :as v]
     [flight.util.session :as session]
     [flight.util.core :as util :refer [user-id]]
+    [flight.util.cart :as cart]
     [schema.core :as s]
 ))
 
-(def cart-limit 100)
+(defn cart-add [id &[postage]]
+  (cart/add! id postage)
+  (resp/redirect "/cart"))
 
-(defn cart-add
-  "add a item to the cart"
-  [id &[postage]]
-  (let [cart (or (session/get :cart) {})]
-    (when (< (count cart) cart-limit) ;;limit the size of the cart... aka they should only be able to have like 100 items
-      (session/update-in! [:cart id :quantity] (fnil inc 0))
-      (when (not (nil? postage)) (session/assoc-in! [:cart id :postage] postage)))
-    (resp/redirect "/cart")))
-
-(defn cart-remove
-  [id]
-  (let [cart (session/get :cart)]
-    (session/put! :cart (dissoc cart id)))
+(defn cart-remove [id]
+  (cart/remove! id)
   (resp/redirect "/cart"))
 
 (defn cart-get
@@ -51,7 +44,7 @@
     (map #(prep-listing % postages updates) listings)))
 
 (defn cart-empty []
-  (session/put! :cart {})
+  (cart/empty!)
   (resp/redirect "/cart"))
 
 (defn cart-update [{:keys [quantity postage]} listings]
@@ -72,19 +65,21 @@
         listings (prep-listings ls errors)]
     listings))
 
-(defn cart-view [& slug]
-  (let [listings (get-listings (first slug))
-        total (reduce + (map #(:total %) listings))
-        btc-total (util/convert-price (:currency_id (util/current-user)) 1 total)]
-    (layout/render "cart/index.html" {:errors {}
-                                      :convert (not (= (:currency_id (util/current-user)) 1))
-                                      :total total
-                                      :btc-total btc-total
-                                      :listings listings})))
+(defn cart-view
+  ([slug]
+   (when (error/empty?)
+     (cart/update! (:cart slug)))
+   (let [listings (cart/listings)
+         btc-total (cart/total)
+         total (util/convert-price 1 (:currency_id (util/current-user)) btc-total)]
+     (prn (error/all))
+     (prn listings)
+     (layout/render "cart/index.html" {:convert (not (= (:currency_id (util/current-user)) 1))
+                                       :total total
+                                       :btc-total btc-total
+                                       :listings listings}))))
 
-(defn cart-checkout [])
-
-(defn cart-submit [{:keys [quantity postage address pin submit] :as slug}]
+(defn cart-submit [{:keys [items address pin submit] :as slug}]
   (if (= "Update Cart" submit)
     (cart-view slug)
     (let [listings (get-listings slug)
@@ -98,12 +93,42 @@
                                           :total total :btc-total btc-total
                                           :listings listings} order)))))
 
+(defn map-item [item k m]
+  (reduce-kv #(assoc-in %1 [%2 k] %3) item m))
+
+(defn create-items [{:keys [postage quantity]}]
+  (-> {}
+      (map-item "postage" postage)
+      (map-item "quantity" quantity)
+      (map-item "id" (into {} (map #(vector (key %) (key %)) postage)))))
+
+(defn create-cart-params [params]
+  (fn [p]
+    (-> (select-keys p ["__anti-forgery-token" "submit"])
+        (assoc "cart" (create-items params))
+        )))
+
+(defn consolidate-cart [handler]
+  (fn [req]
+    (let [req (-> req
+                      (update-in [:form-params] (create-cart-params (:params req))))]
+    (handler req))))
+
+(s/defschema Cart
+  {:cart {s/Keyword {
+    :id (s/both Long (s/pred listing/exists? 'exists?))
+    :postage (s/conditional clojure.string/blank? String :else (s/both Long (s/pred postage/exists? 'exists?)))
+    :quantity (s/both Long (greater-than? 0))}}
+   (s/optional-key :submit) String})
+
 (defroutes cart-routes
   (context
    "/cart" []
    (GET "/" [] (cart-view))
-   (POST "/" {params :params} (cart-submit params))
-   (GET "/checkout" [] (cart-checkout))
+   (POST "/" []
+         :middleware [consolidate-cart]
+         :form [cart Cart]
+         (cart-submit cart))
    (GET "/empty" [] (cart-empty))
    (context "/add/:id" []
             :path-params [id :- Long]

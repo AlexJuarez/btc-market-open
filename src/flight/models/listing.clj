@@ -65,6 +65,9 @@
      (first (select listings
         (where {:id id :user_id user-id}))))))
 
+(defn exists? [id]
+  (not (nil? (get id))))
+
 (defn search [query]
   (convert (select listings
           (where {:public true :quantity [> 0] :title [ilike query]})

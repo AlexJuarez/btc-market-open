@@ -136,7 +136,7 @@
 
 
 (s/defschema Account
-  {(s/optional-key :alias) (s/both String (in-range? 3 64) (is-alphanumeric?) (s/pred user/alias-availible? 'availible?))
+  {(s/optional-key :alias) (s/both String (in-range? 3 64) (is-alphanumeric?) (s/pred #(user/alias-availible? % (user-id)) 'availible?))
    (s/optional-key :currency_id) (s/both Long (s/pred currency/exists? 'exists?))
    (s/optional-key :region_id) (s/both Long (s/pred region/exists? 'exists?))
    (s/optional-key :auth) Boolean

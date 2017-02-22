@@ -43,8 +43,9 @@
   (first (select users
           (where {:alias a}) (limit 1))))
 
-(defn alias-availible? [a]
-  (nil? (get-by-alias a)))
+(defn alias-availible? [a user-id]
+  (let [user (get-by-alias a)]
+    (or (nil? user) (= user-id (:id user)))))
 
 (defn get [id]
   (dissoc

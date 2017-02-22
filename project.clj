@@ -23,7 +23,7 @@
                  [lobos "1.0.0-beta3"]
                  [markdown-clj "0.9.82"]
                  [metis "0.3.3"];;validator
-                 [metosin/compojure-api "1.1.8" :exclusions
+                 [metosin/compojure-api "1.1.10" :exclusions
                   [com.cognitect/transit-java com.google.guava/guava riddley com.google.code.findbugs/jsr305 org.yaml/snakeyaml]]
                  [metosin/ring-http-response "0.6.5"]
                  [metosin/ring-middleware-format "0.6.0" :exclusions [org.json/json]]

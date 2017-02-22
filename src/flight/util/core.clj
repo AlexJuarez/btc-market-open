@@ -7,6 +7,7 @@
    [flight.cache :as cache]
    [flight.util.session :as session]
    [clojure.string :as s]
+   [flight.models.currency :as currency]
    [flight.models.exchange :as exchange])
   (:import
     [org.apache.commons.codec.binary Base64]))
@@ -56,12 +57,13 @@
                 (cache/set session#
                            (assoc sess# :noir (dissoc (:noir sess#) ~@terms :user)) ttl#))))))))
 
+
 (defn convert-price [from to price]
   (if-not (= from to)
     (let [rate (exchange/get from to)]
-         (if-not (nil? rate)
-           (* price rate)
-           price))
+      (if-not (nil? rate)
+        (* price rate)
+        price))
     price))
 
 (defn convert-currency

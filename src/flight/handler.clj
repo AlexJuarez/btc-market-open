@@ -6,7 +6,6 @@
             [flight.layout :refer [error-page]]
             [flight.middleware :as middleware]
             [flight.routes.core :refer [core-routes]]
-            [flight.routes.home :refer [home-routes]]
             [mount.core :refer [defstate] :as mount]
             ))
 
@@ -19,7 +18,6 @@
 
 (def app-routes
   (routes
-    (wrap-routes #'home-routes middleware/wrap-csrf)
     (wrap-routes #'core-routes middleware/wrap-csrf)
     (route/not-found
       (:body

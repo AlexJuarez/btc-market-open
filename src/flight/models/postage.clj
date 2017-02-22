@@ -27,6 +27,9 @@
     (first (select postage
       (where {:id id :user_id user-id})))))
 
+(defn exists? [id]
+  (not (nil? (get id))))
+
 (defn remove! [id user-id]
   (delete postage
     (where {:id id :user_id user-id})))

@@ -47,7 +47,7 @@
   {(s/optional-key :pin) (s/both String (is-alphanumeric?) (in-range? 4 64))
    (s/optional-key :confirmpin) (s/both String (is-alphanumeric?) (in-range? 4 64))
    (s/optional-key :oldpin) String
-   (s/optional-key :amount) (s/both Double (in-range? 0 (:btc (util/current-user))))
+   (s/optional-key :amount) (s/both Double (in-range? 0 `(:btc (util/current-user))))
    (s/optional-key :address) String})
 
 (defroutes wallet-routes
