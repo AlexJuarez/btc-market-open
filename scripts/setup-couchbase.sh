@@ -1,7 +1,7 @@
 set -x
 set -e
 
-DATA_SIZE=2744
+DATA_SIZE=512
 INDEX_SIZE=256
 
 /opt/couchbase/bin/couchbase-cli cluster-init -c 127.0.0.1:8091 --cluster-init-username=admin --cluster-init-password=whitecity \
