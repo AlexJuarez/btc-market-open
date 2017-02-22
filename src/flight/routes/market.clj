@@ -51,9 +51,6 @@
 (defn category-page [id params]
   (market-page (str "/category/" id) (assoc params :cid id)))
 
-(defn about-page []
-  (layout/render "about.html"))
-
 (defn user-key [id]
   (let [user (user/get id)]
     (-> (resp/response (:pub_key user))
@@ -162,7 +159,6 @@
             (GET "/category/:id" []
                   :path-params [{id :- Long 1}]
                   (category-page id params)))
-  (GET "/about" [] (about-page))
   (GET "/support" [] (support-page))
   (POST "/support" {params :params} (support-page params))
 

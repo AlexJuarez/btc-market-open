@@ -93,14 +93,14 @@
                   (messages-page page))
             (GET "/sent" [] (messages-sent))
             (context "/:id" []
-                      :path-params [id :- (s/both Long (s/pred user/exists? 'user/exists?))]
+                      :path-params [id :- (s/both Long (s/pred user/exists? 'exists?))]
                       (GET "/" [] (messages-thread id))
                       (GET "/download" [] (messages-download id))
                       (POST "/" []
                              :form [message Message]
                              (message-create message id))))
             (context "/message/:id" []
-                      :path-params [id :- (s/both Long (s/pred message/exists? 'message/exists?))]
+                      :path-params [id :- (s/both Long (s/pred message/exists? 'exists?))]
                       (GET "/delete" {{referer "referer"} :headers} (message-delete id referer)))
             (context "/support/:tid" [tid]
                       :path-params [tid :- Long]

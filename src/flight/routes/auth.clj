@@ -95,11 +95,11 @@
   (= (session/flash-get :key) text))
 
 (s/defschema Login
-  {:login (s/both String (s/pred users/exists? 'users/exists?))
+  {:login (s/both String (s/pred users/exists? 'exists?))
    :pass String})
 
 (s/defschema Register
-  {:login (s/both String (s/pred #(not (users/exists? %)) 'users/exists?))
+  {:login (s/both String (s/pred #(not (users/exists? %)) 'exists?))
    :pass String
    :confirm String
    :captcha (s/both String (s/pred valid-captcha? 'valid-captcha?))})

@@ -53,7 +53,7 @@
     (-> (select users
                 (where {:id id}))
         first)
-    (get-by-alias id)) :pass))
+    (get-by-login id)) :pass))
 
 (defn exists? [login]
   (cache/cache! (str "user/exists?:" login)
@@ -104,17 +104,15 @@
 
 ;; Operations
 
-(defn update-pin! [id slug]
-  (let [user (util/current-user)
-        check (v/user-pin-validator slug)]
+(defn update-pin! [{:keys [pin] :as slug} user-id]
+  (let [check (v/user-pin-validator slug)]
     (if (empty? check)
       (do
-        (let [user (util/current-user)]
-          (update users
-                  (set-fields {:pin (:pin slug)})
-                  (where {:id id}))
-          (session/put! :user (assoc user :pin (:pin user))))
-      {})
+        (update users
+                  (set-fields {:pin pin})
+                  (where {:id user-id}))
+        (session/assoc-in! [:user :pin] pin)
+        {})
       {:errors check}
       )))
 

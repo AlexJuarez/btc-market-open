@@ -11,8 +11,8 @@
   (->
    (match
     x
-    ['not ['users/exists? value]]
-    "Username does not exist."
+    ['not ['exists? value]]
+    "entered value does not exist."
     ['not ['valid-captcha? value]]
     "The captcha was entered incorrectly."
     ['not ['instance? type value]]
@@ -23,6 +23,8 @@
     (str "needs to be "
          (if (number? value) "smaller" "shorter")
          " than " max)
+    ['not ['availible? value]]
+    (str value " is not availible")
     :else
     (str x))
     (cons []))

@@ -40,13 +40,13 @@
       {{errors.alias|join:", "}}
     {% endif %}
     </label>
-    <input name="alias" id="alias" class="input" type="text" value="{{user.alias}}" />
+    <input name="alias" id="alias" class="input" type="text" value="{{alias}}" />
   </div>
   <div class="form-group">
     <label for="currency_id">Currency: </label>
     <select id="currency_id" name="currency_id">
       {% for currency in currencies %}
-      <option value="{{currency.id}}" {% ifequal currency.id user.currency_id %}selected="selected"{% endifequal %}>{{currency.name}}</option>
+      <option value="{{currency.id}}" {% ifequal currency.id currency_id %}selected="selected"{% endifequal %}>{{currency.name}}</option>
       {% endfor %}
     </select>
   </div>
@@ -54,7 +54,7 @@
     <label for="region_id">Region: </label>
     <select id="region_id" name="region_id">
       {% for region in regions %}
-      <option value="{{region.id}}" {% ifequal region.id user.region_id %}selected="selected"{% endifequal %}>{{region.name}}</option>
+      <option value="{{region.id}}" {% ifequal region.id region_id %}selected="selected"{% endifequal %}>{{region.name}}</option>
       {% endfor %}
     </select>
   </div>
@@ -62,14 +62,14 @@
       <strong>2 step auth?</strong>
       <br>
       <label>
-        <input type="checkbox" {% if user.auth %}checked="checked"{% endif %} name="auth" value="true">
+        <input type="checkbox" {% if auth %}checked="checked"{% endif %} name="auth" value="true">
         (check for yes)
       </label>
   </div>
   {% if user.vendor %}
   <div class="form-group">
     <label for="description">My Description:</label>
-    <textarea id="description" class="form-control" rows="8" name="description">{{user.description|safe}}</textarea>
+    <textarea id="description" class="form-control" rows="8" name="description">{{description|safe}}</textarea>
   </div>
   {% endif %}
   <div class="form-group">

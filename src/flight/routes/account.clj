@@ -16,8 +16,9 @@
     [flight.models.region :as region]
     [ring.util.response :as resp]
     [flight.util.session :as session]
-    [flight.util.core :as util :refer [user-id]]
+    [flight.util.core :as util :refer [user-id current-user]]
     [flight.routes.account.pgp :refer [pgp-routes]]
+    [flight.routes.account.wallet :refer [wallet-routes]]
     [flight.util.markdown :as md]
     [schema.core :as s]
     [flight.access :as access]
@@ -26,43 +27,12 @@
 
 (defonce reviews-per-page 25)
 
-(defn account-page []
-  (layout/render "account/index.html" {:regions (region/all) :currencies (currency/all)}))
+(defn account-page [& [params]]
+  (layout/render "account/index.html" {:regions (region/all) :currencies (currency/all)} (current-user) params))
 
 (defn account-update [slug]
   (let [user (user/update! (user-id) slug)]
-    (account-page)))
-
-(defn withdrawal [{:keys [amount address pin] :as slug}]
-  (let [errors (:errors (user/withdraw-btc! slug (user-id)))
-        user (util/current-user)
-        transactions (audit/all (user-id))]
-    (layout/render "account/wallet.html" {:amount amount :address address
-                                          :errors errors :transactions transactions
-                                          :balance (not (= (:currency_id user) 1))})))
-(defn change-pin [slug]
-  (let [errors (:errors (user/update-pin! (user-id) slug))
-        user (util/current-user)
-        transactions (audit/all (user-id))]
-    (layout/render "account/wallet.html"
-                   (if (empty? errors) {:pin-success "Your pin has been changed"})
-                   {:pinerrors errors :transactions transactions
-                    :balance (not (= (:currency_id user) 1))})))
-
-(defn wallet-page
-  ([]
-   (let [user (util/current-user)
-         transactions (audit/all (user-id))]
-     (layout/render "account/wallet.html" {:transactions transactions :balance (not (= (:currency_id user) 1))}))
-   )
-  ([slug]
-   (if (not (nil? (:confirmpin slug)))
-     (change-pin slug)
-     (withdrawal slug))))
-
-(defn wallet-new []
-  (user/update-btc-address! (user-id))
-  (resp/redirect "/account/wallet"))
+    (account-page slug)))
 
 (defn favorites-page []
   (let [bookmarks (map #(assoc % :price (util/convert-currency %)) (bookmark/all (user-id)))
@@ -166,23 +136,16 @@
 
 
 (s/defschema Account
-  {(s/optional-key :alias) (s/both String (in-range? 3 64) (is-alphanumeric?) (s/pred user/alias-availible? 'user/alias-availible?))
-   (s/optional-key :currency_id) Long
-   (s/optional-key :region_id) Long
+  {(s/optional-key :alias) (s/both String (in-range? 3 64) (is-alphanumeric?) (s/pred user/alias-availible? 'availible?))
+   (s/optional-key :currency_id) (s/both Long (s/pred currency/exists? 'exists?))
+   (s/optional-key :region_id) (s/both Long (s/pred region/exists? 'exists?))
    (s/optional-key :auth) Boolean
-   (s/optional-key :description) String})
+   (s/optional-key :description) (s/both String (less-than? 3000))})
 
 (s/defschema Password
   {:password String
-   :newpass String
-   :confirm String})
-
-(s/defschema Wallet
-  {(s/optional-key :pin) String
-   (s/optional-key :confirmpin) String
-   (s/optional-key :oldpin) String
-   (s/optional-key :amount) Double
-   (s/optional-key :address) String})
+   :newpass (s/both String (in-range? 8 73))
+   :confirm (s/both String (in-range? 8 73))})
 
 (s/defschema Article
   {(s/optional-key :subject) String
@@ -211,19 +174,14 @@
     "/account" []
     :auth-rules access/authenticated?
     pgp-routes
+    wallet-routes
     (GET "/" [] (account-page))
     (POST "/" []
            :form [info Account]
            (account-update info))
-
     (GET "/password" [] (password-page))
     (POST "/password" []
            :form [update Password] (password-page update))
-    (GET "/wallet" [] (wallet-page))
-    (POST "/wallet" []
-           :form [slug Wallet]
-           (wallet-page slug))
-    (GET "/wallet/new" [] (wallet-new))
     (GET "/favorites" [] (favorites-page))
     (GET "/reviews" []
           :query-params [{page :- Long 1}] (reviews-page page)))

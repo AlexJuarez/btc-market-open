@@ -19,36 +19,39 @@
   {% endif %}
   <h1 class="jumbo">{{title}}</h1>
   <span class="price">{{user.currency_symbol|safe}}{{price|double-format:4}}</span>
-  <a class="cart-link" href="/cart/add/{{lid}}">add to cart</a>
-  <p>
-    {% if reported %}
-    <a href="/listing/{{lid}}/unreport">remove my report</a>
-    {% else %}
-    <a href="/listing/{{lid}}/report">report this listing</a>
-    {% endif %}
-  </p>
-  <div class="well info">
-    <ul>
-      <li>seller: <a href="/user/{{user_id}}" class="seller">{{user_alias}}</a></li>
-      <li>ships from: {{from|region}}</li>
-      <li>ships to: {{to|regions}}</li>
-      <li>category: <a href="/category/{{category_id}}">{{category_name}}</a></li>
-      <li>bookmarked {{bookmarks}} {% ifequal bookmarks "1" %}time{% else %}times{% endifequal %}
-      {% if bookmarked %}
-        <a href="/listing/{{lid}}/unbookmark">unbookmark this item</a></li>
+  <form action="/cart/add/{{lid}}" method="post">
+    {% csrf-token %}
+    <button class="btn cart-link" type="submit">add to cart</button>
+    <p>
+      {% if reported %}
+      <a href="/listing/{{lid}}/unreport">remove my report</a>
       {% else %}
-        <a href="/listing/{{lid}}/bookmark">bookmark this item</a></li>
+      <a href="/listing/{{lid}}/report">report this listing</a>
       {% endif %}
-    </ul>
-  </div>
-  <p class="postage">
-    <span>postage options: </span>
-    <select id="postage">
-      {% for postage in postage %}
-      <option data="{{postage}}">{{postage.title}} - {{user.currency_symbol|safe}}{{postage.price|double-format:4}}</option>
-      {% endfor %}
-    </select>
-  </p>
+    </p>
+    <div class="well info">
+      <ul>
+        <li>seller: <a href="/user/{{user_id}}" class="seller">{{user_alias}}</a></li>
+        <li>ships from: {{from|region}}</li>
+        <li>ships to: {{to|regions}}</li>
+        <li>category: <a href="/category/{{category_id}}">{{category_name}}</a></li>
+        <li>bookmarked {{bookmarks}} {% ifequal bookmarks "1" %}time{% else %}times{% endifequal %}
+        {% if bookmarked %}
+          <a href="/listing/{{lid}}/unbookmark">unbookmark this item</a></li>
+        {% else %}
+          <a href="/listing/{{lid}}/bookmark">bookmark this item</a></li>
+        {% endif %}
+      </ul>
+    </div>
+    <p class="postage">
+      <span>postage options: </span>
+      <select id="postage" name="postage">
+        {% for postage in postage %}
+        <option value="{{postage.id}}">{{postage.title}} - {{user.currency_symbol|safe}}{{postage.price|double-format:4}}</option>
+        {% endfor %}
+      </select>
+    </p>
+  </form>
   <div class="clear-float"></div>
   {% if not description|empty? %}
     <div class="well description">

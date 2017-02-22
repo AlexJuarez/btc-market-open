@@ -8,13 +8,12 @@
      [ring.util.response :as resp]
      [flight.util.core :refer [user-id]]
      [flight.util.session :as session]
-     [schema.core :as s]
-))
+     [schema.core :as s]))
 
 (s/defschema Postage
   {:title (s/both String (in-range? 4 100))
    :price (s/both Double (in-range? 0))
-   :currency_id (s/both Long (s/pred currency/exists? 'currency/exists?))})
+   :currency_id (s/both Long (s/pred currency/exists? 'exists?))})
 
 (defn postage-create
   ([]

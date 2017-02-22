@@ -18,10 +18,11 @@
 
 (defn cart-add
   "add a item to the cart"
-  [id]
+  [id &[postage]]
   (let [cart (or (session/get :cart) {})]
     (when (< (count cart) cart-limit) ;;limit the size of the cart... aka they should only be able to have like 100 items
-      (session/update-in! [:cart id :quantity] (fnil inc 0)))
+      (session/update-in! [:cart id :quantity] (fnil inc 0))
+      (when (not (nil? postage)) (session/assoc-in! [:cart id :postage] postage)))
     (resp/redirect "/cart")))
 
 (defn cart-remove
@@ -104,7 +105,9 @@
    (POST "/" {params :params} (cart-submit params))
    (GET "/checkout" [] (cart-checkout))
    (GET "/empty" [] (cart-empty))
-   (GET "/add/:id" []
-         :path-params [id :- Long] (cart-add id))
+   (context "/add/:id" []
+            :path-params [id :- Long]
+            (GET "/" [] (cart-add id))
+            (POST "/" [] :form-params [postage :- Long] (cart-add id postage)))
    (GET "/:id/remove" []
          :path-params [id :- Long] (cart-remove id))))
