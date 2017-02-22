@@ -10,6 +10,7 @@
             [flight.middleware :as middleware]
             [flight.routes.core :refer [core-routes]]
             [flight.routes.home :refer [home-routes]]
+            [flight.db.fixtures :refer [load-fixtures]]
             [mount.core :as mount]
             [selmer.parser :as parser]
             [taoensso.timbre :as log]
@@ -35,10 +36,11 @@
      :appenders {:rotor (rotor/rotor-appender
                           {:path (log-path)
                            :max-size (* 512 1024)
-                           :backlog 10})}})
+                           :backlog 10})
+    }})
 
   (log/info "logging at" (log-path))
-
+  (load-fixtures)
   (mount/start)
   ((:init defaults)))
 

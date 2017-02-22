@@ -19,6 +19,10 @@
    :as :json
    :accept :json})
 
+(defn- get-rate [from to]
+  (when-let [val (first (select exchange (where {:from from :to to})))]
+    (:value val)))
+
 (defn- get-from-remote [url]
   (try
     (:body (client/get url remote-opts))
@@ -52,7 +56,5 @@
 
 (defn get [from to]
   (when-not (or (nil? from) (nil? to))
-    (do
-      (cache/cache! (str from "-" to)
-          (:value (first (select exchange
-                (where {:from from :to to}))))))))
+    (cache/cache! (str from "-" to)
+      (get-rate from to))))

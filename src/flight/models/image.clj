@@ -1,5 +1,5 @@
 (ns flight.models.image
-  (:refer-clojure :exclude [get])
+  (:refer-clojure :exclude [get update])
   (:require
    [flight.util.image :as image-util]
    [taoensso.timbre :as log])

@@ -3,6 +3,7 @@
             [immutant.web :as immutant]
             [flight.db.migrations :as migrations]
             [clojure.tools.nrepl.server :as nrepl]
+            [flight.db.fixtures :refer [load-fixtures]]
             [taoensso.timbre :as timbre]
             [flight.env :refer [env]])
   (:gen-class))

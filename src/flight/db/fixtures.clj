@@ -15,7 +15,8 @@
            (jr/parse-string (slurp "resources/currencies_symbols.json") true))))
 
 (defn load-fixtures []
-  (load-regions)
-  (load-currencies)
-  (e/update-from-remote)
-  (cat/load-fixture))
+  (when (empty? (c/all false))
+    (load-regions)
+    (load-currencies)
+    (e/update-from-remote)
+    (cat/load-fixture)))

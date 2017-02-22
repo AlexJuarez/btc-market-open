@@ -1,4 +1,5 @@
 (ns flight.util.user
+  (:refer-clojure :exclude [update])
   (:use
    [flight.db.core]
    [korma.core])

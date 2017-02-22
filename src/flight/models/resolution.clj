@@ -1,4 +1,5 @@
 (ns flight.models.resolution
+  (:refer-clojure :exclude [update])
   (:use [korma.db :only (transaction)]
         [korma.core]
         [flight.db.core])

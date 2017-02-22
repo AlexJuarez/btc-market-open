@@ -7,5 +7,5 @@
   {:init
    (fn []
      (parser/cache-off!)
-     (timbre/info "\n-=[flight started successfully using the development profile]=-"))
+     (timbre/info "-=[flight started successfully using the development profile]=-"))
    :middleware wrap-dev})

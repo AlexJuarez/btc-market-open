@@ -1,5 +1,5 @@
 (ns flight.models.feedback
-  (:refer-clojure :exclude [count get])
+  (:refer-clojure :exclude [count get update])
   (:use [korma.db :only (transaction)]
         [korma.core]
         [flight.db.core]))

@@ -65,15 +65,15 @@
 
 (defn get [key]
   (if-not (nil? @*ce*)
-    (do
-      (log/debug "get" key "from cache")
-      (c/get (get-connection) key))
+    (when-let [val (c/get (get-connection) key)]
+      (log/info "cache get" key)
+      val)
     (mem/get key)))
 
 (defn delete [key]
   (if-not (nil? @*ce*)
     (do
-      (log/debug "delete" key "from cache")
+      (log/info key "deleted from cache")
       (c/delete (get-connection) key))
     (mem/delete key)))
 
@@ -81,6 +81,6 @@
   `(let [value# (get ~key)]
      (if (nil? value#)
        (let [v# (do ~@forms)]
-         (set ~key v#)
+         (when-not (nil? v#) (set ~key v#))
          v#)
        value#)))

@@ -13,8 +13,8 @@
     [javax.imageio ImageIO]))
 
 (defn resource-path []
-  (if-let [path (io/resource "uploads/")]
-    (.getPath path)))
+  (if-let [path (io/resource "public/")]
+    (str (.getPath path) "uploads/")))
 
 (defn file-path [id &suffix]
   (str (resource-path)
@@ -48,17 +48,18 @@
       (html [:img {:src (image-data url "_max") :title title :alt alt}])
       (html [:span {:class "warn"} (str "invalid image " url)]))))
 
-(defn- filename-path [path & [filename]]
-  (java.net.URLDecoder/decode
-    (str path File/separator filename)
-    "utf-8"))
+(defn- upload-path [filename]
+  (let [path (java.net.URLDecoder/decode filename "utf-8")
+        file (new java.io.File (str (resource-path) path))]
+     (.mkdirs (.getParentFile file))
+     (.getPath file)))
 
 (defn upload-file
   "uploads a file to the target folder"
   [{:keys [tempfile size filename]}]
   (try
     (with-open [in (new FileInputStream tempfile)
-                out (new FileOutputStream (filename-path (resource-path) filename))]
+                out (new FileOutputStream (upload-path filename))]
       (let [source (.getChannel in)
             dest (.getChannel out)]
         (.transferFrom dest source 0 (.size source))

@@ -14,4 +14,4 @@ profiles.clj
 *~
 .nrepl-port
 *.iml
-resources/uploads/*.jpg
+resources/public/uploads

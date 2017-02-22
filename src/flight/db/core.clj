@@ -2,7 +2,7 @@
   (:refer-clojure :exclude [update])
   (:use [korma.core]
         [flight.db.helpers])
-  (:require [korma.db :refer [defdb]]
+  (:require [korma.db :refer [defdb get-connection]]
             [korma.core :refer :all]
             [flight.env :refer [env]]))
 

@@ -40,7 +40,7 @@
       "user does not have the required funds")))
 
 (defn check-max [map key _]
-  (if-let [amount (get map key)]
+  (when-let [amount (get map key)]
     (when (and (integer? (get map :max)) (integer? amount) (> amount (get map :max)))
       "the quantity exceeds the max")))
 

@@ -1,5 +1,6 @@
 (ns flight.models.moderate
-   (:use [korma.db :only (transaction)]
+  (:refer-clojure :exclude [update])
+  (:use [korma.db :only (transaction)]
          [korma.core]
          [flight.db.core])
   (:require
