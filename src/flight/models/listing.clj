@@ -67,6 +67,10 @@
 (defn exists? [id]
   (not (nil? (get id))))
 
+(defn max
+  ([id]
+   (:max (first (select listings (fields :max) (where {:id id}))))))
+
 (defn search [query]
   (convert (select listings
           (where {:public true :quantity [> 0] :title [ilike query]})

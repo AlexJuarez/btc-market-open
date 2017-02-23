@@ -3,7 +3,14 @@
     [flight.util.core :as util]
     [flight.models.listing :as listing]
     [flight.util.session :as session]
-    [flight.util.error :as error]))
+    [flight.util.error :as error]
+    [flight.models.postage :as postage]
+    [flight.models.listing :as listing]
+    [flight.models.currency :as currency]
+    [flight.models.order :as orders]
+    [schema.core :as s]
+    [flight.routes.helpers :refer [in-range?]]
+))
 
 (def cart-limit 100)
 
@@ -59,3 +66,12 @@
    (doall (map #(update! (:id %1) %1) (vals items))))
   ([id item]
    (session/update-in! [:cart id] #(merge %1 item))))
+
+(defn item-schema [listing]
+  {:id (s/both Long (s/pred listing/exists? 'exists?))
+   :postage (s/both Long (s/pred postage/exists? 'exists?))
+   :quantity (s/both Long (in-range? 0 (:quantity listing)))})
+
+(defn check []
+  (let [listings (into {} (map #(vector (:id %) %) (listings)))]
+    (merge (map #(s/check (item-schema (listings (:id %))) %) (vals (cart))))))

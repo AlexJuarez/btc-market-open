@@ -12,7 +12,9 @@
 {% endblock %}
 {% block container %}
 <h1 class="jumbo">Shopping Cart</h1>
-<a href="/cart/empty">empty cart</a>
+<div class="subtitle">
+  <a href="/cart/empty">empty cart</a>
+</div>
 {% if not listings|empty? %}
 <form class="my-cart" method="post">
 {% csrf-token %}
@@ -60,8 +62,8 @@
 </h3>
 <hr />
 <p>
-  <input class="btn btn-gray left" type="submit" name="submit" value="Update Cart" />
-  <input class="btn btn-primary right" type="submit" name="submit" value="Checkout" />
+  <button class="btn btn-gray left" type="submit" name="submit" value="Update Cart">Update Cart</button>
+  <button class="btn btn-primary right" type="submit" name="submit" value="Checkout">Proceed to Checkout</button>
 </p>
 </form>
 {% else %}
