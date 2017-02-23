@@ -20,5 +20,5 @@
       value)))
 
 (defn set [key value]
-  (swap! mem assoc key {:value value :ttl (now 60)}))
+  (swap! mem assoc key {:value value :ttl (now (* 5 60))}))
 

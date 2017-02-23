@@ -15,6 +15,7 @@
 (defmigration add-regions-table
   (up [] (create
            (table :region
+                  (integer :id :auto-inc :primary-key)
                   (varchar :name 64)
                   (timestamp :created_on (default (now))))))
   (down [] (drop (table :region))))
@@ -108,6 +109,7 @@
                 (integer :from [:refer :currency :id :on-delete :set-null])
                 (integer :to [:refer :currency :id :on-delete :set-null])
                 (float :value)
+                (check :value (>= :value 0))
                 (timestamp :updated_on (default (now))))))
   (down [] (drop (table :exchangerate))))
 
@@ -118,7 +120,8 @@
                 (integer :count (default 0))
                 (integer :lte)
                 (integer :gt)
-                (integer :parent))))
+                (integer :parent)
+                (check :count (>= :count 0)))))
   (down [] (drop (table :category))))
 
 (defmigration add-listings-table
@@ -142,6 +145,9 @@
                 (refer-to :category)
                 (check :price (>= :price 0))
                 (check :quantity (>= :quantity 0))
+                (check :reviews (>= :reviews 0))
+                (check :views (>= :views 0))
+                (check :sold (>= :sold 0))
                 (text :description))))
   (down [] (drop (table :listing))))
 
@@ -151,6 +157,7 @@
                 (refer-to :user)
                 (varchar :title 100)
                 (float :price :not-null)
+                (check :price (>= :price 0))
                 (refer-to :currency))))
   (down [] (drop (table :postage))))
 
@@ -174,6 +181,8 @@
                 (refer-to :listing)
                 (refer-to :postage)
                 (refer-to :user)
+                (check :quantity (>= :quantity 0))
+                (check :price (>= :price 0))
                 (smallint :status))))
   (down [] (drop (table :order))))
 
@@ -211,6 +220,7 @@
                 (text :content)
                 (integer :transaction)
                 (smallint :rating :not-null (default 5))
+                (check :rating (>= :rating 0))
                 (boolean :shipped (default true)))))
 
   (down [] (drop (table :review))))

@@ -67,7 +67,6 @@
       mem-val
       (when-not (nil? @*ce*)
         (when-let [val (c/get (get-connection) key)]
-          (log/info "cache get" key)
           (mem/set key val)
           val)))))
 

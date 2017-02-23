@@ -83,7 +83,7 @@
 (defn images-edit
   ([]
     (let [images (image/all (user-id))]
-      (layout/render "images/edit.html"{:images images})))
+      (layout/render "images/index.html" {:images images :edit true})))
   ([{:keys [name] :as slug}]
     (dorun (map #(image/update! (key %) {:name (val %)}) name))
     (images-edit)))

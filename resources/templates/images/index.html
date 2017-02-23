@@ -34,36 +34,54 @@
 {% block container %}
 <div class="images">
   <h1 class="jumbo">Images</h1>
+  <div class="subtitle">
+    {% if not edit %}
+      <a href="/vendor/images/edit">edit</a>
+    {% else %}
+      edit
+    {% endif %}
+    | <a href="/vendor/images">manage</a>
+    | <a href="/vendor/images/upload">upload</a>
+  </div>
   {% if success %}
     <h2 class="success">{{success}}</h2>
   {% endif %}
   {% if not images|empty? %}
+  <form method="POST">
+    {% csrf-token %}
   <table class="table normal">
-    <thead>
-      <tr>
-        <th>id</th>
-        <th>name</th>
-        <th>uploaded on</th>
-        <th>&nbsp;</th>
-      </tr>
-    </thead>
     <tbody>
       {% for image in images %}
       <tr>
-        <td>{{image.id}}</td>
-        <td>{% if image.name %}{{image.name}}{% else %} --- {% endif %}</td>
+        <td>{% image-thumbnail image.id %}</td>
         <td>
-          <span class="pretty-time" title="{{image.created_on|date:fullDateTime}}">
-            {{image.created_on|date:shortDate}}
-          </span>
-        </td>
-        <td>
-          <a href="/vendor/image/{{image.id}}/delete">delete</a>
+           {% if not edit %}<a class="btn btn-warn" href="/vendor/image/{{image.id}}/delete">delete</a>{% endif %}
+          <dl>
+            <dt>Id</dt>
+            <dd>{{image.id}}</dd>
+            <dt>Name</dt>
+            <dd>
+            {% if edit %}
+              <input type="text" value="{{image.name}}" name="name[{{image.id}}]" class="input" />
+            {% else %}
+              {% if image.name %}{{image.name}}{% else %} --- {% endif %}
+            {% endif %}
+            </dd>
+            <dt>Created on</dt>
+            <dd>{{image.created_on|date:shortDate}}</dd>
+          </dl>
         </td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
+  {% if edit %}
+    <p class="text-right">
+      <button type="submit" class="btn btn-primary">Update</button>
+    </p>
+  {% endif %}
+
+  </form>
   {% else %}
     You do not currently have an hosted images
   {% endif %}

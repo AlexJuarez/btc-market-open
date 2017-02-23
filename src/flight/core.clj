@@ -48,7 +48,7 @@
 
 (defn -main [& args]
   (cond
-    (some #{"migrate" "rollback"} args)
+    (some #{"migrate" "rollback" "destroy"} args)
     (do
       (mount/start #'flight.env/env)
       (migrations/migrate args)

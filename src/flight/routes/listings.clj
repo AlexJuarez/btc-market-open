@@ -77,6 +77,7 @@
    (listing-create-page))
   ([{:keys [image image_id] :as slug}]
    (let [listing (listing/add! slug (user-id))]
+     (prn (error/all))
      (if (error/empty?)
        (do
          (session/flash-put! :success "listing created")
@@ -96,7 +97,6 @@
   {(s/optional-key :image_id) (s/maybe
                                 (s/both Long (s/pred #(image/exists? % (user-id)) 'exists?)))
    (s/optional-key :public)   Boolean
-   (s/optional-key :hedged)   Boolean
    :title                     (s/both String (in-range? 4 100))
    :price                     (s/both Double (in-range? 0))
    :currency_id               (s/both Long (s/pred currency/exists? 'exists?))
@@ -109,13 +109,13 @@
 
 (defn update-listing-params [listing]
   (-> (let [image_id (parse-image (listing "image_id") (listing "image"))]
-        (if (string/blank? image_id)
+        (if (and (not (number? image_id)) (string/blank? image_id))
           (assoc listing "image_id" nil)
           (assoc listing "image_id" image_id)))
+      (assoc "public" (= (listing "public") "true"))
       (assoc "to" (or (listing "to[]") [1]))
       (dissoc "to[]")
       (dissoc "image")))
-
 
 (defn middleware-listing [handler]
   (fn [request]

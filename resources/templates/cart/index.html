@@ -26,7 +26,6 @@
       <th>sub-total</th>
       {% if errors.postage %}<th class="error">postage required</th>{% else %}<th>postage</th>{% endif %}
       <th>total</th>
-      <th>hedged</th>
       <th></th>
     </tr>
   </thead>
@@ -51,7 +50,6 @@
       </select>
     </td>
     <td>{{user.currency_symbol|safe}}{{listing.total|double-format:5}}</td>
-    <td>{% if listing.hedged %}hedged{% else %}unhedged{% endif %}</td>
     <td><a href="/cart/{{listing.lid}}/remove">remove</a></td>
   </tr>
   {% endfor %}
