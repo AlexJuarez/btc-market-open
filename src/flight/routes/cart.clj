@@ -72,6 +72,8 @@
    (let [listings (cart/listings)
          btc-total (cart/total 1)
          total (cart/total)]
+     (prn listings)
+     (prn slug)
      (layout/render "cart/index.html" {:currency_id (:currency_id (util/current-user))
                                        :total total
                                        :btc_total btc-total

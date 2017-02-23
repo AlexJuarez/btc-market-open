@@ -11,7 +11,12 @@
     <a class="header" href="/vendor/listings"><span class="category">Listings</span></a>
   </li>
   <li>
-    <a class="header active" href="/vendor/listings/create"><span class="category">Add listing</span></a>
+    <a class="header {% if not edit %}active{% endif %}" href="/vendor/listings/create"><span class="category">Add listing</span></a>
+    {% if edit %}
+      <ul>
+        <li><a class="header active"><span class="category">Edit Listing</span></a></li>
+      </ul>
+    {% endif %}
   </li>
   <li>
     <a class="header" href="/vendor/postage/create"><span class="category">Add postage</span></a>

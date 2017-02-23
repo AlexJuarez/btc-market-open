@@ -53,7 +53,6 @@
     :converted_price (util/convert-price currency_id 26 price)
     :updated_on (raw "now()")))
 
-
 (defn get
   ([id]
     (add-shipping
@@ -118,7 +117,7 @@
 
 (defn store! [{:keys [public quantity to] :as listing} user-id]
   (let [category-id (:category_id listing)
-        listing (assoc listing :user_id user-id)]
+        listing (prep (assoc listing :user_id user-id))]
     (util/update-session user-id)
     (let [l (transaction
               (update users (set-fields {:listings (raw "listings + 1")}) (where {:id user-id}))
