@@ -4,7 +4,9 @@
 <p>User not found</p>
 {% else %}
 <h1 class="jumbo">{{alias}}</h1>
-<a href="/messages/{{id}}">send a message</a>
+<div class="subtitle">
+  <a href="/messages/{{id}}">send a message</a>
+</div>
 {% if not posts|empty? %}
 <div class="user-posts">
   <div class="title">Updates:</div>

@@ -15,6 +15,7 @@
     [ring.util.response :as resp]
     [clojure.string :as string]
     [mount.core :refer [defstate]]
+    [flight.access :as access]
     ))
 
 (defonce per-page 25)
@@ -88,23 +89,24 @@
 
 (defroutes message-routes
   (context "/messages" []
-            (GET "/" []
-                  :query-params [{page :- Long 1}]
-                  (messages-page page))
-            (GET "/sent" [] (messages-sent))
-            (context "/:id" []
-                      :path-params [id :- (s/both Long (s/pred user/exists? 'exists?))]
-                      (GET "/" [] (messages-thread id))
-                      (GET "/download" [] (messages-download id))
-                      (POST "/" []
-                             :form [message Message]
-                             (message-create message id))))
-            (context "/message/:id" []
-                      :path-params [id :- (s/both Long (s/pred message/exists? 'exists?))]
-                      (GET "/delete" {{referer "referer"} :headers} (message-delete id referer)))
-            (context "/support/:tid" [tid]
-                      :path-params [tid :- Long]
-                      (GET "/" [] (support-thread tid))
-                      (POST "/" []
-                             :form [message Message]
-                             (support-thread tid message))))
+    :auth-rules access/authenticated?
+    (GET "/" []
+      :query-params [{page :- Long 1}]
+      (messages-page page))
+    (GET "/sent" [] (messages-sent))
+    (context "/:id" []
+      :path-params [id :- (s/both Long (s/pred user/exists? 'exists?))]
+      (GET "/" [] (messages-thread id))
+      (GET "/download" [] (messages-download id))
+      (POST "/" []
+        :form [message Message]
+        (message-create message id))))
+  (context "/message/:id" []
+    :path-params [id :- (s/both Long (s/pred message/exists? 'exists?))]
+    (GET "/delete" {{referer "referer"} :headers} (message-delete id referer)))
+  (context "/support/:tid" [tid]
+    :path-params [tid :- Long]
+    (GET "/" [] (support-thread tid))
+    (POST "/" []
+      :form [message Message]
+      (support-thread tid message))))
