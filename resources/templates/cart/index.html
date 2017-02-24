@@ -45,7 +45,7 @@
     <td>{{user.currency_symbol|safe}}{{listing.subtotal|double-format:5}}</td>
     <td>
       <select name="postage[{{listing.lid}}]">
-        {% if not listing.lid|postage-cart %}<option value="">select one</option>{% endif %}
+        {% if not listing.lid|postage-cart %}<option disabled value="">select one</option>{% endif %}
         {% for postage in listing.postage %}
         <option {% ifequal listing.lid|postage-cart postage.id %}selected{% endifequal %} value="{{postage.id}}">{{postage.title}} - {{user.currency_symbol|safe}}{{postage.price|double-format:5}}</option>
         {% endfor %}
@@ -58,7 +58,7 @@
   </tbody>
 </table>
 <h3 class="text-right">
-  Total: {% ifunequal user.currency_id 1 %}(&#3647; {{btc_total|double-format:4}}){% endifunequal %} {{user.currency_symbol|safe}}{{total}}
+  Total: {% ifunequal user.currency_id 1 %}(&#3647; {{btc_total|double-format:5}}){% endifunequal %} {{user.currency_symbol|safe}}{{total|double-format:5}}
 </h3>
 <hr />
 <p>

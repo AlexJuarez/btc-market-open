@@ -48,11 +48,14 @@
   </tbody>
 </table>
 <h3 class="text-right">
-  Total: {% ifunequal user.currency_id 1 %}(&#3647; {{btc_total|double-format:4}}){% endifunequal %} {{user.currency_symbol|safe}}{{total}}
+  Total: {% ifunequal user.currency_id 1 %}(&#3647; {{btc_total|double-format:5}}){% endifunequal %} {{user.currency_symbol|safe}}{{total|double-format:5}}
 </h3>
 <hr />
-<p>
-  <button class="btn btn-primary right" type="submit" name="submit" value="Checkout">Place Order</button>
+<p class="text-right">
+  {% if user.pin %}
+  <input type="text" class="input btn-input" name="pin" value="{{pin}}" placeholder="Enter your pin" />
+  {% endif %}
+  <button class="btn btn-primary" type="submit" name="submit" value="Checkout">Place Order</button>
 </p>
 </form>
 {% else %}

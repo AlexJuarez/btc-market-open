@@ -59,7 +59,8 @@
 
 (defn prep [{:keys [encrypt subject content sender_id user_id]}]
   (let [recipient (first (select users (fields :pub_key) (where {:id  user_id})))]
-    {:content (if (and (= "true" encrypt) (not (nil? (:pub_key recipient)))) (pgp/encode (:pub_key recipient) content) content)
+    {:subject subject
+     :content (if (and (= "true" encrypt) (not (nil? (:pub_key recipient)))) (pgp/encode (:pub_key recipient) content) content)
      :user_id user_id
      :sender_id sender_id}))
 
