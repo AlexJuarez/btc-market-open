@@ -16,13 +16,21 @@
     [schema.core :as s]
 ))
 
+(defn cart-checkout
+  ([]
+   (let [listings (cart/listings)
+         btc-total (cart/total 1)
+         total (cart/total)]
+     (layout/render "cart/checkout.html" {:total total
+                                          :btc_total btc-total
+                                          :listings listings}))))
+
 (defn cart-view
   ([]
    (let [listings (cart/listings)
          btc-total (cart/total 1)
          total (cart/total)]
-     (layout/render "cart/index.html" {:currency_id (:currency_id (util/current-user))
-                                       :total total
+     (layout/render "cart/index.html" {:total total
                                        :btc_total btc-total
                                        :listings listings}))))
 
@@ -41,10 +49,9 @@
 (defn cart-submit [{:keys [submit] :as slug}]
   (when (error/empty?)
     (cart/update! (:cart slug)))
-  (prn (cart/check))
-  (if (= "Update Cart" submit)
-    (cart-view)
-    ))
+  (if (and (= "Checkout" submit) (empty? (cart/check)))
+    (resp/redirect "/cart/checkout")
+    (cart-view)))
 
 (defn map-item [item k m]
   (reduce-kv #(assoc-in %1 [%2 k] %3) item m))
@@ -65,8 +72,7 @@
 (defn create-cart-params [params]
   (fn [p]
     (-> (select-keys p ["__anti-forgery-token" "submit"])
-        (assoc "cart" (create-items params))
-        )))
+        (assoc "cart" (create-items params)))))
 
 (defn consolidate-cart [handler]
   (fn [req]
@@ -89,6 +95,7 @@
          :middleware [consolidate-cart]
          :form [cart Cart]
          (cart-submit cart))
+   (GET "/checkout" [] (cart-checkout))
    (GET "/empty" [] (cart-empty))
    (context "/add/:id" []
             :path-params [id :- Long]

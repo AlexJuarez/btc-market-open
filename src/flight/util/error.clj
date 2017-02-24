@@ -5,10 +5,13 @@
 (declare ^:dynamic *errors*)
 
 (defn put! [k v]
-  (swap! *errors* assoc-in [:errors k] v))
+  (swap! *errors* #(assoc-in % [:errors k] v)))
 
 (defn set! [errors]
   (reset! *errors* {:errors (merge (@*errors* :errors) errors)}))
+
+(defn assoc-in! [ks v]
+  (swap! *errors* #(assoc-in % (concat [:errors] ks) v)))
 
 (defn set-from-validation! [v]
   (when-let [errors (request-validation v)]

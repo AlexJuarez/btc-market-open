@@ -19,7 +19,7 @@
     "the value is invalid"
     ['not [['greater-than? min] value]]
     (str "needs to be " (if (number? value) "greater than or equal to " "longer than ") min)
-    ['not [['less-than? min] value]]
+    ['not [['less-than? max] value]]
     (str "needs to be "
          (if (number? value) "smaller than " "shorter than or equal to") max)
     ['not ['availible? value]]

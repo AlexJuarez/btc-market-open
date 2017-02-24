@@ -10,9 +10,14 @@
     [flight.models.order :as orders]
     [schema.core :as s]
     [flight.routes.helpers :refer [in-range?]]
-))
+    [flight.util.exception :refer [stringify-error]]))
 
 (def cart-limit 100)
+
+(defn item-schema [id]
+  {:id (s/both Long (s/pred listing/exists? 'exists?))
+   :postage (s/both Long (s/pred postage/exists? 'exists?))
+   :quantity (s/both Long (in-range? 0 (:quantity (listing/get id))))})
 
 (defn cart []
   (or (session/get :cart) {}))
@@ -43,17 +48,16 @@
       0
       price)))
 
-(defn calculate-listing-price [{:keys [price currency_id postage lid] :as listing} slug]
+(defn calculate-listing-price [{:keys [price currency_id postage lid] :as listing}]
   (let [listing-total (* price (get-in (cart) [lid :quantity]))
         postage-total (postage-price (get-in (cart) [lid :postage]) postage)
-        errors (or (get-in (error/all) [:cart (keyword (str lid))]) {})]
-    (prn price listing-total (get-in (cart) [lid :quantity]))
+        errors (or (get-in (error/all) [:cart (-> lid str keyword)]) {})]
   (assoc listing :total (+ listing-total postage-total) :subtotal listing-total :errors errors)))
 
 (defn listings
-  ([&[slug]]
+  ([]
    (let [ids (map #(:id %) (vals (cart)))]
-     (map #(calculate-listing-price %1 slug) (listing/get-in ids)))))
+     (map #(calculate-listing-price %1) (listing/get-in ids)))))
 
 (defn total
   ([]
@@ -61,17 +65,24 @@
   ([currency_id]
    (util/convert-price (:currency_id (util/current-user)) currency_id (total))))
 
+(defn- filter-nil [map]
+    (into {} (remove (comp nil? second) map)))
+
+(defn check []
+  (->
+    (reduce-kv (fn [m k v] (assoc m k (s/check (item-schema k) v))) {} (cart))
+    filter-nil))
+
+(defn prep-item [{:keys [id] :as item}]
+  (let [errors (s/check (item-schema id) item)]
+    (if (empty? errors)
+      item
+      (do
+        (error/assoc-in! [:cart (-> id str keyword)] (stringify-error errors))
+        (apply dissoc item (keys errors))))))
+
 (defn update!
   ([items]
    (doall (map #(update! (:id %1) %1) (vals items))))
   ([id item]
-   (session/update-in! [:cart id] #(merge %1 item))))
-
-(defn item-schema [listing]
-  {:id (s/both Long (s/pred listing/exists? 'exists?))
-   :postage (s/both Long (s/pred postage/exists? 'exists?))
-   :quantity (s/both Long (in-range? 0 (:quantity listing)))})
-
-(defn check []
-  (let [listings (into {} (map #(vector (:id %) %) (listings)))]
-    (merge (map #(s/check (item-schema (listings (:id %))) %) (vals (cart))))))
+   (session/update-in! [:cart id] #(merge %1 (prep-item item)))))
