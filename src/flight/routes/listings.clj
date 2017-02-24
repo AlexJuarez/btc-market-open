@@ -34,7 +34,6 @@
       (do
         (session/flash-put! :success "listing removed")
         (resp/redirect "/vendor/listings")))))
-;;Check convert currency set this to a global constant
 
 (defn walk-current [lis c]
   (loop [l lis]
@@ -69,7 +68,7 @@
 
 (defn listing-save [id slug]
   (let [listing (listing/update! slug id (user-id))]
-    (listing-create-page listing {:edit true :id id})))
+    (listing-create-page listing {:edit true :id id :success "listing updated"})))
 
 (defn listing-create
   "Listing creation page"

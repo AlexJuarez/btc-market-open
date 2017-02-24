@@ -32,8 +32,7 @@
                   (< diff day) "today"
                   (< diff (* 30 day)) (if (= (int days) 1) "yesterday" (str (int days) " days ago"))
                   :else (if (= months 1) "1 month ago" (str (int months) " months ago"))
-                  )
-                 )))
+                  ))))
 
 (defn paginate [page maxpage]
   (loop [c 1 o [page]]
@@ -56,7 +55,6 @@
                     (map #(-> [:li (if (= page %) [:strong.selected %] [:a {:href (str url "?" (util/params (assoc params :page %)))} %])]) pages)
                     [:li [:a {:href (str url "?" (util/params (assoc params :page m)))} "&raquo;"]]
                     ])])))
-                    ;;[:li [:a {:href (str url "?page=")} ]]]))))
 
 (defn header [tree params id]
   [:a.header (merge (when (= id (:id tree)) {:class "active"}) {:href (str "/category/" (:id tree) params)})
@@ -90,4 +88,6 @@
 (add-filter! :region region)
 
 (add-filter! :regions (fn [regions]
-                        (s/join ", " (map #(region %) regions))))
+                        (if (= regions [1])
+                          "Worldwide"
+                          (s/join ", " (map #(region %) regions)))))
