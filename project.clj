@@ -13,7 +13,7 @@
                  [com.mchange/c3p0 "0.9.5.1"] ;;connection pooling
                  [com.taoensso/timbre "4.4.0"]
                  [com.taoensso/tower "3.0.2"]
-                 [compojure "1.5.1"]
+                 [compojure "1.5.2"]
                  [conman "0.2.7" :exclusions [instaparse]]
                  [crypto-random "1.2.0"] ;;crypto lib
                  [cprop "0.1.10"]
@@ -23,12 +23,9 @@
                  [lobos "1.0.0-beta3"]
                  [markdown-clj "0.9.82"]
                  [metis "0.3.3"];;validator
-                 [metosin/compojure-api "1.1.10" :exclusions
-                  [com.cognitect/transit-java com.google.guava/guava riddley com.google.code.findbugs/jsr305 org.yaml/snakeyaml]]
+                 [metosin/compojure-api "1.2.0-SNAPSHOT"]
                  [metosin/ring-http-response "0.6.5"]
                  [metosin/ring-middleware-format "0.6.0" :exclusions [org.json/json]]
-                 [metosin/ring-swagger "0.22.0"]
-                 [metosin/ring-swagger-ui "2.1.3-4"]
                  [migratus "0.8.7"]
                  [mount "0.1.11" :exclusions [ch.qos.logback/logback-classic]]
                  [net.sf.jlue/jlue-core "1.3"];;captcha creation

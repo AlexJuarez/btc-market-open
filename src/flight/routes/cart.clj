@@ -58,7 +58,7 @@
     :quantity (s/both Long (greater-than? 0))}}
     (s/optional-key :submit) String})
 
-(defroutes cart-routes
+(defroutes public-routes
   (context
    "/cart" []
    (GET "/" [] (cart-view))
@@ -66,11 +66,16 @@
          :middleware [consolidate-cart]
          :form [cart Cart]
          (cart-submit cart))
-   (GET "/checkout" [] (cart-checkout))
-   (GET "/empty" [] (cart-empty))
+    (GET "/empty" [] (cart-empty))
    (context "/add/:id" []
             :path-params [id :- Long]
             (GET "/" [] (cart-add id))
             (POST "/" [] :form-params [postage :- Long] (cart-add id postage)))
    (GET "/:id/remove" []
          :path-params [id :- Long] (cart-remove id))))
+
+(defroutes user-routes
+  (context
+    "/cart" []
+     (GET "/checkout" []
+        (cart-checkout))))

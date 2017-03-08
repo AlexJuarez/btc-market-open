@@ -1,4 +1,4 @@
-(ns flight.routes.postage
+(ns flight.routes.vendor.postage
    (:require
      [flight.routes.helpers :refer :all]
      [compojure.api.sweet :refer :all]
@@ -39,9 +39,9 @@
   (do (session/flash-put! :success {:success "postage removed"})
     (resp/redirect "/vendor/listings")))))
 
-(defroutes postage-routes
+(defroutes vendor-routes
   (context
-    "/vendor/postage" []
+    "/postage" []
     (GET "/create" [] (postage-create))
     (POST "/create" []
            :form [postage Postage] (postage-create postage))

@@ -1,6 +1,5 @@
 (ns flight.middleware
-  (:require [buddy.auth.accessrules :refer [restrict]]
-            [buddy.auth.backends.session :refer [session-backend]]
+  (:require [buddy.auth.backends.session :refer [session-backend]]
             [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]]
             [flight.cache :as cache]
             [flight.config :refer [defaults]]
@@ -60,15 +59,6 @@
 
 (defn wrap-formats [handler]
   (wrap-restful-format handler {:formats [:json-kw :transit-json :transit-msgpack]}))
-
-(defn on-error [request response]
-  (error-page
-    {:status 403
-     :title (str "Access to " (:uri request) " is not authorized")}))
-
-(defn wrap-restricted [handler rule]
-  (restrict handler {:handler rule
-                     :on-error on-error}))
 
 (defn wrap-identity [handler]
   (fn [request]

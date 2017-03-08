@@ -1,4 +1,4 @@
-(ns flight.routes.sales
+(ns flight.routes.vendor.sales
   (:require
     [compojure.api.sweet :refer :all]
     [flight.env :refer [env]]
@@ -99,9 +99,9 @@
         (content-type "text/plain")
         (resp/header "Content-Disposition" (str "attachment;filename=" (util/format-time (java.util.Date. ) "MM-dd-yyyy") "-sales-" (name state) "-" page ".csv")))))
 
-(defroutes sales-routes
+(defroutes vendor-routes
    (context
-    "/vendor/sales" []
+    "/sales" []
      :query-params [{page :- Long 1}]
      (GET "/" [] (sales-overview page))
      (GET "/new" [] (sales-new page))
@@ -112,7 +112,7 @@
      (GET "/past" [] (sales-finailized page))
      (POST "/new" {params :params} (sales-page params)))
    (context
-    "/vendor/sale/" []
+    "/sale/" []
      :path-params [id :- Hashid]
      (GET "/" [] (sales-view id))
      (POST "/" {params :params} (sales-view id params))))

@@ -104,7 +104,7 @@
    :confirm String
    :captcha (s/both String (s/pred valid-captcha? 'valid-captcha?))})
 
-(defroutes auth-routes
+(defroutes public-routes
   (context
    "/login" []
    (GET "/"
@@ -128,5 +128,4 @@
   ))
   (GET "/logout" []
         (session/clear!)
-        (resp/redirect "/"))
-  )
+        (resp/redirect "/")))

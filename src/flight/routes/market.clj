@@ -141,7 +141,7 @@
   (resolution/accept id (user-id))
   (resp/redirect referer))
 
-(defroutes market-routes
+(defroutes public-routes
   (context "" []
             :query-params [{page :- Long 1}
                            {sort_by :- (s/enum "lowest" "highest" "title" "newest" "bestselling") "bestselling"}
@@ -157,7 +157,6 @@
                   :path-params [{id :- Long 1}]
                   (category-page id {:page page :sort_by sort_by :ships_to ships_to :ships_from ships_from})))
   (GET "/support" [] (support-page))
-  (POST "/support" {params :params} (support-page params))
 
   (GET "/api/vendors" [api_key] (api-vendors api_key))
   (GET "/api/listings" {params :params {sign "sign"} :headers} (api-listings params sign))
@@ -171,13 +170,17 @@
   (GET "/listing/:id" []
        :path-params [id :- Long]
        :query-params [{page :- Long 1}]
-       (listing-view id page))
+       (listing-view id page)))
 
-  ;;restricted routes
-  (GET "/resolution/:id/accept" {{referer "referer"} :headers}
-       :path-params [id :- Long]
-       (resolution-accept id referer))
+;;restricted routes
+(defroutes user-routes
+  (POST "/support" {params :params} (support-page params))
   (context "/user/:id" []
            :path-params [id :- Long]
            (GET "/report" {{referer "referer"} :headers} (report-add id (user-id) "user" referer))
            (GET "/unreport" {{referer "referer"} :headers} (report-remove id (user-id) "user" referer))))
+
+(defroutes mod-routes
+  (GET "/resolution/:id/accept" {{referer "referer"} :headers}
+       :path-params [id :- Long]
+       (resolution-accept id referer)))

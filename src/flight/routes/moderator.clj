@@ -12,9 +12,7 @@
     [flight.models.message :as messages]
     [flight.models.user :as user]
     [flight.util.core :as util :refer [user-id]]
-    [ring.util.response :as resp]
-
-))
+    [ring.util.response :as resp]))
 
 (def per-page 25)
 
@@ -81,9 +79,7 @@
         res (moderate/add! id slug (user-id))]
     (moderator-view raw_id res)))
 
-(defroutes moderator-routes
-  (context
-    "/moderate" []
+(defroutes mod-routes
     (GET "/" []
           :query-params [{page :- Long 1}] (moderator-page page))
     (context
@@ -103,4 +99,5 @@
               (GET "/upvote" [id res] (moderator-add-vote id res))
               (GET "/downvote" [id res] (moderator-remove-vote id res))))
 
-  (GET "/admin/:id/:res/resolve" [id res] (apply-resolution id res)))
+(defroutes admin-routes
+  (GET "/:id/:res/resolve" [id res] (apply-resolution id res)))

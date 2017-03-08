@@ -9,8 +9,7 @@
     [flight.models.resolution :as resolution]
     [ring.util.response :as resp]
     [flight.util.core :as util :refer [user-id]]
-    [schema.core :as s]
-))
+    [schema.core :as s]))
 
 (defn orders-page
   ([]
@@ -73,7 +72,7 @@
    (s/optional-key :refund) Long
    (s/optional-key :content) String})
 
-(defroutes order-routes
+(defroutes user-routes
   (context
     "/orders" []
     (GET "/" [] (orders-page))

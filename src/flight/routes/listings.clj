@@ -120,17 +120,18 @@
                       (update-in [:multipart-params] update-listing-params))]
     (handler request))))
 
-(defroutes listing-routes
+(defroutes user-routes
   (context
     "/listing/:id" []
     :path-params [id :- Long]
     (GET "/bookmark" [] (listing-bookmark id))
     (GET "/unbookmark" {{referer "referer"} :headers} (listing-unbookmark id referer))
     (GET "/report" {{referer "referer"} :headers} (report-add id (user-id) "listing" referer))
-    (GET "/unreport" {{referer "referer"} :headers} (report-remove id (user-id) "listing" referer)))
+    (GET "/unreport" {{referer "referer"} :headers} (report-remove id (user-id) "listing" referer))))
 
+(defroutes vendor-routes
   (context
-    "/vendor/listings" []
+    "/listings" []
     (GET "/" []
       :query-params [{page :- Long 1}] (listings-page page))
     (GET "/create" [] (listing-create))
@@ -140,7 +141,7 @@
       (listing-create listing)))
 
   (context
-    "/vendor/listing/:id" []
+    "/listing/:id" []
     :path-params [id :- Long]
     (GET "/edit" [] (listing-edit id))
     (GET "/remove" [] (listing-remove id))

@@ -87,9 +87,8 @@
   {(s/optional-key :subject) (s/both String (less-than? 100))
    :content (s/both String (less-than? 6000))})
 
-(defroutes message-routes
+(defroutes user-routes
   (context "/messages" []
-    :auth-rules access/authenticated?
     (GET "/" []
       :query-params [{page :- Long 1}]
       (messages-page page))

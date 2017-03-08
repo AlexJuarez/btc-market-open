@@ -1,5 +1,11 @@
 (ns flight.access
-  (:require [flight.util.user :as user]))
+  (:require
+    [flight.util.user :as user]
+    [buddy.auth.accessrules :refer [restrict]]))
+
+(defn wrap-restricted [handler rule]
+  (restrict handler {:handler  (:rule rule)
+                     :on-error (:on-error rule)}))
 
 (defn authenticated? [request]
   (not (nil? (:id (user/current)))))
