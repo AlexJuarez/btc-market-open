@@ -14,6 +14,7 @@
     [flight.routes.orders :as orders]
     [ring.util.response :as resp]
     [flight.access :refer [wrap-restricted]]
+    [buddy.auth.accessrules :refer [restrict]]
     [flight.access :as access]))
 
 (defn login-redirect [_ _]
@@ -23,13 +24,13 @@
   (resp/redirect "/"))
 
 (def user-authenticated
-  {:rule access/authenticated? :on-error login-redirect})
+  {:handler access/authenticated? :on-error login-redirect})
 
 (def mod-authenticated
-  {:rule access/moderator? :on-error home-redirect})
+  {:handler access/moderator? :on-error home-redirect})
 
 (def admin-authenticated
-  {:rule access/admin? :on-error home-redirect})
+  {:handler access/admin? :on-error home-redirect})
 
 (defroutes vendor-routes
   (context
@@ -41,13 +42,16 @@
     images/vendor-routes
     listings/vendor-routes))
 
-(defroutes user-routes
+(defroutes user-routes*
   account/user-routes
   cart/user-routes
   listings/user-routes
   market/user-routes
   message/user-routes
   orders/user-routes)
+
+(defroutes user-routes
+  (restrict user-routes* user-authenticated))
 
 (defroutes mod-routes
   (context

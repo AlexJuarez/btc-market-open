@@ -64,7 +64,7 @@
 
 (defn login-page
   ([referer]
-   (when referer (session/flash-put! :referer referer))
+   (when referer (session/flash-put! :redirect referer))
    (layout/render "login.html"))
   ([{:keys [login pass] :as slug} cookies]
    (let [session (:value (cookies "session"))
