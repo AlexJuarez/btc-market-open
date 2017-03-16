@@ -59,11 +59,14 @@
    (let [ids (map #(:id %) (vals (cart)))]
      (map #(calculate-listing-price %1) (listing/get-in ids)))))
 
+(defn btc-total []
+  (or (reduce + (map #(:btc_total %) (listings))) 0))
+
 (defn total
   ([]
    (or (reduce + (map #(:total %) (listings))) 0))
   ([currency_id]
-   (util/convert-price (:currency_id (util/current-user)) currency_id (total))))
+   (util/convert-price (total) (:currency_id (util/current-user)) currency_id)))
 
 (defn- filter-nil [map]
     (into {} (remove (comp nil? second) map)))

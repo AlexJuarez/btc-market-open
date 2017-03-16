@@ -24,5 +24,5 @@
                {:orders (util/session! :orders (order/count id))
                 :messages (util/session! :messages (message/count id))})})
      {:user {:currency_symbol "$"
-             :conversion (util/convert-price 1 26 1)
+             :conversion (util/convert-price 1 1 26)
              :currency_id 26}})))

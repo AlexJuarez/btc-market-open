@@ -40,7 +40,7 @@
    (log/error ex "an error has occured while creating the uuid from string"))))
 
 (defn user-id []
-  (session/get :user_id ))
+  (session/get :user_id))
 
 (defmacro update-session
   [user-id & terms]
@@ -57,12 +57,16 @@
                 (cache/set session#
                            (assoc sess# :noir (dissoc (:noir sess#) ~@terms :user)) ttl#))))))))
 
-
-(defn convert-price [from to price]
+(defn convert-price [price from to]
   (if-not (= from to)
-    (let [rate (exchange/get from to)]
-      (if-not (nil? rate)
+    (let [rate (exchange/get from to)
+          to-rate (exchange/get to from)]
+      (cond
+        (not (nil? rate))
         (* price rate)
+        (not (nil? to-rate))
+        (/ price to-rate)
+        :else
         price))
     price))
 
@@ -78,8 +82,8 @@
            (= user_currency currency_id)
            (some #(= user_currency %) currencies)
            (some #(= currency_id %) currencies))
-        (convert-price currency_id user_currency price)
-        (convert-price 1 user_currency (convert-price currency_id 1 price))))))
+        (convert-price price currency_id user_currency)
+        (convert-price (convert-price currency_id 1 price) 1 user_currency)))))
 
 (defn params [params]
   (s/join "&" (map #(str (name (key %)) "=" (val %)) params)))

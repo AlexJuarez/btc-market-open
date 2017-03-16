@@ -69,10 +69,10 @@
 
 (defn store! [order user-id pin]
   (let [currency_id (if (:hedged order) (:currency_id order) 1)
-        item-cost (util/convert-price (:currency_id order) currency_id (:price order))
-        postage-cost (util/convert-price (:postage_currency order) currency_id (:postage_price order))
+        item-cost (util/convert-price (:price order) (:currency_id order) currency_id)
+        postage-cost (util/convert-price (:postage_price order) (:postage_currency order) currency_id)
         cost (+ (* (:quantity order) item-cost) postage-cost)
-        btc_cost (util/convert-price currency_id 1 cost) ;;use an env flag for this
+        btc_cost (util/convert-price cost currency_id 1) ;;use an env flag for this
         {lq :listing_quantity lp :listing_pubic cat_id :category_id} order
         {:keys [user_id seller_id listing_id quantity] :as order} (dissoc order :listing_quantity :listing_pubic :category_id)
         escr {:from user_id :hedged (:hedged order) :to seller_id :currency_id currency_id :amount cost :btc_amount btc_cost :status "hold"}
@@ -176,7 +176,7 @@
   (util/update-session user-id :orders :sales)
   (let [{:keys [hedge_fee seller_id listing_id hedged]} (update orders (set-fields {:finalized true :updated_on (raw "now()")}) (where {:id id :finalized false :user_id user-id}))
         {amount :amount currency_id :currency_id} (update escrow (set-fields {:status "done" :updated_on (raw "now()")}) (where {:order_id id :from user-id :status "hold"}))
-        amount (util/convert-price currency_id 1 amount)
+        amount (util/convert-price amount currency_id 1)
         percent (if hedged hedge_fee (env :fee))
         fee_amount (* percent amount)
         audit {:amount (- amount fee_amount) :user_id seller_id :role "sale"}

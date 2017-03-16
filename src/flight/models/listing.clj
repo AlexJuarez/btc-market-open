@@ -50,7 +50,7 @@
     listing
     :description (hc/escape-html description)
     :to (if (empty? to) nil (vec->array (sort (distinct to))))
-    :converted_price (util/convert-price currency_id 26 price)
+    :converted_price (util/convert-price price currency_id 26)
     :updated_on (raw "now()")))
 
 (defn get

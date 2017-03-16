@@ -10,6 +10,7 @@
     [ring.util.response :as resp]
     [flight.util.error :as error]
     [flight.util.cart :as cart]
+    [flight.util.core :as util]
     [flight.routes.cart.middleware :refer [consolidate-cart]]
     [schema.core :as s]
 ))
@@ -21,13 +22,20 @@
          total (cart/total)]
      (layout/render "cart/checkout.html" {:total total
                                           :btc_total btc-total
-                                          :listings listings}))))
+                                          :listings listings})))
+  ([checkout]
+   (let [btc-total (cart/total 1)]
+     (when (> btc-total (:btc (util/current-user)))
+       (error/put! :total ["you lack the nessary funds"])))
+   (cart-checkout)
+   ))
 
 (defn cart-view
   ([]
    (let [listings (cart/listings)
          btc-total (cart/total 1)
          total (cart/total)]
+     (println btc-total total)
      (layout/render "cart/index.html" {:total total
                                        :btc_total btc-total
                                        :listings listings}))))
@@ -58,24 +66,35 @@
     :quantity (s/both Long (greater-than? 0))}}
     (s/optional-key :submit) String})
 
+(defn matches-pin [pin]
+  (= pin (:pin (util/current-user))))
+
+(s/defschema Checkout
+  {:address (s/both String (not-empty?))
+   (s/optional-key :pin) (s/both String (s/pred matches-pin 'matches-pin))})
+
 (defroutes public-routes
   (context
-   "/cart" []
-   (GET "/" [] (cart-view))
-   (POST "/" []
-         :middleware [consolidate-cart]
-         :form [cart Cart]
-         (cart-submit cart))
+    "/cart" []
+    (GET "/" [] (cart-view))
+    (POST "/" []
+          :middleware [consolidate-cart]
+          :form [cart Cart]
+          (cart-submit cart))
     (GET "/empty" [] (cart-empty))
-   (context "/add/:id" []
-            :path-params [id :- Long]
-            (GET "/" [] (cart-add id))
-            (POST "/" [] :form-params [postage :- Long] (cart-add id postage)))
-   (GET "/:id/remove" []
+    (context "/add/:id" []
+             :path-params [id :- Long]
+             (GET "/" [] (cart-add id))
+             (POST "/" [] :form-params [postage :- Long] (cart-add id postage)))
+    (GET "/:id/remove" []
          :path-params [id :- Long] (cart-remove id))))
 
 (defroutes user-routes
   (context
     "/cart" []
      (GET "/checkout" []
-        (cart-checkout))))
+        (cart-checkout))
+     (POST "/checkout" []
+        :form [checkout Checkout]
+        (cart-checkout checkout))
+    ))

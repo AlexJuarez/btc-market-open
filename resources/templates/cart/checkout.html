@@ -13,8 +13,6 @@
 {% block container %}
 <h1 class="jumbo">Checkout</h1>
 {% if not listings|empty? %}
-<form class="my-cart" method="post">
-{% csrf-token %}
 <table class="table">
   <thead>
     <tr>
@@ -47,15 +45,23 @@
   {% endfor %}
   </tbody>
 </table>
-<h3 class="text-right">
+<h3 class="text-right {% if errors.total %}has-error{% endif %}">
   Total: {% ifunequal user.currency_id 1 %}(&#3647; {{btc_total|double-format:5}}){% endifunequal %} {{user.currency_symbol|safe}}{{total|double-format:5}}
+  <br />
+  {% if errors.total %}{{errors.total|join:", "}}{% endif %}
 </h3>
+<form class="my-cart" method="post">
+{% csrf-token %}
+<div class="form-group {% if errors.address %}has-error{% endif %}">
+  <label for="address">Address: {% if errors.address %}{{errors.address|join:", "}}{% endif %}</label>
+  <textarea id="address" class="form-control" rows="4" name="address">{{description|safe}}</textarea>
+</div>
 <hr />
 <p class="text-right">
   {% if user.pin %}
   <input type="text" class="input btn-input" name="pin" value="{{pin}}" placeholder="Enter your pin" />
   {% endif %}
-  <button class="btn btn-primary" type="submit" name="submit" value="Checkout">Place Order</button>
+  <button class="btn btn-primary" type="submit">Place Order</button>
 </p>
 </form>
 {% else %}

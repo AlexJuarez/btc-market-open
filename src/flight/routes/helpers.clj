@@ -64,6 +64,8 @@
   (report/remove! object-id user-id table)
   (resp/redirect referer))
 
+(defn not-empty? []
+  (s/pred (comp not empty?) '(not empty?)))
 
 (defn greater-than? [min]
   (s/pred #(<= min (if (number? %) % (count %))) (list 'greater-than? min)))

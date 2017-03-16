@@ -24,6 +24,8 @@
          (if (number? value) "smaller than " "shorter than or equal to") max)
     ['not ['availible? value]]
     (str value " is not availible")
+    ['not [['not 'empty?] value]]
+    "cannot be empty"
     :else
     (str x))
     (cons []))

@@ -107,7 +107,7 @@
      :ship_to (map #(regions %) (:to listing))
      :item_create_time (.getTime (:item_create_time listing))
      :item_update_time (.getTime (:item_update_time listing))
-     :price (util/convert-price (:currency_id listing) 1 (:price listing))
+     :price (util/convert-price (:price listing) (:currency_id listing) 1)
      )
    :to
    :from
