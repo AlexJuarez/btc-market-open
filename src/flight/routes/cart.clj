@@ -10,35 +10,33 @@
     [ring.util.response :as resp]
     [flight.util.error :as error]
     [flight.util.cart :as cart]
-    [flight.util.core :as util]
+    [flight.util.core :as util :refer [user-id]]
     [flight.routes.cart.middleware :refer [consolidate-cart]]
     [schema.core :as s]
 ))
 
+(defn render-cart [template & params]
+  (let [listings (cart/listings)
+        btc-total (cart/total 1)
+        total (cart/total)]
+     (layout/render template {:total total
+                              :btc_total btc-total
+                              :listings listings} (first params))))
+
 (defn cart-checkout
   ([]
-   (let [listings (cart/listings)
-         btc-total (cart/total 1)
-         total (cart/total)]
-     (layout/render "cart/checkout.html" {:total total
-                                          :btc_total btc-total
-                                          :listings listings})))
-  ([checkout]
+   (render-cart "cart/checkout.html"))
+  ([{:keys [address pin] :as checkout}]
    (let [btc-total (cart/total 1)]
      (when (> btc-total (:btc (util/current-user)))
        (error/put! :total ["you lack the nessary funds"])))
-   (cart-checkout)
-   ))
+   (let [order (orders/add! (cart/cart) (cart/total 1) address pin (user-id))]
+     (println order))
+   (render-cart "cart/checkout.html" checkout)))
 
 (defn cart-view
   ([]
-   (let [listings (cart/listings)
-         btc-total (cart/total 1)
-         total (cart/total)]
-     (println btc-total total)
-     (layout/render "cart/index.html" {:total total
-                                       :btc_total btc-total
-                                       :listings listings}))))
+   (render-cart "cart/index.html")))
 
 (defn cart-add [id &[postage]]
   (cart/add! id postage)

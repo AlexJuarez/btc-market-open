@@ -5,6 +5,7 @@
  :log-path "./flight-rotor.log"
  :embed-image true
  :max-value 100000000
+ :fee 0.06
  :couchbase-server-uri "127.0.0.1:11211"
  :remote-bitcoin-values "https://api.coinbase.com/v1/currencies/exchange_rates"
  :dbspec {:classname "org.postgresql.Driver"

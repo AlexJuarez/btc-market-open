@@ -102,7 +102,7 @@
            (belongs-to users))
 
 (defentity order-audit
-           (table :order-audit)
+           (table :orderaudit)
            (belongs-to users)
            (belongs-to orders))
 

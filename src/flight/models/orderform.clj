@@ -4,5 +4,5 @@
         [korma.core]
         [flight.db.core])
   (:require
-        [flight.util :as util]))
+        [flight.util.core :as util]))
 

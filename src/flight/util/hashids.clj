@@ -31,6 +31,7 @@
       nums
       (first nums))))
 
+
 (s/defn Hashid :- Long
   [h :- String]
   (java.lang.Long. (decrypt h)))

@@ -54,7 +54,7 @@
 {% csrf-token %}
 <div class="form-group {% if errors.address %}has-error{% endif %}">
   <label for="address">Address: {% if errors.address %}{{errors.address|join:", "}}{% endif %}</label>
-  <textarea id="address" class="form-control" rows="4" name="address">{{description|safe}}</textarea>
+  <textarea id="address" class="form-control" rows="4" name="address">{{address|safe}}</textarea>
 </div>
 <hr />
 <p class="text-right">

@@ -84,9 +84,9 @@
           :query-params [{page :- Long 1}] (moderator-page page))
     (context
       "/:id" []
-      :path-params [id :- Hashid]
-      (GET "/" [] (moderator-view id))
-      (POST "/" {params :params} (moderator-add-resolution id params)))
+      :path-params [id :- String]
+      (GET "/" [] (moderator-view (Hashid id)))
+      (POST "/" {params :params} (moderator-add-resolution (Hashid id) params)))
 
     (context
       "/support/:id" []

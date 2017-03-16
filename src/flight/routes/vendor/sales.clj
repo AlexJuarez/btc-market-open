@@ -30,7 +30,7 @@
               fee (* amount percent)]
           (assoc % :arbitration arbitration :amount amount :fee fee)) sales))
 
-(defn sales [template url status page]
+(defn render-sales [template url status page]
   (let [state ([:new :ship :resolution :finalize] status)
         pagemax (util/page-max (get-sales state) sales-per-page)
         sales (-> (order/sold status (user-id) page sales-per-page) encrypt-ids calculate-amount arbitration)]
@@ -43,25 +43,25 @@
         sales (-> (order/sold 0 (user-id) page sales-per-page) encrypt-ids calculate-amount arbitration)
         finalized (filter #(:finalized %) sales)
         sales (filter #(not (:finalized %)) sales)]
-     (layout/render "sales/new.html" {:sales sales :finalized finalized :page page :page-info {:page page :max pagemax :url "/vendor/sales/new"}})))
+     (layout/render "sales/new.html" {:sales sales :finalized finalized :page page :paginate {:page page :max pagemax :url "/vendor/sales/new"}})))
 
 (defn sales-shipped
   [page]
-  (sales "sales/shipped.html" "/vendor/sales/shipped" 1 page))
+  (render-sales "sales/shipped.html" "/vendor/sales/shipped" 1 page))
 
 (defn sales-disputed
   [page]
-  (sales "sales/disputed.html" "/vendor/sales/resolutions" 2 page))
+  (render-sales "sales/disputed.html" "/vendor/sales/resolutions" 2 page))
 
 (defn sales-finailized
   [page]
-  (sales "sales/finailized.html" "/vendor/sales/past" 3 page))
+  (render-sales "sales/finailized.html" "/vendor/sales/past" 3 page))
 
 (defn sales-overview
   [page]
   (let [pagemax (util/page-max (get-sales :total) sales-per-page)
         sales (-> (order/sold (user-id) page sales-per-page) encrypt-ids arbitration)]
-     (layout/render "sales/overview.html" {:sales sales :page {:page page :max pagemax :url "/vendor/sales"}})))
+     (layout/render "sales/overview.html" {:sales sales :paginate {:page page :max pagemax :url "/vendor/sales"}})))
 
 (defn sales-view
   ([id]
@@ -113,6 +113,6 @@
      (POST "/new" {params :params} (sales-page params)))
    (context
     "/sale/" []
-     :path-params [id :- Hashid]
-     (GET "/" [] (sales-view id))
-     (POST "/" {params :params} (sales-view id params))))
+     :path-params [id :- String]
+     (GET "/" [] (sales-view (Hashid id)))
+     (POST "/" {params :params} (sales-view (Hashid id) params))))

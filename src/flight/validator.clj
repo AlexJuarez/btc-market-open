@@ -62,7 +62,7 @@
 (v/defvalidator cart-validator
   [:address [:presence]]
   [:total [:check-funds :numericality {:less-than-or-equal-to 2147483647}]]
-  [:pin [:presence :pin-match]])
+  [:pin [:pin-match]])
 
 ;;Bcypt only looks at the first 73 characters, and saves 60 of them
 (v/defvalidator user-validator

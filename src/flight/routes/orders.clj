@@ -80,11 +80,11 @@
            :form [reviews Reviews] (orders-page reviews)))
    (context
      "/order/:id" []
-     :path-params [id :- Hashid]
-     (GET "/resolve" [] (order-resolve id))
-     (GET "/cancel" [] (order-cancel id))
-     (GET "/" [] (order-view id))
+     :path-params [id :- String]
+     (GET "/resolve" [] (order-resolve (Hashid id)))
+     (GET "/cancel" [] (order-cancel (Hashid id)))
+     (GET "/" [] (order-view (Hashid id)))
      (POST "/" []
             :form [resolution Resolution]
-            (order-add-resolution id resolution))
-     (GET "/finalize" [] (order-finalize id))))
+            (order-add-resolution (Hashid id) resolution))
+     (GET "/finalize" [] (order-finalize (Hashid id)))))
