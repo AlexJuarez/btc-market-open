@@ -36,7 +36,7 @@
          content (md/md->html (:content article))]
      (layout/render "news/create.html" article {:preview content})))
   ([id slug]
-   (let [article (post/update! slug (user-id))
+   (let [article (post/update! (assoc slug :id id) (user-id))
          content (md/md->html (:content article))]
      (layout/render "news/create.html" article {:preview content}))))
 

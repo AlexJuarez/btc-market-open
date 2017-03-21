@@ -31,11 +31,15 @@
 </ul>
 {% endblock %}
 {% block container %}
-<h1 class="jumbo">News letter preview</h1>
+
 {% if preview %}
+<h1 class="jumbo">Preview</h1>
 <div class="well">
   {{preview|safe}}
 </div>
+{% endif %}
+{% if not preview %}
+<h1 class="jumbo">New Post</h1>
 {% endif %}
 <form method="POST">
   <p>
@@ -43,8 +47,7 @@
     <input name="subject" class="input" id="subject" type="text" value="{{subject}}" />
   </p>
   <p>
-    <label>Public: <input type="checkbox" name="public" {% if public %}checked{% endif %} value="true" /></label>
-    should this be visible on your profile? (if not it will be a newsletter sent to your fans)
+    <label>Not fans only: <input type="checkbox" name="public" {% if public %}checked{% endif %} value="true" /></label>
   </p>
   <p>
     <label>Published: <input type="checkbox" name="published" {% if published %}checked{% endif %} value="true" /></label>

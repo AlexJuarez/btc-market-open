@@ -23,10 +23,10 @@
     <a class="header" href="/vendor/news"><span class="category">Manage Followers</span></a>
   </li>
   <li>
-    <a class="header active" href="/vendor/images"><span class="category">manage images</span></a>
+    <a class="header {% if not edit %}active{% endif %}" href="/vendor/images"><span class="category">manage images</span></a>
     <ul>
       <li><a class="header" href="/vendor/images/upload"><span class="category">upload</span></a></li>
-      <li><a class="header" href="/vendor/images/edit"><span class="category">edit</span></a></li>
+      <li><a class="header {% if edit %}active{% endif %}" href="/vendor/images/edit"><span class="category">edit</span></a></li>
     </ul>
   </li>
 </ul>
@@ -37,12 +37,16 @@
   <div class="subtitle">
     {% if not edit %}
       <a href="/vendor/images/edit">edit</a>
+      | <strong>manage</strong>
+      | <a href="/vendor/images/upload">upload</a>
     {% else %}
-      edit
+      <strong>edit</strong>
+      | <a href="/vendor/images">manage</a>
+      | <a href="/vendor/images/upload">upload</a>
     {% endif %}
-    | <a href="/vendor/images">manage</a>
-    | <a href="/vendor/images/upload">upload</a>
   </div>
+  <br />
+  <br />
   {% if success %}
     <h2 class="success">{{success}}</h2>
   {% endif %}
@@ -56,20 +60,25 @@
         <td>{% image-thumbnail image.id %}</td>
         <td>
            {% if not edit %}<a class="btn btn-warn" href="/vendor/image/{{image.id}}/delete">delete</a>{% endif %}
-          <dl>
-            <dt>Id</dt>
-            <dd>{{image.id}}</dd>
-            <dt>Name</dt>
-            <dd>
-            {% if edit %}
-              <input type="text" value="{{image.name}}" name="name[{{image.id}}]" class="input" />
-            {% else %}
-              {% if image.name %}{{image.name}}{% else %} --- {% endif %}
-            {% endif %}
-            </dd>
-            <dt>Created on</dt>
-            <dd>{{image.created_on|date:shortDate}}</dd>
-          </dl>
+          <table class="table normal left">
+            <tbody>
+              <tr>
+                <td>Id:</td><td>{{image.id}}</td>
+              </tr>
+              <tr>
+                <td>Name:</td><td>
+                  {% if edit %}
+                    <input type="text" value="{{image.name}}" name="name[{{image.id}}]" class="input" />
+                  {% else %}
+                    {% if image.name %}{{image.name}}{% else %} --- {% endif %}
+                  {% endif %}
+                </td>
+              </tr>
+              <tr>
+                <td>Created on:</td><td>{{image.created_on|date:shortDate}}</td>
+              </tr>
+            </tbody>
+          </table>
         </td>
       </tr>
       {% endfor %}

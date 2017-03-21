@@ -408,6 +408,9 @@ a:active {
   width: 150px;
   text-align: center;
 }
+.listings .price + .subtitle {
+  margin-top: -5px;
+}
 /* listing view page */
 .listing .price {
   color: #bec86e;
@@ -799,39 +802,15 @@ a:active {
 .my-cart h3 {
   margin-bottom: 1rem;
 }
-.images dl {
-  text-align: left;
-  min-width: 10rem;
-}
-.images dl dt {
-  font-size: 1.5rem;
-  line-height: 1;
-  border-bottom: 1px solid #999;
-}
-.images dl dd,
-.images dl dt {
-  margin: 0;
-}
-.images dd {
-  padding: 4px 0;
-  height: 30px;
-}
 .images .input {
   line-height: 1;
   border-radius: 0;
-}
-.images table.normal {
-  margin: 0 auto;
-  width: 60%;
 }
 .images td + td {
   width: 100%;
 }
 .images td {
   position: relative;
-}
-.images td dl {
-  margin-top: 2rem;
 }
 .images td > a {
   position: absolute;
@@ -951,6 +930,9 @@ textarea {
 }
 .right {
   float: right;
+}
+.left {
+  float: left;
 }
 .text-right {
   text-align: right;

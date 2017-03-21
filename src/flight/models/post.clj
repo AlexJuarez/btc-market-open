@@ -36,8 +36,10 @@
   (insert posts (values slug)))
 
 (defn prep [{:keys [subject content public published] :as item}]
-  (merge item
-         {:content (hc/escape-html content)}))
+  {:subject subject
+   :content (hc/escape-html content)
+   :public (or public false)
+   :published (or published false)})
 
 (defn remove! [id user-id]
   (delete posts
@@ -53,6 +55,7 @@
 
 (defn update! [slug user-id]
   (let [post (-> slug prep (assoc :updated_on (raw "now()")))]
-      (update posts
+    (update posts
               (set-fields post)
-              (where {:user_id user-id :id (:id slug)}))))
+              (where {:user_id user-id :id (:id slug)}))
+    post))
