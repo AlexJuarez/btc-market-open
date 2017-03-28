@@ -35,6 +35,7 @@
 (defroutes vendor-routes
   (context
     "/vendor" []
+    :tags ["vendor"]
     :access-rule user-authenticated
     sales/vendor-routes
     postage/vendor-routes
@@ -43,12 +44,14 @@
     listings/vendor-routes))
 
 (defroutes user-routes*
-  account/user-routes
-  cart/user-routes
-  listings/user-routes
-  market/user-routes
-  message/user-routes
-  orders/user-routes)
+  (context "" []
+    :tags ["user"]
+    account/user-routes
+    cart/user-routes
+    listings/user-routes
+    market/user-routes
+    message/user-routes
+    orders/user-routes))
 
 (defroutes user-routes
   (restrict user-routes* user-authenticated))
@@ -56,6 +59,7 @@
 (defroutes mod-routes
   (context
     "/moderator" []
+    :tags ["moderator"]
     :access-rule mod-authenticated
     market/mod-routes
     moderator/mod-routes))
@@ -63,6 +67,7 @@
 (defroutes admin-routes
   (context
     "/admin" []
+    :tags ["admin"]
     :access-rule admin-authenticated
     moderator/admin-routes
     ))

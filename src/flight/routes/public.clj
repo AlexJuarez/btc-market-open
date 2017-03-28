@@ -6,6 +6,8 @@
     [flight.routes.auth :as auth]))
 
 (defroutes public-routes
-  market/public-routes
-  cart/public-routes
-  auth/public-routes)
+  (context "" []
+    :tags ["public"]
+    market/public-routes
+    cart/public-routes
+    auth/public-routes))

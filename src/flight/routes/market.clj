@@ -30,8 +30,6 @@
 
 (def listings-per-page 20)
 
-(def sort-options ["lowest" "highest" "title" "newest"])
-
 (defn market-page [url {:keys [cid page sort_by ships_to ships_from] :as params}]
   (let [cid (or cid 1)
         page (or page 1)
@@ -158,8 +156,11 @@
                   (category-page id {:page page :sort_by sort_by :ships_to ships_to :ships_from ships_from})))
   (GET "/support" [] (support-page))
 
-  (GET "/api/vendors" [api_key] (api-vendors api_key))
-  (GET "/api/listings" {params :params {sign "sign"} :headers} (api-listings params sign))
+  (context "/api" []
+           :tags ["api"]
+           (GET "/vendors" [api_key] (api-vendors api_key))
+           (GET "/listings" {params :params {sign "sign"} :headers} (api-listings params sign)))
+
 
   ;;public routes
   (context "/user/:id" []

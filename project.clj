@@ -17,6 +17,7 @@
                  [conman "0.2.7" :exclusions [instaparse]]
                  [crypto-random "1.2.0"] ;;crypto lib
                  [cprop "0.1.10"]
+                 [liberator "0.14.1"] ;;route negotiation based on request
                  [hashobject/hashids "0.2.0"];;for anon hashing
                  [image-resizer "0.1.9"]
                  [korma "0.4.2" :exclusions [c3p0/c3p0]] ;;sql dsl
@@ -40,6 +41,7 @@
                  [org.slf4j/log4j-over-slf4j "1.7.12"]
                  [org.postgresql/postgresql "9.3-1102-jdbc41"] ;;postgres adapter
                  [prismatic/schema "1.0.3"]
+                 [cheshire "5.7.0"]
                  [ring "1.4.0" :exclusions [ring/ring-jetty-adapter]]
                  [ring-ttl-session "0.1.1"]
                  [ring-webjars "0.1.1"]

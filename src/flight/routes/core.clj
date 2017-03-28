@@ -6,6 +6,8 @@
     [compojure.api.sweet :refer :all]))
 
 (defapi core-routes
+  {:swagger {:spec "/swagger.json"
+             :ui "/api-docs"}}
   public-routes
   user-routes
   vendor-routes
