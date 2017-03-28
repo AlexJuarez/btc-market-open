@@ -13,15 +13,26 @@
     [flight.routes.moderator :as moderator]
     [flight.routes.orders :as orders]
     [ring.util.response :as resp]
+    [ring.util.http-response :refer [unauthorized content-type]]
     [flight.access :refer [wrap-restricted]]
+    [flight.env :refer [env]]
     [buddy.auth.accessrules :refer [restrict]]
+    [liberator.core :refer [defresource]]
+    [cheshire.core :refer [encode]]
     [flight.access :as access]))
 
-(defn login-redirect [_ _]
-  (resp/redirect "/login"))
+(defn redirect [req path]
+  (let [media-type (get-in req [:headers "accept"])]
+    (if (= media-type "application/json")
+        (content-type (unauthorized (encode {:error "not authorized" :redirect path})) "application/json")
+        (resp/redirect path)
+        )))
 
-(defn home-redirect [_ _]
-  (resp/redirect "/"))
+(defn login-redirect [req _]
+  (redirect req "/login"))
+
+(defn home-redirect [req _]
+  (redirect req "/"))
 
 (def user-authenticated
   {:handler access/authenticated? :on-error login-redirect})
@@ -35,7 +46,7 @@
 (defroutes vendor-routes
   (context
     "/vendor" []
-    :tags ["vendor"]
+    :tags        ["vendor"]
     :access-rule user-authenticated
     sales/vendor-routes
     postage/vendor-routes
@@ -43,23 +54,21 @@
     images/vendor-routes
     listings/vendor-routes))
 
-(defroutes user-routes*
-  (context "" []
-    :tags ["user"]
-    account/user-routes
-    cart/user-routes
-    listings/user-routes
-    market/user-routes
-    message/user-routes
-    orders/user-routes))
-
 (defroutes user-routes
-  (restrict user-routes* user-authenticated))
+  (context "" []
+           :tags ["user"]
+           :access-rule user-authenticated
+           account/user-routes
+           cart/user-routes
+           listings/user-routes
+           market/user-routes
+           message/user-routes
+           orders/user-routes))
 
 (defroutes mod-routes
   (context
     "/moderator" []
-    :tags ["moderator"]
+    :tags        ["moderator"]
     :access-rule mod-authenticated
     market/mod-routes
     moderator/mod-routes))
@@ -67,7 +76,6 @@
 (defroutes admin-routes
   (context
     "/admin" []
-    :tags ["admin"]
+    :tags        ["admin"]
     :access-rule admin-authenticated
-    moderator/admin-routes
-    ))
+    moderator/admin-routes))

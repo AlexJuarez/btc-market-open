@@ -5,8 +5,8 @@
    [selmer.filters :as filters]
    [markdown.core :refer [md-to-html-string]]
    [liberator.core :refer [defresource]]
-   [ring.util.http-response :refer [content-type ok]]
    [cheshire.core :refer [encode]]
+   [ring.util.http-response :refer [content-type ok]]
    [flight.env :refer [env]]
    [ring.util.anti-forgery :refer [anti-forgery-field]]
    [ring.middleware.anti-forgery :refer [*anti-forgery-token*]])

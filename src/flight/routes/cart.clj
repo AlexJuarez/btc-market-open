@@ -10,33 +10,35 @@
     [ring.util.response :as resp]
     [flight.util.error :as error]
     [flight.util.cart :as cart]
-    [flight.util.core :as util :refer [user-id]]
+    [flight.util.core :as util
+     :refer               [user-id]]
     [flight.routes.cart.middleware :refer [consolidate-cart]]
-    [schema.core :as s]
-))
+    [schema.core :as s]))
 
 (defn render-cart [template & params]
-  (let [listings (cart/listings)
+  (let [listings  (cart/listings)
         btc-total (cart/total 1)
-        total (cart/total)]
-     (layout/render template {:total total
-                              :btc_total btc-total
-                              :listings listings} (first params))))
+        total     (cart/total)]
+    (layout/render template
+                   {:total     total
+                    :btc_total btc-total
+                    :listings  listings}
+                   (first params))))
 
 (defn cart-checkout
   ([]
-   (render-cart "cart/checkout.html"))
+    (render-cart "cart/checkout.html"))
   ([{:keys [address pin] :as checkout}]
-   (let [btc-total (cart/total 1)]
-     (when (> btc-total (:btc (util/current-user)))
-       (error/put! :total ["you lack the nessary funds"])))
-   (let [order (orders/add! (cart/cart) (cart/total 1) address pin (user-id))]
-     (println order))
-   (render-cart "cart/checkout.html" checkout)))
+    (let [btc-total (cart/total 1)]
+      (when (> btc-total (:btc (util/current-user)))
+            (error/put! :total ["you lack the nessary funds"])))
+    (let [order (orders/add! (cart/cart) (cart/total 1) address pin (user-id))]
+      (println order))
+    (render-cart "cart/checkout.html" checkout)))
 
 (defn cart-view
   ([]
-   (render-cart "cart/index.html")))
+    (render-cart "cart/index.html")))
 
 (defn cart-add [id &[postage]]
   (cart/add! id postage)
@@ -44,7 +46,7 @@
 
 (defn cart-remove [id]
   (cart/remove! id)
-   (resp/redirect "/cart"))
+  (resp/redirect "/cart"))
 
 (defn cart-empty []
   (cart/empty!)
@@ -52,23 +54,22 @@
 
 (defn cart-submit [{:keys [submit] :as slug}]
   (when (error/empty?)
-    (cart/update! (:cart slug)))
+        (cart/update! (:cart slug)))
   (if (and (= "Checkout" submit) (empty? (cart/check)))
-    (resp/redirect "/cart/checkout")
-    (cart-view)))
+      (resp/redirect "/cart/checkout")
+      (cart-view)))
 
 (s/defschema Cart
-  {:cart {s/Keyword {
-    :id (s/both Long (s/pred listing/exists? 'exists?))
-    (s/optional-key :postage) (s/both Long (s/pred postage/exists? 'exists?))
-    :quantity (s/both Long (greater-than? 0))}}
-    (s/optional-key :submit) String})
+  {:cart                    {s/Keyword {:id                       (s/both Long (s/pred listing/exists? 'exists?))
+                                        (s/optional-key :postage) (s/both Long (s/pred postage/exists? 'exists?))
+                                        :quantity                 (s/both Long (greater-than? 0))}}
+   (s/optional-key :submit) String})
 
 (defn matches-pin [pin]
   (= pin (:pin (util/current-user))))
 
 (s/defschema Checkout
-  {:address (s/both String (not-empty?))
+  {:address              (s/both String (not-empty?))
    (s/optional-key :pin) (s/both String (s/pred matches-pin 'matches-pin))})
 
 (defroutes public-routes
@@ -77,7 +78,7 @@
     (GET "/" [] (cart-view))
     (POST "/" []
           :middleware [consolidate-cart]
-          :form [cart Cart]
+          :form       [cart Cart]
           (cart-submit cart))
     (GET "/empty" [] (cart-empty))
     (context "/add/:id" []
@@ -90,9 +91,8 @@
 (defroutes user-routes
   (context
     "/cart" []
-     (GET "/checkout" []
-        (cart-checkout))
-     (POST "/checkout" []
-        :form [checkout Checkout]
-        (cart-checkout checkout))
-    ))
+    (GET "/checkout" []
+         (cart-checkout))
+    (POST "/checkout" []
+          :form [checkout Checkout]
+          (cart-checkout checkout))))

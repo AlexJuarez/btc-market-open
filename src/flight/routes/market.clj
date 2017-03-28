@@ -175,7 +175,8 @@
 
 ;;restricted routes
 (defroutes user-routes
-  (POST "/support" {params :params} (support-page params))
+  (POST "/support" {params :params}
+        (support-page params))
   (context "/user/:id" []
            :path-params [id :- Long]
            (GET "/report" {{referer "referer"} :headers} (report-add id (user-id) "user" referer))

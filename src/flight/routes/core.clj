@@ -9,7 +9,7 @@
   {:swagger {:spec "/swagger.json"
              :ui "/api-docs"}}
   public-routes
-  user-routes
   vendor-routes
   mod-routes
-  admin-routes)
+  admin-routes
+  user-routes)
