@@ -12,6 +12,7 @@
     [flight.routes.message :as message]
     [flight.routes.moderator :as moderator]
     [flight.routes.orders :as orders]
+    [flight.routes.admin :as admin]
     [ring.util.response :as resp]
     [ring.util.http-response :refer [unauthorized content-type]]
     [flight.access :refer [wrap-restricted]]
@@ -78,4 +79,5 @@
     "/admin" []
     :tags        ["admin"]
     :access-rule admin-authenticated
+    admin/admin-routes
     moderator/admin-routes))

@@ -1,0 +1,52 @@
+{% extends "layout/side-menu.html" %}
+{% block links %}
+{% include "links/admin.html" %}
+{% endblock %}
+{% block content %}
+<h3>Audit Table</h3>
+<table class="table normal p">
+  <thead>
+    <tr>
+      <th>user</th>
+      <th>amount</th>
+      <th>note</th>
+      <th>date</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for audit in audits %}
+    <tr {% if audit.amount > 0 %}class="gain"{% else %}class="loss"{% endif %}>
+      <td>{{audit.user_id}}</td>
+      <td>{{audit.amount}}</td>
+      <td>{{audit.role}}</td>
+      <td>{{audit.created_on|date:shortDate}}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+<h3>Escrow Table</h3>
+<table class="table normal p">
+  <thead>
+    <tr>
+      <th>order id</th>
+      <th>status</th>
+      <th>amount</th>
+      <th>from</th>
+      <th>to</th>
+      <th>created on</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for escrow in escrows %}
+    <tr>
+      <td>{{escrow.order_id}}</td>
+      <td>{{escrow.status}}</td>
+      <td>{{escrow.btc_amount}}</td>
+      <td>{{escrow.from}}</td>
+      <td>{{escrow.to}}</td>
+      <td>{{escrow.created_on|date:shortDate}}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

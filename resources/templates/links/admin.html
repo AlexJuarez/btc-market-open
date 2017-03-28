@@ -5,14 +5,14 @@
   <a href="/orders">Orders ({{user.orders}})</a>
   {% if user.vendor %}
   <a href="/vendor/sales">Sold ({{user.sales.total}})</a>
-  <a class="active" href="/vendor/listings">Sell ({{user.listings}})</a>
+  <a href="/vendor/listings">Sell ({{user.listings}})</a>
   {% endif %}
   <a href="/account/wallet">Wallet {{user.currency_symbol|safe}}{{user.balance|double-format:4}}</a>
   {% if user.mod %}
   <a href="/moderator">Mod</a>
   {% endif %}
   {% if user.admin %}
-  <a href="/admin">Admin</a>
+  <a class="active" href="/admin">Admin</a>
   {% endif %}
   {% endif %}
 </nav>

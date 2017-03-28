@@ -33,8 +33,9 @@
       (when (> btc-total (:btc (util/current-user)))
             (error/put! :total ["you lack the nessary funds"])))
     (let [order (orders/add! (cart/cart) (cart/total 1) address pin (user-id))]
-      (println order))
-    (render-cart "cart/checkout.html" checkout)))
+      (if (error/empty?)
+        (resp/redirect "/orders")
+        (render-cart "cart/checkout.html" checkout)))))
 
 (defn cart-view
   ([]

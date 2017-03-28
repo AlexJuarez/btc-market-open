@@ -9,7 +9,10 @@
   {% endif %}
   <a href="/account/wallet">Wallet {{user.currency_symbol|safe}}{{user.balance|double-format:4}}</a>
   {% if user.mod %}
-  <a href="/moderate">Mod</a>
+  <a href="/moderator">Mod</a>
+  {% endif %}
+  {% if user.admin %}
+    <a href="/admin">Admin</a>
   {% endif %}
   {% endif %}
 </nav>
