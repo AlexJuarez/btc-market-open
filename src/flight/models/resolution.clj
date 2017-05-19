@@ -40,7 +40,7 @@
               (where {:id order_id}))))
 
 (defn refund [id user_id seller_id order_id percent res]
-  (let [{amount :btc_amount} (update escrow (set-fields {:status "done" :updated_on (raw "now()")}) (where {:order_id order_id :from user_id :status "hold"}))
+  (let [{amount :btc_amount} (first (select escrow (where {:order_id order_id :from user_id :status "hold"})))
         user-amount (* amount (/ percent 100))
         seller-amount (- amount user-amount)
         user-audit {:amount user-amount :user_id user_id :role "refund"}
@@ -49,6 +49,7 @@
     (util/update-session seller_id :orders :sales)
     (if amount
       (transaction
+        (update escrow (set-fields {:status "done" :updated_on (raw "now()")}) (where {:order_id order_id :from user_id :status "hold"}))
         (update resolutions
                 (set-fields res)
                 (where {:id id}))

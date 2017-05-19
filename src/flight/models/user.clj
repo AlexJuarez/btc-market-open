@@ -134,10 +134,12 @@
 
 (defn update-pgp! [pub_key user-id]
   (let [updates (clean-pgp pub_key)]
-      (let [update (update users
-                            (set-fields updates)
-                            (where {:id user-id}))]
-        (session/assoc-in! [:user :pub_key] (update :pub_key)))))
+    (update users
+            (set-fields updates)
+            (where {:id user-id}))
+    (->> (select users (where {:id user-id}))
+        :pub_key
+        (session/assoc-in! [:user :pub_key]))))
 
 (defn update-btc-address! [id]
   (let [new-address (btc/newaddress id)]

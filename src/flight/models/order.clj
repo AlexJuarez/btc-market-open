@@ -4,12 +4,12 @@
         [korma.core]
         [flight.db.core])
   (:require
-        [flight.env :refer [env]]
-        [flight.models.postage :as postage]
-        [flight.models.listing :as listings]
-        [flight.validator :as v]
-        [flight.util.session :as session]
-        [flight.util.core :as util]))
+    [flight.env :refer [env]]
+    [flight.models.postage :as postage]
+    [flight.models.listing :as listings]
+    [flight.validator :as v]
+    [flight.util.session :as session]
+    [flight.util.core :as util]))
 
 ;;Order status numbers
 ;;0 - processing
@@ -35,19 +35,19 @@
                  (where {:id id :seller_id seller-id}))))
 (defn all [id]
   (select orders
-    (with sellers (fields :login :alias))
-    (where (and (= :user_id id)
-                (or (< :status 3) (not :reviewed))))
-    (order :created_on :desc)))
+          (with sellers (fields :login :alias))
+          (where (and (= :user_id id)
+                      (or (< :status 3) (not :reviewed))))
+          (order :created_on :desc)))
 
 (defn sold* [seller-id page per-page]
-   (-> (select* orders)
-       (with users (fields :login :alias))
-       (with postage (fields [:title :postage_title]))
-       (where {:seller_id seller-id})
-       (order :created_on :desc)
-       (offset (* (- page 1) per-page))
-       (limit per-page)))
+  (-> (select* orders)
+      (with users (fields :login :alias))
+      (with postage (fields [:title :postage_title]))
+      (where {:seller_id seller-id})
+      (order :created_on :desc)
+      (offset (* (- page 1) per-page))
+      (limit per-page)))
 
 (defn sold
   ([id page per-page]
@@ -79,34 +79,36 @@
         audit {:user_id user-id :role "purchase" :amount (* -1 btc_cost)}]
     (util/update-session seller_id :sales)
     (let [order (transaction
-      (insert audits (values audit))
-      (update users (set-fields {:btc (raw (str "btc - " btc_cost))}) (where {:id user-id :pin pin}))
-      (update listings
-              (set-fields {:updated_on (raw "now()") :quantity (raw (str "quantity - " quantity))})
-              (where {:id listing_id}))
-      (if (and lp (<= (- lq quantity) 0)) (update category (set-fields {:count (raw "count - 1")}) (where {:id cat_id})))
-      (insert orders (values order)))]
+                  (insert audits (values audit))
+                  (update users (set-fields {:btc (raw (str "btc - " btc_cost))}) (where {:id user-id :pin pin}))
+                  (update listings
+                          (set-fields {:updated_on (raw "now()") :quantity (raw (str "quantity - " quantity))})
+                          (where {:id listing_id}))
+                  (if (and lp (<= (- lq quantity) 0)) (update category (set-fields {:count (raw "count - 1")}) (where {:id cat_id})))
+                  (insert orders (values order)))]
       (if (not (empty? order));;TODO: what does korma return when it errors out?
-      (transaction
-       (insert order-audit (values {:status 0 :order_id (:id order) :user_id user-id}))
-       (insert escrow (values (assoc escr :order_id (:id order)))))))))
+        (transaction
+          (insert order-audit (values {:status 0 :order_id (:id order) :user_id user-id}))
+          (insert escrow (values (assoc escr :order_id (:id order)))))))))
 
 (defn cancel!
   ([{:keys [id seller_id user_id listing_id quantity] :as order}]
-   (let [escr (update escrow (set-fields {:status "refunded"}) (where {:status "hold" :order_id id}))
-         listing (update listings
-                         (set-fields {:updated_on (raw "now()") :quantity (raw (str "quantity + " quantity))})
-                         (where {:id listing_id}))]
+   (let [escr (first (select escrow (where {:status "hold" :order_id id})))
+         listing (first (select listings (where {:id listing_id})))]
      (when-not (empty? escrow)
        (util/update-session seller_id :sales :orders)
        (util/update-session user_id :sales :orders)
        (transaction
-        (insert audits (values {:user_id user_id :role "refund" :amount (:btc_amount escr)}))
-        (update users (set-fields {:btc (raw (str "btc + " (:btc_amount escr)))}) (where {:id user_id}))
-        (insert order-audit (values {:user_id user_id :status 4 :order_id id}))
-        (if (and (:public listing) (<= (- (:quantity listing) quantity) 0))
-          (update category (set-fields {:count (raw "count + 1")}) (where {:id (:category_id listing)})))
-        (update orders (set-fields {:status 4 :reviewed true}) (where {:id id :finalized false}))))))
+         (update escrow (set-fields {:status "refunded"}) (where {:status "hold" :order_id id}))
+         (update listings
+                 (set-fields {:updated_on (raw "now()") :quantity (raw (str "quantity + " quantity))})
+                 (where {:id listing_id}))
+         (insert audits (values {:user_id user_id :role "refund" :amount (:btc_amount escr)}))
+         (update users (set-fields {:btc (raw (str "btc + " (:btc_amount escr)))}) (where {:id user_id}))
+         (insert order-audit (values {:user_id user_id :status 4 :order_id id}))
+         (if (and (:public listing) (<= (- (:quantity listing) quantity) 0))
+           (update category (set-fields {:count (raw "count + 1")}) (where {:id (:category_id listing)})))
+         (update orders (set-fields {:status 4 :reviewed true}) (where {:id id :finalized false}))))))
   ([id user-id]
    (let [order (first (select orders (where {:id id :status 0})))]
      (if (or (= (:seller_id order) user-id)
@@ -162,20 +164,20 @@
           statuses (if (= status 1) (assoc statuses :auto_finalize (raw "(now() + interval '17 days')")) statuses)
           audits (map #(hash-map :user_id seller-id :order_id % :status status) sales)]
       (transaction
-       (update orders
-               (set-fields statuses)
-               (where {:seller_id seller-id :finalized false :id [in sales]}))
-       (update orders
-               (set-fields {:status 3})
-               (where {:seller_id seller-id :finalized true :id [in sales]}))
-       (insert order-audit
-               (values audits))))))
+        (update orders
+                (set-fields statuses)
+                (where {:seller_id seller-id :finalized false :id [in sales]}))
+        (update orders
+                (set-fields {:status 3})
+                (where {:seller_id seller-id :finalized true :id [in sales]}))
+        (insert order-audit
+                (values audits))))))
 
 ;;use update instead of select... genius
 (defn finalize [id user-id]
   (util/update-session user-id :orders :sales)
-  (let [{:keys [hedge_fee seller_id listing_id hedged]} (update orders (set-fields {:finalized true :updated_on (raw "now()")}) (where {:id id :finalized false :user_id user-id}))
-        {amount :amount currency_id :currency_id} (update escrow (set-fields {:status "done" :updated_on (raw "now()")}) (where {:order_id id :from user-id :status "hold"}))
+  (let [{:keys [hedge_fee seller_id listing_id hedged]} (first (select orders (where {:id id :finalized false :user_id user-id})))
+        {amount :amount currency_id :currency_id} (first (select escrow (where {:order_id id :from user-id})))
         amount (util/convert-price amount currency_id 1)
         percent (if hedged hedge_fee (env :fee))
         fee_amount (* percent amount)
@@ -183,6 +185,8 @@
         fee {:order_id id :role "order" :amount fee_amount}]
     (when (not (nil? listing_id))
       (transaction
+        (update orders (set-fields {:finalized true :updated_on (raw "now()")}) (where {:id id :finalized false :user_id user-id}))
+        (update escrow (set-fields {:status "done" :updated_on (raw "now()")}) (where {:order_id id :from user-id :status "hold"}))
         (insert fees (values fee))
         (insert audits (values audit))
         (insert order-audit (values {:user_id user-id :status 3 :order_id id}))
@@ -193,16 +197,18 @@
 (defn resolution [id user-id]
   (util/update-session user-id :orders :sales)
   (let [{:keys [seller_id] :as order}
-        (update orders
-                (set-fields {:status 2 :updated_on (raw "now()")})
-                (where {:status 1 :auto_finalize [< (raw "(now() + interval '5 days')")]
-                        :user_id user-id :id id}))]
+        (first (select orders
+                       (where {:status 1 :auto_finalize [< (raw "(now() + interval '5 days')")] :user_id user-id :id id})))]
     (transaction
-     (insert order-audit
-             (values {:user_id user-id :order_id id :status 2}))
-     (update users
-             (set-fields {:resolutions (raw "resolutions + 1")})
-             (where {:id [in [user-id seller_id]]})))
+      (update orders
+              (set-fields {:status 2 :updated_on (raw "now()")})
+              (where {:status 1 :auto_finalize [< (raw "(now() + interval '5 days')")]
+                      :user_id user-id :id id}))
+      (insert order-audit
+              (values {:user_id user-id :order_id id :status 2}))
+      (update users
+              (set-fields {:resolutions (raw "resolutions + 1")})
+              (where {:id [in [user-id seller_id]]})))
 
     order))
 
@@ -247,23 +253,23 @@
 
 (defn count [id]
   (:cnt (first (select orders
-    (aggregate (count :*) :cnt)
-    (where {:user_id id :status [in (list 0 1 2)]})))))
+                       (aggregate (count :*) :cnt)
+                       (where {:user_id id :status [in (list 0 1 2)]})))))
 
 (defn count-past [id]
   (:cnt (first (select orders
-    (aggregate (count :*) :cnt)
-    (where {:user_id id :status 3})))))
+                       (aggregate (count :*) :cnt)
+                       (where {:user_id id :status 3})))))
 
 ;;map this into vector of status cnt's into a hash
 (defn count-sales
   ([id]
    (let [sales
-     (into {}
-          (map #(vector (get statuses (:status %)) (:cnt %))
-            (select orders
-              (fields :status)
-              (aggregate (count :*) :cnt)
-              (where {:seller_id id})
-              (group :status))))]
+         (into {}
+               (map #(vector (get statuses (:status %)) (:cnt %))
+                    (select orders
+                            (fields :status)
+                            (aggregate (count :*) :cnt)
+                            (where {:seller_id id})
+                            (group :status))))]
      (assoc sales :total (reduce + (vals sales))))))
