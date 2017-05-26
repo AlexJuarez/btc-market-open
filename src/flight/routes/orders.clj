@@ -31,7 +31,7 @@
                              ;;TODO: review resolution stuff
                              (assoc % :resolve res :arbitration arbitration :id (hashids/encrypt (:id %))))
                           orders)
-         pending-review (filter #(= true (:finalized %)) orders)
+         pending-review (filter #(and (= false (:reviewed %)) (= true (:finalized %))) orders)
          orders         (filter #(< (:status %) 3) orders)]
      (layout/render "orders/index.html"
                     {:orders orders :pending-review pending-review :user-id (user-id)})))
