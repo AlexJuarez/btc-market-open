@@ -4,7 +4,6 @@
    [selmer.parser :as parser]
    [selmer.filters :as filters]
    [markdown.core :refer [md-to-html-string]]
-   [liberator.core :refer [defresource]]
    [cheshire.core :refer [encode]]
    [ring.util.http-response :refer [content-type ok]]
    [flight.env :refer [env]]
@@ -31,14 +30,12 @@
       :csrf-token *anti-forgery-token*
       :servlet-context *app-context*)))
 
-(defresource render [template & params]
-  :available-media-types ["text/plain" "text/html" "application/json"]
-  :handle-ok #(let [media-type (get-in % [:representation :media-type])]
-               (condp = media-type
-                      "text/html" (render-template template params)
-                      "text/plain" (render-template template params)
-                      "application/json" (when (env :dev) (encode (apply merge {:errors (error/all)} (get-info) params))))
-               ))
+(defn render [template & params]
+  (fn [ctx]
+    (let [media-type (get-in ctx [:representation :media-type])]
+      (condp = media-type
+        "application/json" (when (env :dev) (encode (apply merge {:errors (error/all)} (get-info) params)))
+        (render-template template params)))))
 
 (defn error-page
   "error-details should be a map containing the following keys:

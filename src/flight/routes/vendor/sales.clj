@@ -112,7 +112,7 @@
      (GET "/past" [] (sales-finailized page))
      (POST "/new" {params :params} (sales-page params)))
    (context
-    "/sale/" []
+    "/sale/:id" []
      :path-params [id :- String]
      (GET "/" [] (sales-view (Hashid id)))
      (POST "/" {params :params} (sales-view (Hashid id) params))))

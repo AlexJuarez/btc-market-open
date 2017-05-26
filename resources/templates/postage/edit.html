@@ -14,7 +14,10 @@
     <a class="header" href="/vendor/listings/create"><span class="category">Add listing</span></a>
   </li>
   <li>
-    <a class="header active" href="/vendor/postage/create"><span class="category">Add postage</span></a>
+    <a class="header" href="/vendor/postage/create"><span class="category">Add postage</span></a>
+    <ul>
+      <li><a class="header active"><span class="category">Edit postage</span></a></li>
+    </ul>
   </li>
   <!-- <li>
     <a class="header" href="/vendor/form/create"><span class="category">create an order form</span></a>
@@ -28,7 +31,8 @@
 </ul>
 {% endblock %}
 {% block container %}
-<form action="/postage/{{id}}/edit" method="POST">
+<h1 class="jumbo">Edit Postage</h1>
+<form method="POST">
   {% csrf-token %}
   <p>
     {% if errors.title %}
@@ -53,7 +57,7 @@
     </select>
   </p>
   <span class="submit">
-    <input type="submit" class="btn" value="update" />
+    <input type="submit" class="btn btn-primary" value="update" />
   </span>
 </form>
 {% endblock %}

@@ -150,7 +150,7 @@
       (do
         (session/put! :cart {})
         (util/update-session user-id :orders :sales)
-        (doall (map #(store! (prep % address user-id) user-id pin) cart)))
+        (dorun (map #(store! (prep % address user-id) user-id pin) cart)))
       {:address address :errors errors})))
 
 (defn add-audit [user-id id status]
@@ -185,7 +185,7 @@
         fee {:order_id id :role "order" :amount fee_amount}]
     (when (not (nil? listing_id))
       (transaction
-        (update orders (set-fields {:finalized true :updated_on (raw "now()")}) (where {:id id :finalized false :user_id user-id}))
+        (update orders (set-fields {:finalized true :status 3 :updated_on (raw "now()")}) (where {:id id :user_id user-id}))
         (update escrow (set-fields {:status "done" :updated_on (raw "now()")}) (where {:order_id id :from user-id :status "hold"}))
         (insert fees (values fee))
         (insert audits (values audit))

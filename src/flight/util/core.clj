@@ -47,7 +47,7 @@
     `(let [id# ~user-id
            user-id# (session/get :user_id)]
       (if (= id# user-id#)
-        (doall (map session/remove! (list :user ~@terms)))
+        (dorun (map session/remove! (list :user ~@terms)))
         (let [user# (first (select users (fields :session) (where {:id id#})))]
           (when (:session user#)
             (let [session# (.toString (:session user#))

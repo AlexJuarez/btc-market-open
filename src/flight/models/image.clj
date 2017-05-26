@@ -35,7 +35,8 @@
       (delete images
               (where {:user_id user-id :id id}))))
 
-(defn update! [id data]
+(defn update! [id data user-id]
   (update images
           (set-fields data)
-          (where {:id id})))
+          (where {:id id :user_id user-id}))
+  (get id user-id))

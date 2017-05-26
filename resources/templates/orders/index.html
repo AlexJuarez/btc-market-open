@@ -18,6 +18,7 @@
     </thead>
     <tbody>
       {% for order in pending-review %}
+      {{order}}
       <tr>
         <td><a href="/order/{{order.id}}">{{order.id}}</a></td>
         <td><a href="/listing/{{order.listing_id}}">{{order.title}}</a></td>

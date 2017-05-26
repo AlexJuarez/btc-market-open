@@ -18,7 +18,6 @@
     [flight.access :refer [wrap-restricted]]
     [flight.env :refer [env]]
     [buddy.auth.accessrules :refer [restrict]]
-    [liberator.core :refer [defresource]]
     [cheshire.core :refer [encode]]
     [flight.access :as access]))
 

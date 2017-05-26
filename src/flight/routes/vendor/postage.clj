@@ -8,6 +8,7 @@
      [ring.util.response :as resp]
      [flight.util.core :refer [user-id]]
      [flight.util.session :as session]
+     [flight.util.error :as error]
      [schema.core :as s]))
 
 (s/defschema Postage
@@ -20,17 +21,17 @@
    (layout/render "postage/create.html" {:currencies (currency/all)}))
   ([slug]
    (let [post (postage/add! slug (user-id))]
-     (if (empty? (:errors post))
+     (if (error/empty?)
        (resp/redirect "/vendor/listings")
        (layout/render "postage/create.html" {:currencies (currency/all)}  post)))))
 
 (defn postage-edit [id]
   (let [post (postage/get id (user-id))]
-    (layout/render "postage/create.html" {:currencies (currency/all)} post)))
+    (layout/render "postage/edit.html" {:currencies (currency/all)} post)))
 
 (defn postage-save [id slug]
   (let [post (postage/update! slug id (user-id))]
-    (layout/render "postage/create.html" {:currencies (currency/all) :id id} post)))
+    (layout/render "postage/edit.html" {:currencies (currency/all) :id id} post)))
 
 (defn postage-remove [id]
   (let [record (postage/remove! id (user-id))]

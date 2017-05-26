@@ -86,6 +86,6 @@
 
 (defn update!
   ([items]
-   (doall (map #(update! (:id %1) %1) (vals items))))
+   (dorun (map #(update! (:id %1) %1) (vals items))))
   ([id item]
    (session/update-in! [:cart id] #(merge %1 (prep-item item)))))

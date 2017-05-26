@@ -4,7 +4,8 @@
         [korma.core]
         [flight.db.core])
   (:require
-        [flight.util.core :as util]))
+        [flight.util.core :as util]
+        [flight.util.error :as error]))
 
 (defn convert [postages]
   (map #(assoc % :price (util/convert-currency %)) postages))
@@ -44,12 +45,18 @@
   (insert postage (values (assoc (prep post) :user_id user-id))))
 
 (defn add! [post user-id]
-  (store! post user-id))
+  (if (error/empty?)
+    (store! post user-id)
+    post))
 
 (defn update! [post id user-id]
-  (update postage
+  (if (error/empty?)
+    (do
+      (update postage
           (set-fields (prep post))
-          (where {:id id :user_id user-id})))
+          (where {:id id :user_id user-id}))
+      (get id user-id))
+    post))
 
 (defn count [id]
   (:cnt (first (select postage

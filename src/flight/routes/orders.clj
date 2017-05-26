@@ -13,33 +13,32 @@
      :refer               [user-id]]
     [schema.core :as s]))
 
+(defn parse-reviews [{:keys [rating content shipped]}]
+  (->>
+    (keys rating)
+    (map #(assoc {} :order_id (Hashid %) :rating (% rating) :content (% content) :shipped (% shipped)))))
+
 (defn orders-page
   ([]
-    (let [orders         (order/all (user-id))
-          orders         (map
-                           #(let [autofinalize (:auto_finalize %)
-                                  res
-                                  (and (not (nil? autofinalize))
-                                       (> 432000000 (- (.getTime autofinalize) (.getTime (java.util.Date.)))))
-                                  arbitration
-                                  (and (= (:status %) 2) (<= (.getTime autofinalize) (.getTime (java.util.Date.))))]
+   (let [orders         (order/all (user-id))
+         orders         (map
+                          #(let [autofinalize (:auto_finalize %)
+                                 res
+                                 (and (not (nil? autofinalize))
+                                      (> 432000000 (- (.getTime autofinalize) (.getTime (java.util.Date.)))))
+                                 arbitration
+                                 (and (= (:status %) 2) (<= (.getTime autofinalize) (.getTime (java.util.Date.))))]
                              ;;TODO: review resolution stuff
                              (assoc % :resolve res :arbitration arbitration :id (hashids/encrypt (:id %))))
-                           orders)
-          pending-review (filter #(and (not (:reviewed %)) (:finalized %)) orders)
-          orders         (filter #(< (:status %) 3) orders)]
-      (layout/render "orders/index.html"
-                     {:orders orders :pending-review pending-review :user-id (user-id)})))
-  ([{:keys [rating shipped content] :as slug}]
-    (let [prep      (map
-                      #(let [id (key %) value (val %)] {:order_id (s/with-fn-validation (Hashid id))
-                                                        :rating   value
-                                                        :shipped  (shipped id)
-                                                        :content  (content id)})
-                      rating)
-          order-ids (map #(s/with-fn-validation (Hashid (key %))) rating)
-          reviews   (review/add! prep (user-id) order-ids)]
-      (resp/redirect "/orders"))))
+                          orders)
+         pending-review (filter #(= true (:finalized %)) orders)
+         orders         (filter #(< (:status %) 3) orders)]
+     (layout/render "orders/index.html"
+                    {:orders orders :pending-review pending-review :user-id (user-id)})))
+  ([slug]
+   (let [raw-reviews (parse-reviews slug)
+         reviews   (review/add! raw-reviews (user-id))]
+     (resp/redirect "/orders"))))
 
 (defn order-finalize [id]
   (order/finalize id (user-id))
@@ -101,8 +100,8 @@
   (context
     "/orders" []
     (GET "/" [] (orders-page))
-    (POST "/" []
-          :form [reviews Reviews] (orders-page reviews)))
+    (POST "/" {params :params}
+          (orders-page params)))
   (context
     "/order/:id" []
     :path-params [id :- String]

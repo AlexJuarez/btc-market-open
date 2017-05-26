@@ -17,7 +17,6 @@
                  [conman "0.2.7" :exclusions [instaparse]]
                  [crypto-random "1.2.0"] ;;crypto lib
                  [cprop "0.1.10"]
-                 [liberator "0.14.1"] ;;route negotiation based on request
                  [hashobject/hashids "0.2.0"];;for anon hashing
                  [image-resizer "0.1.9"]
                  [korma "0.4.2" :exclusions [c3p0/c3p0]] ;;sql dsl

@@ -3,7 +3,7 @@
     [flight.routes.helpers :refer :all]
     [compojure.api.sweet :refer :all]
     [flight.models.image :as image]
-    [flight.util.core :as util :refer [user-id]]
+    [flight.util.core :as util :refer [user-id parse-int]]
     [flight.layout :as layout :refer [error-page]]
     [flight.util.session :as session]
     [ring.util.response :as resp]))
@@ -31,7 +31,7 @@
     (let [images (image/all (user-id))]
       (layout/render "images/index.html" {:images images :edit true})))
   ([{:keys [name] :as slug}]
-    (dorun (map #(image/update! (key %) {:name (val %)}) name))
+    (dorun (map #(if-let [n (val %)] (image/update! (parse-int (key %)) {:name n} (user-id))) name))
     (images-edit)))
 
 (defroutes vendor-routes

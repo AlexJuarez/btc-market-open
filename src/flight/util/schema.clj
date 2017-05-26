@@ -34,9 +34,9 @@
 
 (defmethod restructure-param :form
   [_ [value schema] acc]
-    (-> acc
-        (update-in [:lets] into [value (src-coerce! schema :form-params :string)])
-        (assoc-in [:swagger :consumes] ["application/x-www-form-urlencoded"])))
+  (-> acc
+      (update-in [:lets] into [value (src-coerce! schema :form-params :string)])
+      (assoc-in [:swagger :consumes] ["application/x-www-form-urlencoded"])))
 
 (defmethod restructure-param :multipart-form
   [_ [value schema] acc]
