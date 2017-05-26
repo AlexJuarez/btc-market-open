@@ -40,7 +40,7 @@ You don't currently have any users or listings favorited.
 {% endif %}
 {% endif %}
 {% if not bookmarks|empty? %}
-<h3>Bookmarks</h3>
+<h3>Listings</h3>
 <table class="table normal p">
   <thead>
     <tr>
@@ -60,16 +60,20 @@ You don't currently have any users or listings favorited.
       <td><a href="/category/{{bookmark.category_id}}">{{bookmark.category_name}}</a></td>
       <td>{{bookmark.quantity}}</td>
       <td><a href="/user/{{bookmark.user_id}}">{{bookmark.user_alias}}</a></td>
-      <td>{{user.currency_symbol|safe}}{{bookmark.price}}</td>
+      <td>{{user.currency_symbol|safe}}{{bookmark.price|double-format:4}}</td>
       <td>{{bookmark.hedged}}</td>
-      <td><a href="/listing/{{bookmark.id}}/unbookmark">unbookmark</a></td>
+      <td>
+        {% if bookmark.quantity > 0 %}
+        <a class="cart-link" href="/cart/add/{{bookmark.id}}">add to cart</a> |
+        {% endif %}
+        <a href="/listing/{{bookmark.id}}/unbookmark">unbookmark</a></td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
 {% endif %}
 {% if not favorites|empty? %}
-<h3>Favorites</h3>
+<h3>Users</h3>
 <table class="table normal p">
   <thead>
     <tr>

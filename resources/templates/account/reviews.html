@@ -36,7 +36,6 @@
   <div class="success">{{success}}</div>
 {% endif %}
 {% if not reviews|empty? %}
-<h3>reviews</h3>
 <table class="table normal p">
   <thead>
     <tr>
@@ -51,7 +50,7 @@
   <tfoot>
   <tr>
     <td colspan="7">
-      {{page|pagination}}
+      {{paginate|pagination}}
     </td>
   </tr>
   </tfoot>

@@ -1,8 +1,37 @@
 {% extends "layout/side-menu.html" %}
 {% block links %}
-{% include "links/orders.html" %}
+  {% include "links/settings.html" %}
+{% endblock %}
+{% block menu %}
+<div class="title">
+  Account
+</div>
+<ul class="category-tree">
+  <li>
+    <a class="header" href="/account"><span class="category">settings</span></a>
+  </li>
+  <li>
+    <a class="header" href="/account/pgp"><span class="category">pgp</span></a>
+  </li>
+  <li>
+    <a class="header" href="/account/wallet"><span class="category">wallet</span></a>
+  </li>
+  <li>
+    <a class="header" href="/account/favorites"><span class="category">favorites</span></a>
+  </li>
+  <li>
+    <a class="header" href="/account/reviews"><span class="category">reviews</span></a>
+    <ul>
+      <li><a class="header active"><span class="category">Edit Review</span></a></li>
+    </ul>
+  </li>
+  <li>
+    <a class="header" href="/account/password"><span class="category">change password</span></a>
+  </li>
+</ul>
 {% endblock %}
 {% block container %}
+<h1 class="jumbo">Update Review {{id}}</h1>
   <form method="post">
     {% csrf-token %}
     <table class="table">
@@ -32,6 +61,7 @@
         </tr>
       </tbody>
     </table>
+    <br />
     <input type="submit" class="btn btn-primary p" value="update" />
   </form>
 {% endblock %}

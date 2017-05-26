@@ -15,7 +15,9 @@
 (defn page-max [items per-page]
   {:pre (> 0 per-page)}
   (let [items (or items 0)]
-    (+ (if (> (mod items per-page) 0) 1 0) (int (/ items per-page)))))
+    (cond
+      (> items per-page) (int (Math/ceil (/ items per-page)))
+      :else 1)))
 
 (defmacro session! [key func]
   `(let [value# (session/get ~key)]

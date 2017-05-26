@@ -172,7 +172,7 @@
   </thead>
   <tbody>
   {% for transaction in transactions %}
-    <tr {% if transaction.amount > 0 %}class="gain"{% else %}class="loss"{% endif %}>
+    <tr {% if not transaction.amount = 0 %}{% if transaction.amount > 0 %}class="gain"{% else %}class="loss"{% endif %}{% endif %}>
       <td>{{transaction.amount}}</td>
       <td>{{transaction.role}}</td>
       <td>{{transaction.created_on|date:shortDate}}</td>

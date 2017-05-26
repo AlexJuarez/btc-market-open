@@ -47,13 +47,14 @@
                (let [page (or (:page x) 1)
                      m (:max x)
                      params (or (:params x) {})
+                     page-param (or (:page-param x) :page)
                      pages (paginate page m)
                      url (:url x)]
                  [:safe (html
                    [:ul.pagination
-                    [:li [:a {:href (str url "?" (util/params (assoc params :page 1)))} "&laquo;"]]
-                    (map #(-> [:li (if (= page %) [:strong.selected %] [:a {:href (str url "?" (util/params (assoc params :page %)))} %])]) pages)
-                    [:li [:a {:href (str url "?" (util/params (assoc params :page m)))} "&raquo;"]]
+                    [:li [:a {:href (str url "?" (util/params (assoc params page-param 1)))} "&laquo;"]]
+                    (map #(-> [:li (if (= page %) [:strong.selected %] [:a {:href (str url "?" (util/params (assoc params page-param %)))} %])]) pages)
+                    [:li [:a {:href (str url "?" (util/params (assoc params page-param m)))} "&raquo;"]]
                     ])])))
 
 (defn header [tree params id]

@@ -25,12 +25,13 @@
           (offset (* (- page 1) per-page))
           (limit per-page)))
 
-(defn for-seller [user-id]
+(defn for-seller [user-id page per-page]
   (select reviews
           (with listings
                 (fields :title))
           (where {:seller_id user-id})
-          (limit 20)))
+          (offset (* (- page 1) per-page))
+          (limit per-page)))
 
 (defn for-order [order-id]
   (first
@@ -49,12 +50,10 @@
    :user_id user-id})
 
 (defn update! [id {:keys [rating shipped content]} user_id]
-  (let [rating (max 0 (min 5 rating))
-        shipped (= "true" shipped)]
-    (update reviews
-            (set-fields {:rating rating :shipped shipped :content content})
-            (where {:id id :user_id user_id}))
-    (get id user_id)))
+  (update reviews
+          (set-fields {:rating rating :shipped shipped :content content})
+          (where {:id id :user_id user_id}))
+  (get id user_id))
 
 (defn store! [{:keys [order_id seller_id listing_id rating user_id] :as review}]
       (transaction

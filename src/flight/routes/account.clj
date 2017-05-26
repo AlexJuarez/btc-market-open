@@ -43,7 +43,7 @@
       (layout/render "account/reviews.html"
                      {:success success
                       :reviews reviews
-                      :page    {:page page :max pagemax :url "/account/reviews"}}))))
+                      :paginate    {:page page :max pagemax :url "/account/reviews"}}))))
 
 (defn review-edit
   ([id]
@@ -84,7 +84,9 @@
    :confirm  (s/both String (in-range? 8 73))})
 
 (s/defschema Review
-  {:rating (s/enum 1 2 3 4 5) :shipped Boolean :content String})
+  {:rating (s/both Long (in-range? 0 5))
+   :shipped Boolean
+   :content String})
 
 (defn news-view [id]
   (let [article (post/get id)

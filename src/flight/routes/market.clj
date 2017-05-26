@@ -55,19 +55,18 @@
         (resp/content-type "text/plain")
         (resp/header "Content-Disposition" (str "attachment;filename=" (:pub_key_id user) ".asc")))))
 
-(defn user-view [id page]
+(defn user-view [id listing-page review-page]
   (let [user (user/get id)
         id (:id user)
-        page (or page 1)
         description (md/md->html (:description user))
-        listings (:listings user)
-        pagemax (util/page-max listings user-listings-per-page)]
-    (layout/render "users/view.html" user {:paginate {:page page :max pagemax :url (str "/user/" id)}
-                                           :listings-all (listing/public-for-user id page user-listings-per-page)
+        listings (:listings user)]
+    (layout/render "users/view.html" user {:paginate {:items {:page listing-page :page-param :listing-page :max (util/page-max listings user-listings-per-page) :url (str "/user/" id)}
+                                                      :reviews {:page review-page :page-param :review-page :max (util/page-max (:transactions user) user-listings-per-page) :url (str "/user/" id)}}
+                                           :listings-all (listing/public-for-user id listing-page user-listings-per-page)
                                            :description description
                                            :posts (post/get-updates id)
                                            :feedback-rating (int (* (/ (:rating user) 5) 100))
-                                           :review (review/for-seller id)
+                                           :review (review/for-seller id review-page user-listings-per-page)
                                            :reported (report/reported? id (user-id) "user")
                                            :followed (follower/exists? id (user-id))})))
 
@@ -128,12 +127,18 @@
 (defn listing-view [id page]
   (let [listing (listing/view id)
         categories (category/public (:category_id listing))
-        page (or page 1)
         reviews (review/all id page per-page)
         revs (:reviews listing)
         description (md/md->html (:description listing))
         pagemax (util/page-max revs per-page)]
-    (layout/render "listings/view.html" {:categories {:tree categories :id (:category_id listing)} :review reviews :page {:page page :max pagemax :url (str "/listing/" id)} :reported (report/reported? id (user-id) "listing") :bookmarked (bookmark/exists? id (user-id))} listing {:description description})))
+    (layout/render "listings/view.html"
+                   {:categories {:tree categories :id (:category_id listing)}
+                    :review reviews
+                    :paginate {:page page :max pagemax
+                               :url (str "/listing/" id)}
+                    :reported (report/reported? id (user-id) "listing")
+                    :bookmarked (bookmark/exists? id (user-id))}
+                   listing {:description description})))
 
 (defn resolution-accept [id referer]
   (resolution/accept id (user-id))
@@ -165,8 +170,9 @@
   ;;public routes
   (context "/user/:id" []
            :path-params [id :- Long]
-           :query-params [{page :- Long 1}]
-           (GET "/" [] (user-view id page))
+           :query-params [{listing-page :- Long 1}
+                          {review-page :- Long 1}]
+           (GET "/" [] (user-view id listing-page review-page))
            (GET "/key" [] (user-key id)))
   (GET "/listing/:id" []
        :path-params [id :- Long]
