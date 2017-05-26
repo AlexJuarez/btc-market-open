@@ -8,6 +8,7 @@
     [flight.util.hashids :as hashids :refer [Hashid]]
     [flight.models.order :as order]
     [flight.models.resolution :as resolution]
+    [flight.models.review :as reviews]
     [clojure.string :as string]
     [flight.util.core :as util :refer [user-id]]
     [ring.util.response :as resp]))
@@ -66,10 +67,13 @@
 (defn sales-view
   ([id]
     (let [order (-> (order/get-sale id (user-id)) encrypt-id convert-order-price)
+          review (reviews/for-order id)
           arbitration (and (= (:status order) 2) (<= (.getTime (:auto_finalize order)) (.getTime (java.util.Date.))))
           resolutions (estimate-refund (resolution/all-sales id (user-id)) order)]
       (layout/render "sales/resolution.html" {:arbitration arbitration
-                                              :action "extension" :resolutions resolutions} order)))
+                                              :action "extension"
+                                              :review review
+                                              :resolutions resolutions} order)))
   ([id slug]
     (let [res (resolution/add! slug id (user-id))
           order (-> (order/get-sale id (user-id)) encrypt-id convert-order-price)

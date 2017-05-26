@@ -18,7 +18,6 @@
     </thead>
     <tbody>
       {% for order in pending-review %}
-      {{order}}
       <tr>
         <td><a href="/order/{{order.id}}">{{order.id}}</a></td>
         <td><a href="/listing/{{order.listing_id}}">{{order.title}}</a></td>
@@ -31,7 +30,7 @@
           <label><input type="radio" checked name="rating[{{order.id}}]" value="5" /> 5</label>
         </td>
         <td>
-          <label><input type="radio" name="shipped[{{order.id}}]" value="true" /> yes</label>
+          <label><input type="radio" checked name="shipped[{{order.id}}]" value="true" /> yes</label>
           <label><input type="radio" name="shipped[{{order.id}}]" value="false" /> no</label>
         </td>
         <td>

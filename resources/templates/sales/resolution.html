@@ -69,6 +69,26 @@ Sale not found
     </tbody>
   </table>
 </div>
+{% if review %}
+<span>Review</span>
+<div class="well">
+  <table class="fact-table">
+    <tbody>
+    <tr>
+      <td>rating:</td><td>{{review.rating}}</td>
+    </tr>
+    {% if review.content %}
+    <tr>
+      <td>content:</td><td>{{review.content}}</td>
+    </tr>
+    {% endif %}
+    <tr>
+      <td>received:</td><td>{{review.shipped}}</td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+{% endif %}
 {% if status = 2 %}
 {% if not resolutions|empty? %}
 <table class="table resolution fill p">

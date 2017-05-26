@@ -32,6 +32,12 @@
           (where {:seller_id user-id})
           (limit 20)))
 
+(defn for-order [order-id]
+  (first
+    (select reviews
+            (where {:order_id order-id})
+            (limit 1))))
+
 (defn prep [{:keys [order_id rating content shipped]} user-id order-info]
   {:order_id order_id
    :published true
