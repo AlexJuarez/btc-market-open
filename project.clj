@@ -47,7 +47,8 @@
                  [ring/ring-defaults "0.2.1"]
                  [selmer "0.9.5" :exclusions [com.google.guava/guava org.json/json]] ;;templating
                  [slingshot "0.12.2"] ;;smarter error handling
-                 [to-jdbc-uri "0.2.0"]];;jdbc uri parser
+                 [to-jdbc-uri "0.2.0"];;jdbc uri parser
+                 [amalloy/ring-gzip-middleware "0.1.3"]]
 
   :min-lein-version "2.5.2"
   :uberjar-name "flight.jar"
@@ -67,6 +68,7 @@
              :aot :all
              :source-paths ["env/prod/clj"]}
    :dev           [:project/dev :profiles/dev]
+   :prod          [:project/prod :profiles/prod]
    :test          [:project/test :profiles/test]
    :project/dev  {:dependencies [[prone "0.8.2"]
                                  [ring/ring-mock "0.3.0"]
@@ -84,6 +86,8 @@
                                (pjstadig.humane-test-output/activate!)]
                   ;;when :nrepl-port is set the application starts the nREPL server on load
                   }
+   :project/prod {:source-paths ["env/prod/clj"]
+                  :resource-paths ["env/prod/resources"]}
    :project/test {:env {:test       true
                         :port       3001
                         :nrepl-port 7001
@@ -95,4 +99,5 @@
                                   :password "admin"}}}
 
    :profiles/dev {}
+   :profiles/prod {}
    :profiles/test {}})
