@@ -39,13 +39,17 @@
 
 (defn error-page
   "error-details should be a map containing the following keys:
-   :status - error status
-   :title - error title (optional)
-   :message - detailed error message (optional)
+  :status - error status
+  :title - error title (optional)
+  :message - detailed error message (optional)
 
-   returns a response map with the error page as the body
-   and the status specified by the status key"
-  [error-details]
+  returns a response map with the error page as the body
+  and the status specified by the status key"
+  [error-details & [template]]
+
   {:status  (:status error-details)
    :headers {"Content-Type" "text/html; charset=utf-8"}
-   :body    (parser/render-file "error/raw.html" error-details)})
+   :body
+   (if-not (nil? template)
+     (render-template template error-details)
+     (parser/render-file "error/raw.html" error-details))})

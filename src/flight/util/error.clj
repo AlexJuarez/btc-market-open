@@ -32,3 +32,4 @@
   (fn [request]
     (binding [*errors* (atom {:errors {}})]
       (handler request))))
+
