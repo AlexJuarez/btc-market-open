@@ -87,8 +87,8 @@
           (listing-create-page listing)))))
 
 (defn listing-bookmark [id]
-  (if-let [bookmark (:errors (bookmark/add! id (user-id)))]
-    (session/flash-put! :bookmark bookmark))
+  (if-not (bookmark/exists? id (user-id))
+    (bookmark/add! id (user-id)))
   (resp/redirect (str "/listing/" id)))
 
 (defn listing-unbookmark [id referer]
