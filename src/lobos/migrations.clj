@@ -23,38 +23,66 @@
 (defmigration add-users-table
   (up [] (create
           (tbl :user
+               ;; General Fields
                (varchar :login 64 :unique)
+               (check :login_max (< (length :login) 64))
+               (check :login_min (> (length :login) 2))
                (varchar :alias 64 :unique)
+               (check :alias_max (< (length :alias) 64))
+               (check :alias_min (> (length :alias) 2))
+               (varchar :pass 128)
+               (check :pass_max (< (length :pass) 128))
+               (check :pass_min (> (length :pass) 4))
+
+               ;; Utility Fields
+               (column :session (data-type :uuid) :unique)
+               (timestamp :last_login)
+
+               ;; Login Protection
+               (timestamp :last_attempted_login);;Last attempted login
+               (integer :login_tries (default 0))
+
+               ;; Privileges
                (boolean :vendor (default false))
                (boolean :admin (default false))
                (boolean :mod (default false))
                (boolean :auth (default false))
-               (column :session (data-type :uuid) :unique)
-               (text :description)
-               (text :pub_key)
                (boolean :banned (default false))
-               (varchar :pass 128)
+               (boolean :vacation (default false))
+
+               ;; Wallet
+               (float :btc (default 0))
+               (check :btc (>= :btc 0))
+               (refer-to :currency)
                (varchar :wallet 34 :unique)
                (varchar :pin 60)
+
+               ;; Information
+               (text :description)
+               (check :description (< (length :description) 2000))
+               (text :pub_key)
+               (check :pub_key (< (length :pub_key) 2000))
+               (varchar :pub_key_id 8)
+
+               ;; Stats
                (integer :transactions (default 0))
+               (check :transactions (>= :transactions 0))
                (float :rating (default 5.0))
+               (check :rating_min (>= :rating 0.0))
+               (check :rating_max (<= :rating 5.0))
                (integer :ranking)
                (integer :resolutions (default 0))
+               (check :resolutions (>= :resolutions 0))
                (integer :reviewed (default 0))
-               (integer :login_tries (default 0))
-               (timestamp :last_attempted_login);;Last attempted login
+               (check :reviewed (>= :reviewed 0))
                (integer :fans (default 0))
+               (check :fans (>= :fans 0))
                (integer :listings (default 0))
+               (check :listings (>= :listings 0))
                (integer :bookmarks (default 0))
-               (float :btc (default 0))
-               (timestamp :last_login)
-               (refer-to :currency)
+               (check :bookmarks (>= :bookmarks 0))
                (integer :region_id [:refer :region :id :on-delete :set-null] (default 1))
-               (check :login (< (length :login) 64))
-               (check :alias (< (length :alias) 64))
-               (check :login (> (length :login) 2))
-               (check :alias (> (length :alias) 2))
-               (check :btc (>= :btc 0)))))
+              )))
   (down [] (drop (table :user) :cascade)))
 
 (defmigration add-user-wallets-table
@@ -66,7 +94,7 @@
                 (timestamp :checked_on))))
   (down [] (drop (table :wallet))))
 
-(defmigration wallet-withdrawals-table
+(defmigration add-wallet-withdrawals-table
   (up [] (create
            (tbl :withdrawal
                 (refer-to :user)
@@ -81,6 +109,7 @@
            (tbl :feedback
                   (boolean :read (default false))
                   (text :content)
+                  (check :content (< (length :content) 1000))
                   (varchar :subject 100)
                   (refer-to :user))))
   (down [] (drop (table :feedback))))
@@ -91,7 +120,9 @@
                   (boolean :read (default false))
                   (refer-to :feedback)
                   (text :content)
+                  (check :content (< (length :content) 2000))
                   (varchar :subject 100)
+                  (check :subject (< (length :subject) 100))
                   (refer-to :user)
                   (integer :sender_id [:refer :user :id :on-delete :set-null]))))
   (down [] (drop (table :message))))
@@ -100,7 +131,9 @@
   (up [] (create
            (tbl :image
                 (refer-to :user)
-                (varchar :name 67))))
+                (varchar :name 67)
+                (check :name (< (length :name) 67))
+                )))
   (down [] (drop (table :image))))
 
 (defmigration add-exchange-rate-table
@@ -165,24 +198,27 @@
   (up [] (create
            (tbl :order
                 (float :price)
+                (check :price (>= :price 0))
                 (float :postage_price)
+                (check :postage_price (>= :postage_price 0))
                 (float :refund_rate (default 0))
                 (varchar :postage_title 100)
                 (integer :postage_currency [:refer :currency :id])
                 (integer :quantity)
+                (check :quantity (>= :quantity 0))
                 (boolean :hedged (default false))
                 (float :hedge_fee)
                 (boolean :reviewed (default false))
+                (boolean :finalized (default false))
                 (varchar :title 100)
                 (timestamp :auto_finalize)
                 (text :address)
+                (check :address (< (length :address) 2000))
                 (integer :seller_id [:refer :user :id :on-delete :set-null])
                 (refer-to :currency)
                 (refer-to :listing)
                 (refer-to :postage)
                 (refer-to :user)
-                (check :quantity (>= :quantity 0))
-                (check :price (>= :price 0))
                 (smallint :status))))
   (down [] (drop (table :order))))
 
@@ -218,6 +254,7 @@
                 (refer-to :listing)
                 (integer :order_id :unique :not-null)
                 (text :content)
+                (check :content (< (length :content) 2000))
                 (integer :transaction)
                 (smallint :rating :not-null (default 5))
                 (check :rating (>= :rating 0))
@@ -255,6 +292,7 @@
                 (varchar :action 10);; extension or refund
                 (integer :value (default 0))
                 (text :content)
+                (check :content (< (length :content) 2000))
                 (check :value (>= :value 0)))))
   (down [] (drop (table :resolution))))
 
@@ -269,7 +307,9 @@
                (boolean :applied (default false))
                (integer :percent)
                (check :percent (>= :percent 0))
-               (text :content))))
+               (text :content)
+               (check :content (< (length :content) 2000))
+               )))
   (down [] (drop (table :modresolution))))
 
 (defmigration add-mod-votes-table
@@ -285,7 +325,9 @@
           (tbl :modcomment
                (refer-to :order)
                (refer-to :user)
-               (text :content))))
+               (text :content)
+               (check :content (< (length :content) 2000))
+               )))
   (down [] (drop (table :modcomment))))
 
 (defmigration add-bookmarks-table
@@ -313,18 +355,11 @@
                 (varchar :type 10 :not-null))))
   (down [] (drop (table :report))))
 
-(defmigration add-pgpkeyid-to-users
-  (up [] (alter :add
-                (table :user
-                       (varchar :pub_key_id 8))))
-  (down [] (alter :drop
-                  (table :user
-                         (column :pub_key_id)))))
-
 (defmigration add-posts-table
   (up [] (create
           (tbl :post
                (text :content)
+               (check :content (< (length :content) 2000))
                (varchar :subject 100)
                (boolean :newsletter (default true))
                (boolean :published (default false))
@@ -348,25 +383,10 @@
                (refer-to :region))))
   (down [] (drop (table :ships_to))))
 
-(defmigration add-finalized-to-orders-table
-  (up [] (alter :add
-                (table :order
-                       (boolean :finalized (default false)))))
-  (down [] (alter :drop
-                  (table :order
-                         (column :finalized)))))
-
-(defmigration add-vacation-to-users-table
-  (up [] (alter :add
-                (table :user
-                       (boolean :vacation (default false)))))
-  (down [] (alter :drop
-                  (table :user
-                         (column :vacation)))))
-
 (defmigration add-order-forms-table
   (up [] (create
           (table :orderform
                  (text :content)
+                 (check :content (< (length :content) 2000))
                  (refer-to :user))))
   (down [] (drop (table :orderform))))
