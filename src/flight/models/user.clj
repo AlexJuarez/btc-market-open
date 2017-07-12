@@ -1,6 +1,5 @@
 (ns flight.models.user
   (:refer-clojure :exclude [get update])
-  (:import (org.apache.commons.codec.binary Base64))
   (:use [flight.db.core]
         [flight.db.predicates]
         [korma.db :only (transaction)]
