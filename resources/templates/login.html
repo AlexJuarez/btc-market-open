@@ -1,19 +1,37 @@
 {% extends "market.html" %}
 {% block content %}
-<div id="modal">
-  <h2>Login</h2>
-  {% if success %}
-  <div class="success">{{success}}</div>
-  {% endif %}
-  <form method="POST">
-  {% csrf-token %}
-    <div {% if errors.login %}class="has-error"{% endif %}>
-      {{errors.login}}
-      <input id="handle" class="form-control" name="login" type="text" placeholder="Username" value="{{login}}"/>
-      <input id="pass" class="form-control" name="pass" type="password" placeholder="Password" />
+<div class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Welcome Back</h2>
     </div>
-    <input type="submit" class="btn btn-primary p" value="login" />
-  </form>
-  <a href="/register">register</a>
+    <form method="POST">
+      {% csrf-token %}
+      <div class="modal-body">
+        {% if success %}
+        <div class="success">{{success}}</div>
+        {% endif %}
+        <div {% if errors.login %}class="has-error"{% endif %}>
+          {{errors.login}}
+          <div class="field">
+            <label for="handle">
+              Login
+            </label>
+            <input id="handle" class="form-control" name="login" type="text" placeholder="Username" value="{{login}}"/>
+          </div>
+          <div class="field">
+            <label for="pass">
+              Password
+            </label>
+            <input id="pass" class="form-control" name="pass" type="password" placeholder="Password" />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <input type="submit" class="btn btn-primary p" value="login" />
+        <a class="left-link" href="/register">register</a>
+      </div>
+    </form>
+  </div>
 </div>
 {% endblock %}

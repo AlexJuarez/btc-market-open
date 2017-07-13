@@ -1,23 +1,67 @@
-#modal {
+.modal {
   margin: 20px auto 0 auto;
-  width: 280px;
-  background: #fff;
-  padding:20px 30px;
-  text-align: right;
+  max-width: 480px;
+  width: 100%;
 
-  > *:first-child {
-    margin-top: 0;
-  }
+  .modal-content {
+    text-align: left;
 
-  label {
-    margin-bottom: 0;
-  }
+    .modal-header {
+      text-align: center;
+      font-size: 40px;
+      color: #fff;
+      background: #666;
+      border-bottom: 4px solid #39bdd1;
+      padding: 20px 30px 10px 30px;
+      h2 {
+        margin: 0;
+        font-size: 23px;
+        text-transform: uppercase;
+        padding-bottom: 10px;
+      }
+    }
 
-  form, h2 {
-    text-align:left;
-  }
+    .modal-body {
+      padding: 20px 30px;
+      background: #fff;
+      label {
+        margin-bottom: 3px;
+        text-transform: uppercase;
+        font-weight: bold;
+        font-size: 12.6px;
+        color: #717171;
+        letter-spacing: 2.5px;
+        line-height: 15px;
+      }
 
-  form > * {
-    margin-bottom: 8px;
+      .form-control {
+        height: 36px;
+        padding: 0 10px;
+        box-shadow: inset 0 1px 2px 0 #BFBFBF;
+      }
+
+      .field {
+        margin-bottom: 10px;
+      }
+
+      .field + .field {
+        margin-top: 27px;
+      }
+    }
+
+    .modal-footer {
+      text-align: right;
+      background: #efefef;
+      border-top: 1px solid #c7c7c7;
+      padding: 20px 30px;
+
+      .left-link {
+        float: left;
+        color: #A4A4A4;
+        font-size: 18px;
+        font-weight: bold;
+        text-transform: uppercase;
+      }
+    }
   }
 }
