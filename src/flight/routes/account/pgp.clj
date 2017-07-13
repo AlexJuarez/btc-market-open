@@ -53,4 +53,4 @@
           (pgp-page info))
     (GET "/verify" [] (pgp-verify))
     (POST "/verify" []
-          :form [response :- String] (pgp-verify response))))
+          :form-params [response :- String] (pgp-verify response))))

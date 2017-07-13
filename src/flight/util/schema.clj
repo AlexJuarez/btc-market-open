@@ -36,10 +36,12 @@
   [_ [value schema] acc]
   (-> acc
       (update-in [:lets] into [value (src-coerce! schema :form-params :string)])
+      (assoc-in [:swagger :parameters :formData] schema)
       (assoc-in [:swagger :consumes] ["application/x-www-form-urlencoded"])))
 
 (defmethod restructure-param :multipart-form
   [_ [value schema] acc]
     (-> acc
         (update-in [:lets] into [value (src-coerce! schema :multipart-params :string)])
+        (assoc-in [:swagger :parameters :formData] schema)
         (assoc-in [:swagger :consumes] ["multipart/form-data"])))

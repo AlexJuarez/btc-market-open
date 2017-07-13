@@ -13,7 +13,7 @@
                  [com.mchange/c3p0 "0.9.5.1"] ;;connection pooling
                  [com.taoensso/timbre "4.4.0"]
                  [com.taoensso/tower "3.0.2"]
-                 [compojure "1.5.2"]
+                 [compojure "1.6.0"]
                  [conman "0.2.7" :exclusions [instaparse]]
                  [crypto-random "1.2.0"] ;;crypto lib
                  [cprop "0.1.10"]
@@ -23,7 +23,7 @@
                  [lobos "1.0.0-beta3"]
                  [markdown-clj "0.9.82"]
                  [metis "0.3.3"];;validator
-                 [metosin/compojure-api "1.2.0-SNAPSHOT"]
+                 [metosin/compojure-api "2.0.0-alpha1"]
                  [metosin/ring-http-response "0.6.5"]
                  [metosin/ring-middleware-format "0.6.0" :exclusions [org.json/json]]
                  [migratus "0.8.7"]

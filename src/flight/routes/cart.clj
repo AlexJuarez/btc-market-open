@@ -80,6 +80,7 @@
     (POST "/" []
           :middleware [consolidate-cart]
           :form       [cart Cart]
+          :no-doc true
           (cart-submit cart))
     (GET "/empty" [] (cart-empty))
     (context "/add/:id" []

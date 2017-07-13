@@ -4,9 +4,11 @@
     [flight.routes.restricted :refer [user-routes vendor-routes mod-routes admin-routes]]
     [flight.routes.public :refer [public-routes]]
     [flight.layout :refer [error-page]]
+    [taoensso.timbre :as log]
     [compojure.api.sweet :refer :all]))
 
 (defn exception-handler [exception]
+  (log/error exception)
   (error-page {:status 400 :title "invalid request"} "error/rich.html"))
 
 (defapi core-routes
