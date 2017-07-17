@@ -3,52 +3,53 @@
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
 
-  :dependencies [[bouncer "1.0.0" :exclusions [com.google.guava/guava org.json/json]]
-                 [buddy "1.1.0"]
-                 [clj-btc "0.11.2"]
-                 [clj-http "2.0.0"];;for reading bitcoins prices from coinbase.com
-                 [clojurewerkz/scrypt "1.2.0"]
-                 [clojurewerkz/spyglass "1.1.0"];;couchbase interface
-                 [com.fzakaria/slf4j-timbre "0.3.1"]
-                 [com.mchange/c3p0 "0.9.5.1"] ;;connection pooling
-                 [com.taoensso/timbre "4.4.0"]
-                 [com.taoensso/tower "3.0.2"]
-                 [compojure "1.6.0"]
-                 [conman "0.2.7" :exclusions [instaparse]]
-                 [crypto-random "1.2.0"] ;;crypto lib
-                 [cprop "0.1.10"]
-                 [hashobject/hashids "0.2.0"];;for anon hashing
-                 [image-resizer "0.1.9"]
-                 [korma "0.4.2" :exclusions [c3p0/c3p0]] ;;sql dsl
-                 [lobos "1.0.0-beta3"]
-                 [markdown-clj "0.9.82"]
-                 [metis "0.3.3"];;validator
-                 [metosin/compojure-api "2.0.0-alpha1"]
-                 [metosin/ring-http-response "0.6.5"]
-                 [metosin/ring-middleware-format "0.6.0" :exclusions [org.json/json]]
-                 [migratus "0.8.7"]
-                 [mount "0.1.11" :exclusions [ch.qos.logback/logback-classic]]
-                 [net.sf.jlue/jlue-core "1.3"];;captcha creation
-                 [org.bouncycastle/bcpg-jdk15on "1.50"]
-                 [org.clojure/clojure "1.8.0"]
-                 [org.clojure/core.match "0.3.0-alpha4"]
-                 [org.clojure/java.jdbc "0.3.7"]
-                 [org.clojure/tools.cli "0.3.5"]
-                 [org.clojure/tools.logging "0.3.1"]
-                 [luminus-immutant "0.2.3"]
-                 [luminus-nrepl "0.1.4"]
-                 [org.slf4j/log4j-over-slf4j "1.7.12"]
-                 [org.postgresql/postgresql "9.3-1102-jdbc41"] ;;postgres adapter
-                 [prismatic/schema "1.0.3"]
-                 [cheshire "5.7.0"]
-                 [ring "1.4.0" :exclusions [ring/ring-jetty-adapter]]
-                 [ring-ttl-session "0.1.1"]
-                 [ring-webjars "0.1.1"]
-                 [ring/ring-defaults "0.2.1"]
-                 [selmer "0.9.5" :exclusions [com.google.guava/guava org.json/json]] ;;templating
-                 [slingshot "0.12.2"] ;;smarter error handling
-                 [to-jdbc-uri "0.2.0"];;jdbc uri parser
-                 [amalloy/ring-gzip-middleware "0.1.3"]]
+  :dependencies [
+                  [amalloy/ring-gzip-middleware "0.1.3"]
+                  [bouncer "1.0.0" :exclusions [com.google.guava/guava org.json/json]]
+                  [buddy "1.1.0"]
+                  [cheshire "5.7.0"]
+                  [clj-btc "0.11.2"]
+                  [clj-http "2.0.0"];;for reading bitcoins prices from coinbase.com
+                  [clojurewerkz/scrypt "1.2.0"]
+                  [clojurewerkz/spyglass "1.1.0"];;couchbase interface
+                  [com.fzakaria/slf4j-timbre "0.3.1"]
+                  [com.mchange/c3p0 "0.9.5.1"] ;;connection pooling
+                  [com.taoensso/timbre "4.4.0"]
+                  [com.taoensso/tower "3.0.2"]
+                  [compojure "1.6.0"]
+                  [cprop "0.1.10"]
+                  [crypto-random "1.2.0"] ;;crypto lib
+                  [hashobject/hashids "0.2.0"];;for anon hashing
+                  [image-resizer "0.1.9"]
+                  [korma "0.4.2" :exclusions [c3p0/c3p0]] ;;sql dsl
+                  [lobos "1.0.0-beta3"]
+                  [luminus-immutant "0.2.3"]
+                  [luminus-nrepl "0.1.4"]
+                  [markdown-clj "0.9.82"]
+                  [metis "0.3.3"];;validator
+                  [metosin/compojure-api "2.0.0-alpha1"]
+                  [metosin/ring-http-response "0.6.5"]
+                  [metosin/ring-middleware-format "0.6.0" :exclusions [org.json/json]]
+                  [migratus "0.8.7"]
+                  [mount "0.1.11" :exclusions [ch.qos.logback/logback-classic]]
+                  [net.sf.jlue/jlue-core "1.3"];;captcha creation
+                  [org.bouncycastle/bcpg-jdk15on "1.50"]
+                  [org.clojure/clojure "1.8.0"]
+                  [org.clojure/core.match "0.3.0-alpha4"]
+                  [org.clojure/java.jdbc "0.3.7"]
+                  [org.clojure/tools.cli "0.3.5"]
+                  [org.clojure/tools.logging "0.3.1"]
+                  [org.postgresql/postgresql "9.3-1102-jdbc41"] ;;postgres adapter
+                  [org.slf4j/log4j-over-slf4j "1.7.12"]
+                  [prismatic/schema "1.0.3"]
+                  [ring "1.4.0" :exclusions [ring/ring-jetty-adapter]]
+                  [ring-ttl-session "0.1.1"]
+                  [ring-webjars "0.1.1"]
+                  [ring/ring-defaults "0.2.1"]
+                  [selmer "0.9.5" :exclusions [com.google.guava/guava org.json/json]] ;;templating
+                  [slingshot "0.12.2"] ;;smarter error handling
+                  [to-jdbc-uri "0.2.0"];;jdbc uri parser
+                  ]
 
   :min-lein-version "2.5.2"
   :uberjar-name "flight.jar"
