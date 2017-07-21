@@ -8,19 +8,28 @@
    [flight.util.session :as session]))
 
 (defmacro session! [key func]
-  `(let [value# (session/get ~key)]
-    (if (nil? value#)
-      (let [value# ~func]
-        (session/put! ~key value#)
-        value#)
-      value#)))
+  `(if-let [val# (session/get ~key)]
+     val#
+     (let [val# ~func]
+       (session/put! ~key val#)
+       val#)))
+
+(defn- user-id []
+  (session/get :user_id))
+
+(defn- get-user [user-id]
+  (-> (select* users)
+      (with currency (fields [:key :currency_key] [:symbol :currency_symbol]))
+      (where {:id user-id})
+      select
+      first
+      (dissoc :pass)))
 
 (defn current []
   (session! :user
-            (if (nil? (session/get :user_id))
+            (if (nil? (user-id))
               {:currency_id 26}
-              (-> (select users (with currency (fields [:key :currency_key] [:symbol :currency_symbol]))
-                          (where {:id (session/get :user_id)})) first (dissoc :salt :pass)))))
+              (get-user (user-id)))))
 
 (defmacro update-session
   [user-id & terms]

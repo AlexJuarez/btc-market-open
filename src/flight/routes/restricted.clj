@@ -15,9 +15,7 @@
     [flight.routes.admin :as admin]
     [ring.util.response :as resp]
     [ring.util.http-response :refer [unauthorized content-type]]
-    [flight.access :refer [wrap-restricted]]
     [flight.env :refer [env]]
-    [buddy.auth.accessrules :refer [restrict]]
     [cheshire.core :refer [encode]]
     [flight.access :as access]))
 
