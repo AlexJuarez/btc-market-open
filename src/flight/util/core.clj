@@ -1,8 +1,7 @@
 (ns flight.util.core
-  (:use
-   [flight.db.core]
-   [korma.core])
   (:require
+   [flight.db.core :refer [users currency]]
+   [korma.core :refer [select with where fields]]
    [taoensso.timbre :as log]
    [flight.cache :as cache]
    [flight.util.session :as session]

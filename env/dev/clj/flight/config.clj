@@ -12,6 +12,7 @@
      (parser/cache-off!)
      (log/merge-config!
        {:level     ((fnil keyword :info) (env :log-level))
+        :ns-blacklist ["com.mchange.*", "net.spy.memcached.*"]
         :appenders {:rotor (rotor/rotor-appender
                              {:path (env :log-path)
                               :max-size (* 512 1024)

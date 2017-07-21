@@ -1,5 +1,5 @@
 (ns flight.models.exchange
-  (:refer-clojure :exclude [get])
+  (:refer-clojure :exclude [get update])
   (:use
    [flight.db.core]
    [korma.core]
