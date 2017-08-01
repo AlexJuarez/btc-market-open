@@ -13,6 +13,12 @@
 (defn assoc-in! [ks v]
   (swap! *errors* #(assoc-in % (concat [:errors] ks) v)))
 
+(defn update-in! [ks v]
+  (swap! *errors* #(update-in % (concat [:errors] ks) v)))
+
+(defn update! [k v]
+  (update-in! [k] v))
+
 (defn set-from-validation! [v]
   (when-let [errors (request-validation v)]
      (reset! *errors* {:errors (merge (@*errors* :errors) errors)})))

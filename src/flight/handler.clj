@@ -6,8 +6,7 @@
             [flight.layout :refer [error-page]]
             [flight.middleware :as middleware]
             [flight.routes.core :refer [core-routes]]
-            [mount.core :refer [defstate] :as mount]
-            ))
+            [mount.core :refer [defstate] :as mount]))
 
 (defroutes base-routes
   (route/not-found "Not Found"))
