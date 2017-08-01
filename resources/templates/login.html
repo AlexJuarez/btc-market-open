@@ -8,11 +8,9 @@
     <form method="POST">
       {% csrf-token %}
       <div class="modal-body">
-        {% if success %}
-        <div class="success">{{success}}</div>
-        {% endif %}
-        <div {% if errors.login %}class="has-error"{% endif %}>
-          {{errors.login}}
+        {{message|format-message}}
+        <div class="{% has-error login %}">
+          {{errors.login|format-error}}
           <div class="field">
             <label for="handle">
               Login

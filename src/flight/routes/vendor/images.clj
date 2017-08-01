@@ -5,25 +5,24 @@
     [flight.models.image :as image]
     [flight.util.core :as util :refer [user-id parse-int]]
     [flight.layout :as layout :refer [error-page]]
-    [flight.util.session :as session]
+    [flight.util.message :as message]
     [ring.util.response :as resp]))
 
-
 (defn images-page []
-  (let [images (image/all (user-id)) success (session/flash-get :success)]
-    (layout/render "images/index.html" {:images images :success success})))
+  (let [images (image/all (user-id))]
+    (layout/render "images/index.html" {:images images})))
 
 (defn images-upload
   ([]
     (layout/render "images/upload.html"))
   ([{image :image}]
    (parse-image nil image)
-   (session/flash-put! :success "image uploaded")
+   (message/success! "image uploaded")
    (resp/redirect "/vendor/images")))
 
 (defn image-delete [id]
   (image/remove! id (user-id))
-  (session/flash-put! :success "image deleted")
+  (message/success! "image deleted")
   (resp/redirect "/vendor/images"))
 
 (defn images-edit

@@ -31,9 +31,7 @@
 <h1 class="jumbo">Postage</h1>
 <form method="post">
   {% csrf-token %}
-  {% if errors.title %}
-  <p>{{errors.title|join:", "}}</p>
-  {% endif %}
+  {{errors.title|format-error}}
   <p>
     <label for="title">Title: </label>
     <input name="title" id="title" class="input" type="text" value="{{title}}" />
@@ -41,9 +39,7 @@
   <p {% if errors.price %}class="errors"{% endif %}>
     <label for="price">Price: </label>
     <input name="price" class="input" id="price" value="{{price}}" />
-    {% if errors.price %}
-      {{errors.price|join:", "}}
-    {% endif %}
+    {{errors.price|format-error}}
   </p>
   <p>
     <label for="currency_id">Currency: </label>

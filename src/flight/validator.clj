@@ -75,21 +75,6 @@
 (v/defvalidator user-update-validator
   [:alias [:presence :formatted {:pattern #"[A-Za-z0-9]+" :message "Only alphanumeric characters are valid"} :alias-taken :in-range {:start 3 :end 64}]])
 
-(v/defvalidator user-pin-validator
-  [:oldpin [:pin-match]]
-  [:pin [:presence :in-range {:start 6 :end 60} :confirmation {:confirm :confirmpin}]])
-
-(v/defvalidator user-withdrawal-validator
-  [:address [:presence :validate-btc-address]]
-  [:amount [:presence :numericality {:greater-than-or-equal-to 0 :less-than-or-equal-to 2147483647} :check-amount]]
-  [:pin [:presence :pin-match]])
-
-(v/defvalidator news-validator
-  [:content [:presence :length {:is-not-greater-than 6000}]]
-  [:subject :length {:is-not-greater-than 100}]
-  [:public :accept "true"]
-  [:published :accept "true"])
-
 (v/defvalidator support-validator
   [:subject :length {:is-not-greater-than 100}]
   [:content [:presence :length {:is-not-greater-than 6000}]])

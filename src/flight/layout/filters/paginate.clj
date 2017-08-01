@@ -1,4 +1,4 @@
-(ns flight.layout.filters.paginate
+(ns flight.layout.filters
   (:require
     [selmer.filters :refer :all]
     [hiccup.core :refer [html]]

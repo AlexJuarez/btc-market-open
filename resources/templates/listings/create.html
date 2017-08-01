@@ -33,7 +33,8 @@
 </ul>
 {% endblock %}
 {% block container %}
-<h1 class="jumbo">{% if edit %}Listing Edit{% else %}Listing Create{% endif %} {% if success %}- {% endif %}<span class="success">{{success}}</span></h1>
+<h1 class="jumbo">{% if edit %}Listing Edit{% else %}Listing Create{% endif %} </h1>
+{{message|format-message}}
 <form enctype="multipart/form-data" method="post">
   {% csrf-token %}
   <div class="image">
@@ -45,11 +46,9 @@
     </div>
   {% endif %}
   </div>
-  <div class="top form-group {% if errors.title %}has-error{% endif %}">
+  <div class="top form-group {% has-error title %}">
     <label for="title">Title:
-      {% if errors.title %}
-      {{errors.title|join:", "}}
-      {% endif %}
+      {{errors.title|format-error}}
     </label>
     <input name="title" id="title" class="form-control" type="text" value="{{title}}" />
   </div>
@@ -97,7 +96,7 @@
       {% endfor %}
     </select>
   </div>
-  <div class="form-group{% if errors.price %} has-error{% endif %}">
+  <div class="form-group {% has-error price %}">
     <label for="price" title="Must be greater than {{user.currency_symbol|safe}}{{min-price}}">
     Price:
     <input name="price" id="price" class="input" type="text" value="{{price}}" />
@@ -107,19 +106,13 @@
       <option value="{{currency.id}}" {% if currency_id %}{% ifequal currency.id currency_id %}selected="selected"{% endifequal %}{% else %}{% ifequal currency.id user.currency_id %}selected="selected"{% endifequal %}{% endif %}>{{currency.name}}</option>
       {% endfor %}
     </select>
-    {% if errors.currency_id %}
-    {{errors.currency_id|join:", "}}
-    {% endif %}
-    {% if errors.price  %}
-    {{errors.price|join:", "}}
-    {% endif %}
+    {{errors.currency_id|format-error}}
+    {{errors.price|format-error}}
   </div>
-  <div class="form-group{% if errors.quantity %} has-error{% endif %}">
+  <div class="form-group {% has-error quantity %}">
     <label for="quantity">Quantity:
       <input type="number" class="input" name="quantity" value="{{quantity}}" id="quantity" />
-      {% if errors.quantity %}
-        {{errors.quantity|join:", "}}
-      {% endif %}
+      {{errors.quantity|format-error}}
     </label>
   </div>
   <div class="form-group">

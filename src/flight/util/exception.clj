@@ -12,11 +12,19 @@
    (match
     x
     ['not ['exists? value]]
-    "entered value does not exist."
+    "entered value does not exist"
+    ['not [['exists? type] value]]
+    (str type " does not exist")
+    ['not [['verified? type] value]]
+    (str "Your " type " needs to be verified")
+    ['not [['taken? type] value]]
+    (str "this " type " is already taken")
     ['not ['valid-captcha? value]]
-    "The captcha was entered incorrectly."
+    "The captcha was entered incorrectly"
     ['not ['instance? type value]]
     "the value is invalid"
+    ['not ['is-blank? value]]
+    "can not be empty"
     ['not [['greater-than? min] value]]
     (str "needs to be " (if (number? value) "greater than or equal to " "longer than ") min)
     ['not [['less-than? max] value]]

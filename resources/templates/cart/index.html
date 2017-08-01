@@ -40,7 +40,7 @@
     <td>
       <input class="quantity-input" type="text" name="quantity[{{listing.lid}}]" value="{{listing.lid|count-cart}}" />
       <em>max: {{listing.quantity}}</em>
-      {% if listing.errors.quantity %}<div class="error">{{listing.errors.quantity|join:", "}}</div>{% endif %}
+      {{listing.errors.quantity|format-error}}
     </td>
     <td>{{user.currency_symbol|safe}}{{listing.subtotal|double-format:5}}</td>
     <td>

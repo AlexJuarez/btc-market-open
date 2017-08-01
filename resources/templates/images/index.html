@@ -47,9 +47,7 @@
   </div>
   <br />
   <br />
-  {% if success %}
-    <h2 class="success">{{success}}</h2>
-  {% endif %}
+  {{message|format-message}}
   {% if not images|empty? %}
   <form method="POST">
     {% csrf-token %}

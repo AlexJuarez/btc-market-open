@@ -1,9 +1,5 @@
 (ns flight.layout.filters
   (:require
-    [flight.layout.filters.paginate]
-    [flight.layout.filters.freshness]
-    [flight.layout.filters.core]
-    [flight.layout.filters.category]
     [clojure.string :as s]
     [flight.util.session :as session]
     [flight.cache :as cache]
@@ -12,6 +8,11 @@
     [flight.util.core :as util]
     [selmer.filters :refer :all]
     [hiccup.core :refer :all]))
+
+(load "filters/paginate")
+(load "filters/freshness")
+(load "filters/core")
+(load "filters/category")
 
 (add-filter!
   :empty?

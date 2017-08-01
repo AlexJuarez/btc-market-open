@@ -66,14 +66,13 @@
   <p>Compose a message to: <strong>{{alias}}</strong></p>
   {% if not no_subject %}
   <p>
-    <label for="subject"  {% if errors.title %}class="has-error"{% endif %}>Subject:{% if errors.title %}{{errors.title|join:", "}}{% endif %}</label>
+    <label for="subject" class="{% has-error subject %}">Subject:</label>
+    {{errors.subject|format-error}}
     <input name="subject" class="input" id="subject" type="text" value="{{subject}}" />
     {% if has_pub_key %}<label><input type="checkbox" value="true" name="encrypt" />Encrypt?</label>{% endif %}
   </p>
   {% endif %}
-  {% if errors.content %}
-  <p class="has-error">{{errors.content|join:", "}}</p>
-  {% endif %}
+  {{errors.content|format-error}}
   <p>
     <textarea rows="6" name="content" class="form-control">{{content}}</textarea>
   </p>

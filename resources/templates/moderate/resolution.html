@@ -221,9 +221,7 @@ Order not found
       <input name="percent" class="input input-3" maxlength="3" type="text" value="{{percent}}" />
       %
     </label>
-    {% if errors.percent %}
-    <strong class="error">{{errors.percent|join:", "}}</strong>
-    {% endif %}
+    {{errors.percent|format-error}}
   </p>
   <p>
     <label for="message">Message:</label>

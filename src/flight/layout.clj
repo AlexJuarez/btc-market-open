@@ -2,8 +2,9 @@
   (:require
    [flight.layout.filters]
    [flight.layout.tags]
-   [flight.layout.helpers]
+   [flight.layout.helpers :refer :all]
    [flight.util.error :as error]
+   [flight.util.message :as message]
    [selmer.parser :as parser]
    [selmer.filters :as filters]
    [markdown.core :refer [md-to-html-string]]
@@ -25,7 +26,7 @@
   (parser/render-file
     template
     (assoc
-      (apply merge {:errors (error/all)} (get-info) params)
+      (apply merge {:errors (error/all) :message (message/get)} (get-info) params)
       :page template
       :csrf-token *anti-forgery-token*
       :servlet-context *app-context*)))

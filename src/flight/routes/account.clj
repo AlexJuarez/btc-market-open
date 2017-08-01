@@ -12,8 +12,11 @@
     [flight.models.region :as region]
     [ring.util.response :as resp]
     [flight.util.session :as session]
+    [flight.util.error :as error]
     [flight.models.post :as post]
     [flight.util.markdown :as md]
+    [flight.util.message :as message]
+    [flight.util.user :refer [password-matches?]]
     [flight.util.core :as util
      :refer               [user-id current-user]]
     [flight.routes.account.pgp :refer [pgp-routes]]
@@ -23,12 +26,10 @@
 
 (defonce reviews-per-page 25)
 
-(defn account-page [& [params]]
-  (layout/render "account/index.html" {:regions (region/all) :currencies (currency/all)} (current-user) params))
-
-(defn account-update [slug]
-  (let [user (user/update! (user-id) slug)]
-    (account-page slug)))
+(defpage account-page
+  :template ["account/index.html" {:regions (region/all) :currencies (currency/all)}]
+  :success "Your account has been updated"
+  (fn [slug] (user/update! (user-id) slug)))
 
 (defn favorites-page []
   (let [bookmarks (map #(assoc % :price (util/convert-currency %)) (bookmark/all (user-id)))
@@ -38,11 +39,9 @@
 (defn reviews-page
   ([page]
     (let [reviews (review/for-user (user-id) page reviews-per-page)
-          success (session/flash-get :success)
           pagemax (util/page-max (:reviewed (util/current-user)) reviews-per-page)]
       (layout/render "account/reviews.html"
-                     {:success success
-                      :reviews reviews
+                     {:reviews reviews
                       :paginate    {:page page :max pagemax :url "/account/reviews"}}))))
 
 (defn review-edit
@@ -51,16 +50,18 @@
       (layout/render "review/edit.html" review)))
   ([id slug]
     (review/update! id slug (user-id))
-    (session/flash-put! :success "review updated")
+    (message/success! "review updated")
     (resp/redirect "/account/reviews")))
 
-(defn password-page
-  ([]
-    (layout/render "account/password.html"))
-  ([slug]
-    (let [errors  (user/update-password! (user-id) slug)
-          message (if (empty? errors) "You have successfully changed your password")]
-      (layout/render "account/password.html" {:message message :errors errors}))))
+(defn password-validator [{:keys [newpass confirm]}]
+  (when-not (= newpass confirm)
+    (error/register! :newpass "password does not match confirmation")))
+
+(defpage password-page
+  :template ["account/password.html"]
+  :success "You have successfully changed your password"
+  :validator password-validator
+  (fn [slug] (user/update-password! (user-id) slug)))
 
 (defn user-follow [id]
   (if-let [follower (:errors (follower/add! id (user-id)))]
@@ -76,12 +77,12 @@
    (s/optional-key :currency_id) (s/both Long (s/pred currency/exists? 'exists?))
    (s/optional-key :region_id)   (s/both Long (s/pred region/exists? 'exists?))
    (s/optional-key :auth)        Boolean
-   (s/optional-key :description) (s/both String (less-than? 3000))})
+   (s/optional-key :description) (Str 3000)})
 
 (s/defschema Password
-  {:password String
-   :newpass  (s/both String (in-range? 8 73))
-   :confirm  (s/both String (in-range? 8 73))})
+  {:password (Str 0 73 (s/pred password-matches? 'password-matches?))
+   :newpass  (Str 8 73)
+   :confirm  (Str 8 73)})
 
 (s/defschema Review
   {:rating (s/both Long (in-range? 0 5))
@@ -98,13 +99,8 @@
     "/account" []
     pgp-routes
     wallet-routes
-    (GET "/" [] (account-page))
-    (POST "/" []
-          :form [info Account]
-          (account-update info))
-    (GET "/password" [] (password-page))
-    (POST "/password" []
-          :form [update Password] (password-page update))
+    (page-route "/" account-page Account)
+    (page-route "/password" password-page Password)
     (GET "/favorites" [] (favorites-page))
     (GET "/reviews" []
          :query-params [{page :- Long 1}] (reviews-page page)))

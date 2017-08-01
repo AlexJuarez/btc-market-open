@@ -19,6 +19,10 @@
 (defn update! [k v]
   (update-in! [k] v))
 
+(defn register! [ks v]
+  (let [ks (if (vector? ks) ks [ks])]
+    (update-in! ks (fn [curr] (if (nil? curr) [v] (conj curr v))))))
+
 (defn set-from-validation! [v]
   (when-let [errors (request-validation v)]
      (reset! *errors* {:errors (merge (@*errors* :errors) errors)})))

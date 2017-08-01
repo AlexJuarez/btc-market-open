@@ -6,11 +6,7 @@
 {{categories|render-tree}}
 {% endblock %}
 {% block container %}
-{% if message %}
-    <p class="well">
-      {{message}}
-    </p>
-{% endif %}
+{{message|format-message}}
 {% if not users|empty? %}
 <h3>Users</h3>
 <table class="table normal">

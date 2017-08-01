@@ -5,6 +5,7 @@
    [korma.core])
   (:require
    [flight.cache :as cache]
+   [flight.util.crypt :as crypt]
    [flight.util.session :as session]))
 
 (defmacro session! [key func]
@@ -22,14 +23,17 @@
       (with currency (fields [:key :currency_key] [:symbol :currency_symbol]))
       (where {:id user-id})
       select
-      first
-      (dissoc :pass)))
+      first))
 
 (defn current []
   (session! :user
             (if (nil? (user-id))
               {:currency_id 26}
               (get-user (user-id)))))
+
+(defn password-matches? [password]
+  (let [{pass :pass} (current)]
+    (crypt/compare password pass)))
 
 (defmacro update-session
   [user-id & terms]

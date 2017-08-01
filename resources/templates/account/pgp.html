@@ -34,14 +34,10 @@
 <h1 class="jumbo">Public Key Management</h1>
 <form method="POST">
   {% csrf-token %}
-  {% if message %}<span class="success">{{message}}</span>{% endif %}
+  {{message|format-message}}
   <div class="form-group">
     <label for="pub-key">Public Key:
-    {% if errors.pub_key %}
-      <span class="error">
-        {{errors.pub_key}}
-      </span>
-    {% endif %}
+    {{errors.pub_key|format-error}}
     </label>
     <textarea id="pub-key" class="form-control" rows="14" name="pub_key">{% if pub_key %}{{pub_key}}{% else %}{{user.pub_key}}{% endif %}</textarea>
   </div>

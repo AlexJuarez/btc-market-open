@@ -143,9 +143,7 @@ Sale not found
       <input name="extension" class="input input-2" maxlength="2" id="extension" type="text" value="{{extension}}" />
       days
       {% ifequal action "extension" %}
-        {% if errors.value %}
-          <strong class="error">{{errors.value|join:", "}}</strong>
-        {% endif %}
+        {{errors.value|format-error}}
       {% endifequal %}
     </li>
     <li>
@@ -154,9 +152,7 @@ Sale not found
       <input name="refund" class="input input-3" maxlength="3" id="refund" type="text" value="{{refund}}" />
       %
       {% ifequal action "refund" %}
-        {% if errors.value %}
-          <strong class="error">{{errors.value|join:", "}}</strong>
-        {% endif %}
+        {{errors.value|format-error}}
       {% endifequal %}
     </li>
   </ul>

@@ -11,6 +11,7 @@
     [flight.models.listing :as listing]
     [flight.models.postage :as postage]
     [flight.models.region :as region]
+    [flight.util.message :as message]
     [flight.routes.helpers :refer :all]
     [flight.util.core :as util
      :refer               [user-id]]
@@ -34,7 +35,7 @@
     (if (nil? record)
         (resp/redirect "/vendor/")
         (do
-          (session/flash-put! :success "listing removed")
+          (message/success! "listing removed")
           (resp/redirect "/vendor/listings")))))
 
 (defn walk-current [lis c]
@@ -55,16 +56,14 @@
 
 
 (defn listing-create-page [&[listing params]]
-  (let [success (session/flash-get :success)]
-    (layout/render "listings/create.html"
-                   {:regions    (region/all)
-                    :min-price  (util/convert-currency 1 0.01)
-                    :success    success
-                    :recent     (listing/recent-shipping (user-id))
-                    :images     (image/all (user-id))
-                    :categories (create-categories (category/all))
-                    :currencies (currency/all)}
-                   params listing)))
+  (layout/render "listings/create.html"
+                 {:regions    (region/all)
+                  :min-price  (util/convert-currency 1 0.01)
+                  :recent     (listing/recent-shipping (user-id))
+                  :images     (image/all (user-id))
+                  :categories (create-categories (category/all))
+                  :currencies (currency/all)}
+                 params listing))
 
 (defn listing-edit [id]
   (let [listing (listing/get id (user-id))]
@@ -72,7 +71,8 @@
 
 (defn listing-save [id slug]
   (let [listing (listing/update! slug id (user-id))]
-    (listing-create-page listing {:edit true :id id :success "listing updated"})))
+    (message/success! "listing-updated")
+    (listing-create-page listing {:edit true :id id})))
 
 (defn listing-create
   "Listing creation page"
@@ -82,7 +82,7 @@
     (let [listing (listing/add! slug (user-id))]
       (if (error/empty?)
           (do
-            (session/flash-put! :success "listing created")
+            (message/success! "listing created")
             (resp/redirect (str "/vendor/listing/" (:id listing) "/edit")))
           (listing-create-page listing)))))
 
@@ -98,13 +98,13 @@
 (s/defschema Listing
   {(s/optional-key :image_id) (s/both Long (s/pred #(image/exists? % (user-id)) 'exists?))
    (s/optional-key :public)   Boolean
-   :title                     (s/both String (in-range? 4 100))
+   :title                     (Str 4 100)
    :price                     (s/both Double (in-range? 0))
    :currency_id               (s/both Long (s/pred currency/exists? 'exists?))
    :quantity                  (s/both Long (in-range? 0))
    :from                      (s/both Long (s/pred region/exists? 'exists?))
    :to                        [(s/both Long (s/pred region/exists? 'exists?))]
-   :description               (s/both String (in-range? 0 3000))
+   :description               (Str 3000)
    :category_id               (s/both Long (s/pred category/exists? 'exists?))})
 
 (defn update-listing-params [listing]

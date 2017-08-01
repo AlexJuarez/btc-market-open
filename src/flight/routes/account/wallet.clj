@@ -8,53 +8,70 @@
     [flight.util.core :as util :refer [user-id]]
     [flight.util.error :as error]
     [ring.util.response :as resp]
+    [flight.util.message :as message]
     [flight.util.session :as session]
     [flight.util.pgp :as pgp]
     [schema.core :as s]))
 
-(defn withdrawal [{:keys [amount address pin] :as slug}]
-  (let [errors (:errors (user/withdraw-btc! slug (user-id)))
-        user (util/current-user)
-        transactions (audit/all (user-id))]
-    (layout/render "account/wallet.html" {:amount amount :address address
-                                          :errors errors :transactions transactions
-                                          :balance (not (= (:currency_id user) 1))})))
-(defn change-pin [slug]
-  (let [errors (:errors (user/update-pin! slug (user-id)))
-        user (util/current-user)
-        transactions (audit/all (user-id))]
-    (layout/render "account/wallet.html"
-                   (if (empty? errors) {:pin-success "Your pin has been changed"})
-                   {:pinerrors errors :transactions transactions
-                    :balance (not (= (:currency_id user) 1))})))
+(defn pin-update-valiator [{:keys [pin confirmpin]}]
+  (when-not (= pin confirmpin)
+    (error/register! :pin "your pin's does not match")))
 
 (defn wallet-page
-  ([]
-   (let [user (util/current-user)
-         transactions (audit/all (user-id))]
-     (layout/render "account/wallet.html" {:transactions transactions :balance (not (= (:currency_id user) 1))}))
-   )
-  ([slug]
-   (if (not (nil? (:confirmpin slug)))
-     (change-pin slug)
-     (withdrawal slug))))
+  ([& [slug]]
+   (layout/render
+     "account/wallet.html"
+     {:transactions (audit/all (user-id))
+      :balance (not (= (:currency_id (util/current-user) 1)))}
+     slug)))
+
+(defn wallet-updatepin [slug]
+  (pin-update-valiator slug)
+  (when (error/empty?)
+    (message/success! "Your pin has been changed.")
+    (user/update-pin! slug (user-id))
+    (resp/redirect "/account/wallet"))
+  (wallet-page slug))
+
+(defn wallet-withdraw [{:keys [amount address pin] :as slug}]
+  (when (error/empty?)
+    (message/success! "Withdrawal successful")
+    (user/withdraw-btc! slug (user-id))
+    (resp/redirect "/account/wallet"))
+  (wallet-page {:amount amount :address address}))
 
 (defn wallet-new []
   (user/update-btc-address! (user-id))
   (resp/redirect "/account/wallet"))
 
-(s/defschema Wallet
-  {(s/optional-key :pin) (s/both String (is-alphanumeric?) (in-range? 4 64))
-   (s/optional-key :confirmpin) (s/both String (is-alphanumeric?) (in-range? 4 64))
-   (s/optional-key :oldpin) String
-   (s/optional-key :amount) (s/both Double (in-range? 0 `(:btc (util/current-user))))
-   (s/optional-key :address) String})
+(defn- confirm-pin [pin]
+  (= pin (:pin (util/current-user))))
+
+(s/defschema UpdatePin
+  {:pin (Str 4 64 (is-alphanumeric?) (s/pred confirm-pin 'confirm-pin))
+   :confirmpin (Str 4 64 (is-alphanumeric?))
+   :oldpin (Str 4 64)})
+
+(s/defschema Withdraw
+  {:pin (Str 4 64 (is-alphanumeric?) (s/pred confirm-pin 'confirm-pin))
+   :amount (s/both Double (in-range? 0 `(:btc (util/current-user))))
+   :address (Str 0 34)})
+
+(s/defschema NewPin
+  {:pin (Str 4 64 (is-alphanumeric?))
+   :confirmpin (Str 4 64 (is-alphanumeric?))})
 
 (defroutes wallet-routes
   (context
     "/wallet" []
     (GET "/" [] (wallet-page))
-    (POST "/" []
-          :form [wallet Wallet]
-          (wallet-page wallet))
+    (POST "/changepin" []
+          :form [slug UpdatePin]
+          (wallet-updatepin slug))
+    (POST "/withdraw" []
+          :form [slug Withdraw]
+          (wallet-withdraw slug))
+    (POST "/newpin" []
+          :form [slug NewPin]
+          (wallet-updatepin slug))
     (GET "/new" [] (wallet-new))))

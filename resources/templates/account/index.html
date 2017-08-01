@@ -34,11 +34,9 @@
 <h1 class="jumbo">Settings</h1>
 <form action="/account" method="POST">
   {% csrf-token %}
-  <div class="form-group {% if errors.alias %}has-error{% endif %}">
+  <div class="form-group {% has-error alias %}">
     <label for="alias">Alias:
-    {% if errors.alias %}
-      {{errors.alias|join:", "}}
-    {% endif %}
+    {{errors.alias|format-error}}
     </label>
     <input name="alias" id="alias" class="input" type="text" value="{{alias}}" />
   </div>

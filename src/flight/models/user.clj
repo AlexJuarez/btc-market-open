@@ -105,16 +105,10 @@
 ;; Operations
 
 (defn update-pin! [{:keys [pin] :as slug} user-id]
-  (let [check (v/user-pin-validator slug)]
-    (if (empty? check)
-      (do
-        (update users
-                  (set-fields {:pin pin})
-                  (where {:id user-id}))
-        (session/assoc-in! [:user :pin] pin)
-        {})
-      {:errors check}
-      )))
+  (update users
+          (set-fields {:pin pin})
+          (where {:id user-id}))
+  (session/assoc-in! [:user :pin] pin))
 
 (defn update! [id slug]
   (let [updates (clean slug)]
@@ -147,30 +141,19 @@
       (insert wallets (values {:wallet new-address :user_id id}))
       (update users (set-fields {:wallet new-address}) (where {:id id})))))
 
-
-;;withdraw for the current user
 (defn withdraw-btc! [{:keys [amount address pin] :as slug} user-id]
-  (let [audit {:user_id user-id :role "withdrawal" :amount (* -1 amount)}
-        errors (v/user-withdrawal-validator slug)]
-    (if (empty? errors)
-      (do
-        (transaction
-         (update users (set-fields {:btc (raw (str "btc - " amount))}) (where {:id user-id}))
-         (insert withdrawals (values {:amount amount :address address :user_id user-id}))
-         (insert audits (values audit)))
-        (util/update-session user-id))
-      {:errors errors})
-    ))
+  (let [audit {:user_id user-id :role "withdrawal" :amount (* -1 amount)}]
+    (do
+      (transaction
+        (update users (set-fields {:btc (raw (str "btc - " amount))}) (where {:id user-id}))
+        (insert withdrawals (values {:amount amount :address address :user_id user-id}))
+        (insert audits (values audit)))
+      (util/update-session user-id))))
 
 (defn update-password! [id {:keys [pass newpass confirm]}]
-  (let [user (get-dirty id)]
-    (if (and (not (nil? user)) (and (:pass user) (warden/compare pass (:pass user))))
-      (let [check (v/user-update-password-validator {:pass newpass :confirm confirm})]
-        (if (empty? check)
-          (do (update users (set-fields {:pass (warden/encrypt newpass)}) (where {:id id}))
-            {})
-          check))
-      {:pass ["Your password is incorrect."]})))
+  (when-let [user (get-dirty id)]
+    (when (warden/compare pass (:pass user))
+      (update users (set-fields {:pass (warden/encrypt newpass)}) (where {:id id})))))
 
 (defn store! [user]
   (let [new-user (insert users (values user))

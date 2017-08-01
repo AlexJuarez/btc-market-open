@@ -95,14 +95,14 @@
   (= (session/flash-get :key) text))
 
 (s/defschema Login
-  {:login (s/both String (s/pred users/exists? 'exists?))
-   :pass String})
+  {:login (Str 3 64 (s/pred users/exists? 'exists?))
+   :pass (Str 0 73)})
 
 (s/defschema Register
-  {:login (s/both String (s/pred #(not (users/exists? %)) 'exists?))
-   :pass String
-   :confirm String
-   :captcha (s/both String (s/pred valid-captcha? 'valid-captcha?))})
+  {:login (Str 3 64 (s/pred #(not (users/exists? %)) 'taken?))
+   :pass (Str 3 73)
+   :confirm (Str 3 73)
+   :captcha (Str 0 8 (s/pred valid-captcha? 'valid-captcha?))})
 
 (defroutes public-routes
   (context

@@ -11,9 +11,7 @@
       <label for="subject">Topic:</label>
       <input name="subject" class="input" id="subject" type="text" value="{{subject}}" />
     </p>
-    {% if errors.content %}
-    <p>{{errors.content|join:", "}}</p>
-    {% endif %}
+    {{errors.content|format-error}}
     <p>
       <textarea rows="6" name="content" class="form-control">{{content}}</textarea>
     </p>

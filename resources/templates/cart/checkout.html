@@ -45,15 +45,16 @@
   {% endfor %}
   </tbody>
 </table>
-<h3 class="text-right {% if errors.total %}has-error{% endif %}">
+<h3 class="text-right {% has-error total %}">
   Total: {% ifunequal user.currency_id 1 %}(&#3647; {{btc_total|double-format:5}}){% endifunequal %} {{user.currency_symbol|safe}}{{total|double-format:5}}
   <br />
-  {% if errors.total %}{{errors.total|join:", "}}{% endif %}
+  {{errors.total|format-error}}
 </h3>
 <form class="my-cart" method="post">
 {% csrf-token %}
-<div class="form-group {% if errors.address %}has-error{% endif %}">
-  <label for="address">Address: {% if errors.address %}{{errors.address|join:", "}}{% endif %}</label>
+<div class="form-group {% has-error address %}">
+  <label for="address">Address:</label>
+  {{errors.address|format-error}}
   <textarea id="address" class="form-control" rows="4" name="address">{{address|safe}}</textarea>
 </div>
 <hr />

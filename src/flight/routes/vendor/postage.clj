@@ -7,23 +7,19 @@
      [flight.models.postage :as postage]
      [ring.util.response :as resp]
      [flight.util.core :refer [user-id]]
-     [flight.util.session :as session]
+     [flight.util.message :as message]
      [flight.util.error :as error]
      [schema.core :as s]))
 
 (s/defschema Postage
-  {:title (s/both String (in-range? 4 100))
+  {:title (Str 4 100)
    :price (s/both Double (in-range? 0))
    :currency_id (s/both Long (s/pred currency/exists? 'exists?))})
 
-(defn postage-create
-  ([]
-   (layout/render "postage/create.html" {:currencies (currency/all)}))
-  ([slug]
-   (let [post (postage/add! slug (user-id))]
-     (if (error/empty?)
-       (resp/redirect "/vendor/listings")
-       (layout/render "postage/create.html" {:currencies (currency/all)}  post)))))
+(defpage postage-create-page
+  :template ["postage/create.html" {:currencies (currency/all)}]
+  :validator (fn [slug] (postage/add! slug (user-id)))
+  (fn [slug] (resp/redirect "/vendor/listings")))
 
 (defn postage-edit [id]
   (let [post (postage/get id (user-id))]
@@ -35,17 +31,15 @@
 
 (defn postage-remove [id]
   (let [record (postage/remove! id (user-id))]
-  (if (nil? record)
-    (resp/redirect "/vendor/listings")
-  (do (session/flash-put! :success {:success "postage removed"})
-    (resp/redirect "/vendor/listings")))))
+    (if (nil? record)
+      (resp/redirect "/vendor/listings")
+      (do (message/success! "postage removed")
+        (resp/redirect "/vendor/listings")))))
 
 (defroutes vendor-routes
   (context
     "/postage" []
-    (GET "/create" [] (postage-create))
-    (POST "/create" []
-           :form [postage Postage] (postage-create postage))
+    (page-route "/create" postage-create-page Postage)
     (context "/:id" []
               :path-params [id :- Long]
               (GET "/edit" [] (postage-edit id))

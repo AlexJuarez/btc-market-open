@@ -32,9 +32,7 @@
 {% endblock %}
 {% block container %}
 <h1 class="jumbo">Reviews</h1>
-{% if success %}
-  <div class="success">{{success}}</div>
-{% endif %}
+{{message|format-message}}
 {% if not reviews|empty? %}
 <table class="table normal p">
   <thead>

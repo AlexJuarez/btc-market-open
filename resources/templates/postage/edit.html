@@ -35,18 +35,14 @@
 <form method="POST">
   {% csrf-token %}
   <p>
-    {% if errors.title %}
-    <p>{{errors.title|join:", "}}</p>
-    {% endif %}
+    {{errors.title|format-error}}
     <label for="title">Title</label>
     <input name="title" id="title" class="input" type="text" value="{{title}}" />
   </p>
   <p {% if errors.price %}class="errors"{% endif %}>
     <label for="price">Price: </label>
     <input name="price" id="price" class="input" type="text" value="{{price}}" />
-    {% if errors.price  %}
-      {{errors.price|join:", "}}
-    {% endif %}
+    {{errors.price|format-error}}
   </p>
   <p>
     <label for="currency_id">Currency: </label>

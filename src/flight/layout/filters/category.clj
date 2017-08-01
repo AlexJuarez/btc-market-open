@@ -1,4 +1,4 @@
-(ns flight.layout.filters.category
+(ns flight.layout.filters
   (:require
     [flight.util.core :as util]
     [selmer.filters :refer :all]

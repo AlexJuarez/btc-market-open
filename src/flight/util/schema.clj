@@ -41,7 +41,7 @@
 
 (defmethod restructure-param :multipart-form
   [_ [value schema] acc]
-    (-> acc
-        (update-in [:lets] into [value (src-coerce! schema :multipart-params :string)])
-        (assoc-in [:swagger :parameters :formData] schema)
-        (assoc-in [:swagger :consumes] ["multipart/form-data"])))
+  (-> acc
+      (update-in [:lets] into [value (src-coerce! schema :multipart-params :string)])
+      (assoc-in [:swagger :parameters :formData] schema)
+      (assoc-in [:swagger :consumes] ["multipart/form-data"])))

@@ -13,14 +13,9 @@
   (let [posts (post/all (user-id))]
       (layout/render "news/index.html" {:posts posts})))
 
-(defn news-create
-  ([]
-   (layout/render "news/create.html"))
-  ([slug]
-   (let [post (post/add! slug (user-id))]
-     (if (empty? (:errors post))
-       (resp/redirect (str "/vendor/news/" (:id post) "/edit"))
-       (layout/render "news/create.html" post)))))
+(defpage news-create-page
+  :template ["news/create.html"]
+  (fn [slug] (resp/redirect (str "/vendor/news/" (:id slug) "/edit"))))
 
 (defn news-publish [id]
   (post/publish! id (user-id))
@@ -41,7 +36,7 @@
      (layout/render "news/create.html" article {:preview content}))))
 
 (s/defschema Article
-  {(s/optional-key :subject) String
+  {(s/optional-key :subject) (Str 0 100)
    (s/optional-key :public) Boolean
    (s/optional-key :published) Boolean
    (s/optional-key :content) String})
@@ -50,10 +45,7 @@
   (context
       "/news" []
       (GET "/" [] (news-page))
-      (GET "/create" [] (news-create))
-      (POST "/create" []
-             :form [article Article]
-             (news-create article))
+      (page-route "/create" news-create-page Article)
       (context
         "/:id" []
         :path-params [id :- Long]

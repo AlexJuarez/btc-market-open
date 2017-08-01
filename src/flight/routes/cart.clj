@@ -25,17 +25,16 @@
                     :listings  listings}
                    (first params))))
 
-(defn cart-checkout
-  ([]
-    (render-cart "cart/checkout.html"))
-  ([{:keys [address pin] :as checkout}]
-    (let [btc-total (cart/total 1)]
-      (when (> btc-total (:btc (util/current-user)))
-            (error/put! :total ["you lack the nessary funds"])))
-    (let [order (orders/add! (cart/cart) (cart/total 1) address pin (user-id))]
-      (if (error/empty?)
-        (resp/redirect "/orders")
-        (render-cart "cart/checkout.html" checkout)))))
+(defn cart-checkout-validator [{:keys [address pin]}]
+  (let [btc-total (cart/total 1)]
+    (if (> btc-total (:btc (util/current-user)))
+      (error/register! :total "you lack the nessary funds")
+      (orders/add! (cart/cart) (cart/total 1) address pin (user-id)))))
+
+(defpage cart-checkout
+  :template ["cart/checkout.html"]
+  :validator cart-checkout-validator
+  (fn [slug] (resp/redirect "/orders")))
 
 (defn cart-view
   ([]

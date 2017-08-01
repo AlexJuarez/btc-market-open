@@ -4,8 +4,8 @@
     [clojure.java.io :as io]
     [flight.env :refer [env]]
     [image-resizer.fs :as fs]
-    [clojure.java.io :as io])
-  (:use hiccup.core)
+    [clojure.java.io :as io]
+    [hiccup.core :refer :all])
   (:import
     [java.io File FileInputStream FileOutputStream]
     [org.apache.commons.io IOUtils]

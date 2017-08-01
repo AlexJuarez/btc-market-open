@@ -52,9 +52,7 @@
 {% if ticket.alias %}
 <form method="POST">
   <p>Compose a message to: <a href="/user/{{ticket.alias}}">{{ticket.alias}}</a></p>
-  {% if errors.content %}
-  <p>{{errors.content|join:", "}}</p>
-  {% endif %}
+  {{errors.content|format-error}}
   <p>
     <textarea rows="6" name="content" class="form-control">{{content}}</textarea>
   </p>

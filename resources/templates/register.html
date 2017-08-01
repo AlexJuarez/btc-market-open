@@ -8,30 +8,24 @@
     <form method="POST">
       {% csrf-token %}
       <div class="modal-body">
-        <div class="field {% if errors.login %}has-error{% endif %}">
+        <div class="field {% has-error login %}">
           <label for="login">
             Login
           </label>
           <input class="form-control" id="login" name="login" type="text" value="{{login}}" />
-          {% if errors.login %}
-            {{errors.login|join:", "}}
-          {% endif %}
+          {{errors.login|format-error}}
         </div>
-        <div class="field {% if errors.pass %}has-error{% endif %}">
+        <div class="field {% has-error pass %}">
           <label for="pass">Password</label>
           <input class="form-control" id="pass" value="{{pass}}" name="pass" type="password" />
-          {% if errors.pass %}
-          {{errors.pass|join:", "}}
-          {% endif %}
+          {{errors.pass|format-error}}
         </div>
         <div class="field">
           <label for="confirm">Confirm Password</label>
           <input class="form-control" id="confirm" value="{{confirm}}" name="confirm" type="password" />
         </div>
-        <div class="field {% if errors.captcha %}has-error{% endif %}">
-          {% if errors.captcha %}
-          {{errors.captcha|join:", "}}
-          {% endif %}
+        <div class="field {% has-error captcha %}">
+          {{errors.captcha|format-error}}
           <label for="captcha">Captcha</label>
           <div>
             <img class="captcha" src="data:image/jpeg;base64,{{captcha|safe}}" />

@@ -1,7 +1,8 @@
-(ns flight.layout.filters.core
+(ns flight.layout.filters
   (:require
     [hiccup.core :refer [html]]
-    [selmer.filters :refer :all]))
+    [selmer.filters :as filters]
+    [selmer.parser :as parser]))
 
 (defn- message-element [content]
   (when-not (empty? content)
@@ -26,3 +27,5 @@
                        [content]
                        (when-let [elem (error-element content)]
                          [:safe (html elem)])))
+
+(parser/add-tag! :has-error (fn [args context-map] (when (not (empty? (get-in context-map [:errors (keyword (first args))]))) (str "has-error"))))
