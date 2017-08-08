@@ -18,6 +18,7 @@
     [flight.util.error :as error]
     [flight.util.session :as session]
     [ring.util.response :as resp]
+    [flight.access :as access]
     [schema.core :as s]))
 
 (def per-page 10)
@@ -127,6 +128,8 @@
 (defroutes user-routes
   (context
     "/listing/:id" []
+    :tags ["user"]
+    :access-rule access/user-authenticated
     :path-params [id :- Long]
     (GET "/bookmark" [] (listing-bookmark id))
     (GET "/unbookmark" {{referer "referer"} :headers} (listing-unbookmark id referer))

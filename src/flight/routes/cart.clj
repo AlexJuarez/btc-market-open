@@ -12,6 +12,7 @@
     [flight.util.cart :as cart]
     [flight.util.core :as util
      :refer               [user-id]]
+    [flight.access :as access]
     [flight.routes.cart.middleware :refer [consolidate-cart]]
     [schema.core :as s]))
 
@@ -92,6 +93,8 @@
 (defroutes user-routes
   (context
     "/cart" []
+    :tags ["user"]
+    :access-rule access/user-authenticated
     (GET "/checkout" []
          (cart-checkout))
     (POST "/checkout" []

@@ -102,26 +102,33 @@
    :content                  (Str 6000)})
 
 (defroutes user-routes
-  (context "/messages" []
-           (GET "/" []
-                :query-params [{page :- Long 1}]
-                (messages-page page))
-           (GET "/sent" [] (messages-sent))
-           (context "/:id" []
-                    :path-params [id :- (s/both Long (s/pred user/exists? 'exists?))]
-                    (GET "/" [] (messages-thread id))
-                    (GET "/download" [] (messages-download id))
-                    (POST "/" []
-                          :form [message Message]
-                          (message-create message id))))
-  (context "/message/:id" []
-           :tags        ["user"]
-           :path-params [id :- (s/both Long (s/pred message/exists? 'exists?))]
-           (GET "/delete" {{referer "referer"} :headers} (message-delete id referer)))
-  (context "/support/:tid" [tid]
-           :path-params [tid :- Long]
-           :tags        ["user"]
-           (GET "/" [] (support-thread tid))
-           (POST "/" []
-                 :form [message Message]
-                 (support-thread tid message))))
+  (context
+    "/messages" []
+    :tags ["user"]
+    :access-rule access/user-authenticated
+    (GET "/" []
+         :query-params [{page :- Long 1}]
+         (messages-page page))
+    (GET "/sent" [] (messages-sent))
+    (context "/:id" []
+             :path-params [id :- (s/both Long (s/pred user/exists? 'exists?))]
+             (GET "/" [] (messages-thread id))
+             (GET "/download" [] (messages-download id))
+             (POST "/" []
+                   :form [message Message]
+                   (message-create message id))))
+  (context
+    "/message/:id" []
+    :tags        ["user"]
+    :access-rule access/user-authenticated
+    :path-params [id :- (s/both Long (s/pred message/exists? 'exists?))]
+    (GET "/delete" {{referer "referer"} :headers} (message-delete id referer)))
+  (context
+    "/support/:tid" [tid]
+    :path-params [tid :- Long]
+    :tags        ["user"]
+    :access-rule access/user-authenticated
+    (GET "/" [] (support-thread tid))
+    (POST "/" []
+          :form [message Message]
+          (support-thread tid message))))

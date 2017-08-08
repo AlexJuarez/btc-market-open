@@ -8,9 +8,6 @@
             [flight.routes.core :refer [core-routes]]
             [mount.core :refer [defstate] :as mount]))
 
-(defroutes base-routes
-  (route/not-found "Not Found"))
-
 (mount/defstate init-app
   :start ((or (:init defaults) identity))
   :stop  ((or (:stop defaults) identity)))
@@ -21,6 +18,7 @@
     (route/not-found
       (:body
         (error-page {:status 404
-                     :title "page not found"})))))
+                     :title "page not found"}
+                    "error/404.html")))))
 
 (defn app [] (middleware/wrap-base #'app-routes))

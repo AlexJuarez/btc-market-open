@@ -22,6 +22,7 @@
     [flight.routes.account.pgp :refer [pgp-routes]]
     [flight.routes.account.wallet :refer [wallet-routes]]
     [schema.core :as s]
+    [flight.access :as access]
     [ring.util.http-response :refer :all]))
 
 (defonce reviews-per-page 25)
@@ -97,6 +98,8 @@
 (defroutes user-routes
   (context
     "/account" []
+    :tags ["user"]
+    :access-rule access/user-authenticated
     pgp-routes
     wallet-routes
     (page-route "/" account-page Account)
@@ -106,11 +109,15 @@
          :query-params [{page :- Long 1}] (reviews-page page)))
 
   (GET "/news/:id" []
+       :tags ["user"]
+       :access-rule access/user-authenticated
        :path-params [id :- Long]
        (news-view id))
 
   (context
     "/review/:id" []
+    :tags ["user"]
+    :access-rule access/user-authenticated
     :path-params [id :- Long]
     (GET "/edit" [] (review-edit id))
     (POST "/edit" []
@@ -119,6 +126,8 @@
 
   (context
     "/user/:id" []
+    :tags ["user"]
+    :access-rule access/user-authenticated
     :path-params [id :- Long]
     (GET "/follow" [] (user-follow id))
     (GET "/unfollow" {{referer "referer"} :headers} (user-unfollow id referer))))

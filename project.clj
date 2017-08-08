@@ -79,7 +79,7 @@
                                  [org.apache.httpcomponents/httpcore "4.4"]
                                  [org.clojure/core.cache "0.6.3"]
                                  [mvxcvi/puget "1.0.0"]]
-
+                  :plugins      [[lein-drip "0.1.1-SNAPSHOT"]]
                   :source-paths ["env/dev/clj"]
                   :resource-paths ["env/dev/resources"]
                   :repl-options {:init-ns flight.core}

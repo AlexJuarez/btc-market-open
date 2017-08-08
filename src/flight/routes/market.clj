@@ -22,6 +22,7 @@
    [flight.util.session :as session]
    [ring.util.http-response :refer :all]
    [ring.util.response :as resp]
+   [flight.access :as access]
    [schema.core :as s]))
 
 (def per-page 10)
@@ -182,9 +183,13 @@
 ;;restricted routes
 (defroutes user-routes
   (POST "/support" {params :params}
+        :tags ["user"]
+        :access-rule access/user-authenticated
         (support-page params))
   (context "/user/:id" []
            :path-params [id :- Long]
+           :tags ["user"]
+           :access-rule access/user-authenticated
            (GET "/report" {{referer "referer"} :headers} (report-add id (user-id) "user" referer))
            (GET "/unreport" {{referer "referer"} :headers} (report-remove id (user-id) "user" referer))))
 
