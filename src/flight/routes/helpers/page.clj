@@ -18,6 +18,22 @@
           :form [info Schema]
           (page info))))
 
+(defn resolvefn [obj args]
+  (if (vector? obj)
+    (let [[k v] obj]
+      (if (fn? v)
+        [k (v args)]
+        [k v]))
+    obj))
+
+(defn apply-fns [lst args]
+  (clojure.walk/prewalk
+    #(resolvefn % args)
+    lst))
+
+(defn update-template [args body]
+  (map #(apply-fns % args) body))
+
 (defmacro
   ^{:doc
     "Creates a page function, the macro expects page-name, key value options followed by a body
@@ -45,14 +61,15 @@
     }
   defpage [page-name & body]
   (let [[params form] (extract-parameters body true)
-        [template & args] (get params :template)
+        [template & template-body] (get params :template)
+        args (get params :args)
         validator `(get ~params :validator)
         success `(get ~params :success)
         redirect `(get ~params :redirect)]
     `(defn ~page-name
-       ([]
-        (layout/render ~template ~@args))
-       ([slug#]
+       ([~@`~args]
+         (layout/render ~template (update-template ~@args (list ~@template-body))))
+       ([slug# ~@`~args]
         (when-not (nil? ~validator) (~validator slug#))
         (if (error/empty?)
           (do
@@ -62,5 +79,6 @@
               (log/debug result#)
               (if (not (nil? (get result# :body)))
                 result#
-                (layout/render ~template slug#))))
-          (layout/render ~template slug# ~@args))))))
+                (layout/render ~template slug# (update-template ~@args (list ~@template-body))))))
+          (layout/render ~template slug# (update-template ~@args (list ~@template-body))))))))
+
