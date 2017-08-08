@@ -94,7 +94,7 @@
   {:action                     (s/enum :extension :refund)
    (s/optional-key :extension) Long
    (s/optional-key :refund)    Long
-   (s/optional-key :content)   String})
+   (s/optional-key :content)   (Str 2000)})
 
 (defroutes user-routes
   (context

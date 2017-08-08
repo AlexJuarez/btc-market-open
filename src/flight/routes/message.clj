@@ -98,8 +98,8 @@
                    message)))
 
 (s/defschema Message
-  {(s/optional-key :subject) (s/both String (less-than? 100))
-   :content                  (s/both String (less-than? 6000))})
+  {(s/optional-key :subject) (Str 100)
+   :content                  (Str 6000)})
 
 (defroutes user-routes
   (context "/messages" []

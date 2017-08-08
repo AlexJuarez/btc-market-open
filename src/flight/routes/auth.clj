@@ -104,28 +104,27 @@
    :confirm (Str 3 73)
    :captcha (Str 0 8 (s/pred valid-captcha? 'valid-captcha?))})
 
+(s/defschema Response
+  {:response (Str (s/pred check-auth 'check-auth))})
+
 (defroutes public-routes
   (context
-   "/login" []
-   (GET "/"
+    "/login" []
+    (GET "/"
          {{referer "referer"} :headers}
          (login-page referer))
-   (POST "/" {cookies :cookies}
+    (POST "/" {cookies :cookies}
           :form [info Login]
           (login-page info cookies))
-   (GET "/auth" []
-         (auth-page))
-   (POST "/auth" []
-          :form [slug {:response (s/both String (s/pred 'check-auth 'check-auth))}]
-          (auth-page slug)))
+    (page-route "/auth" auth-page Response))
   (context
-   "/register" []
-   (GET "/" []
+    "/register" []
+    (GET "/" []
          (registration-page))
-   (POST "/" {cookies :cookies}
+    (POST "/" {cookies :cookies}
           :form [info Register]
           (registration-page info cookies)
-  ))
+          ))
   (GET "/logout" []
         (session/clear!)
         (resp/redirect "/")))
