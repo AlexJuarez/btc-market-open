@@ -16,3 +16,4 @@ profiles.clj
 *.iml
 *.deb
 resources/public/uploads
+/log

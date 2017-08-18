@@ -22,7 +22,7 @@
   (if (vector? obj)
     (let [[k v] obj]
       (if (fn? v)
-        [k (v args)]
+        [k (apply v args)]
         [k v]))
     obj))
 
@@ -32,7 +32,7 @@
     lst))
 
 (defn update-template [args body]
-  (map #(apply-fns % args) body))
+  (into {} (apply-fns body args)))
 
 (defn prune [obj]
   (if (and (vector? obj) (= (count obj) 2))
@@ -44,7 +44,7 @@
   (let [template-path (get obj :template-path)]
     (assoc-in
       obj [:fns :render]
-      (fn [& params] (apply layout/render template-path params)))))
+      (fn [params] (layout/render template-path params)))))
 
 (defn- page-success [obj opts]
   (let [success (get opts :success)]
@@ -64,14 +64,14 @@
       obj [:fns :params]
       (fn [& args] (update-template args template-body)))))
 
-(defn parse-options [body]
+(defn parse-options [& body]
   (let [[params form] (extract-parameters body true)
         [template & template-body] (get params :template)
         args (get params :args)]
     (clojure.walk/prewalk
        prune
        (-> {:template-path template
-            :template-body template-body
+            :template-body (apply merge (flatten template-body))
             :args args
             :body (apply list form)}
            (render-page params)
@@ -80,8 +80,8 @@
            (template-params params)
            ))))
 
-(defmacro resolve-page [& body]
-  (let [options (parse-options body)]
+(defn resolve-page [& body]
+  (let [options (apply parse-options body)]
     (let [render (get-in options [:fns :render])
           params (get-in options [:fns :params])
           validator (get-in options [:fns :validator])
@@ -99,9 +99,9 @@
                 (log/debug result)
                 (if (:body result)
                   result
-                  (render slug (apply params r))))
-              (render slug (apply params r))))
-          (render (apply params fargs)))
+                  (render slug (params r))))
+              (render slug (params r))))
+          (render (params fargs)))
         ))))
 
 (defmacro defpage [page-name & body]

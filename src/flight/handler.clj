@@ -14,11 +14,6 @@
 
 (def app-routes
   (routes
-    (wrap-routes #'core-routes middleware/wrap-csrf)
-    (route/not-found
-      (:body
-        (error-page {:status 404
-                     :title "page not found"}
-                    "error/404.html")))))
+    (wrap-routes #'core-routes middleware/wrap-csrf)))
 
 (defn app [] (middleware/wrap-base #'app-routes))
