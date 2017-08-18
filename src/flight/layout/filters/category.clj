@@ -10,7 +10,7 @@
 
 (defn- render-tree [tree params id]
   (let [children (:children tree)]
-    (if-not (empty? children)
+    (if (not (empty? children))
       [:li
        (header tree params id)
        [:ul (map #(render-tree % params id) children)]]
@@ -21,5 +21,5 @@
              (fn [x]
                (let [tree (:tree x)
                      id (:id x)
-                     params (if-not (empty? (:params x)) (str "?" (util/params (:params x))))]
+                     params (if (not (empty? (:params x))) (str "?" (util/params (:params x))))]
                  [:safe (html [:ul {:class "category-tree"} (render-tree tree params id)])])))

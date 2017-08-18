@@ -34,7 +34,77 @@
 (defn update-template [args body]
   (map #(apply-fns % args) body))
 
-(defmacro
+(defn prune [obj]
+  (if (and (vector? obj) (= (count obj) 2))
+    (let [[k v] obj]
+      (when-not (nil? v) obj))
+    obj))
+
+(defn- render-page [obj _]
+  (let [template-path (get obj :template-path)]
+    (assoc-in
+      obj [:fns :render]
+      (fn [& params] (apply layout/render template-path params)))))
+
+(defn- page-success [obj opts]
+  (let [success (get opts :success)]
+    (assoc-in
+      obj [:fns :success]
+      (fn [] (when success (message/success! success))))))
+
+(defn- page-validator [obj opts]
+  (let [validator (get opts :validator (fn [_]))]
+    (assoc-in
+      obj [:fns :validator]
+      (fn [& args] (apply validator args)))))
+
+(defn- template-params [obj _]
+  (let [template-body (get obj :template-body ())]
+    (assoc-in
+      obj [:fns :params]
+      (fn [& args] (update-template args template-body)))))
+
+(defn parse-options [body]
+  (let [[params form] (extract-parameters body true)
+        [template & template-body] (get params :template)
+        args (get params :args)]
+    (clojure.walk/prewalk
+       prune
+       (-> {:template-path template
+            :template-body template-body
+            :args args
+            :body (apply list form)}
+           (render-page params)
+           (page-success params)
+           (page-validator params)
+           (template-params params)
+           ))))
+
+(defmacro resolve-page [& body]
+  (let [options (parse-options body)]
+    (let [render (get-in options [:fns :render])
+          params (get-in options [:fns :params])
+          validator (get-in options [:fns :validator])
+          success (get-in options [:fns :success])
+          {:keys [args body]} options]
+      (fn [& fargs]
+        (if
+          (= (inc (count args)) (count fargs))
+          (let [[slug & r] fargs]
+            (validator slug)
+            (if (error/empty?)
+              (let [results (map #(% slug) body)
+                    result (last results)]
+                (success)
+                (log/debug result)
+                (if (:body result)
+                  result
+                  (render slug (apply params r))))
+              (render slug (apply params r))))
+          (render (apply params fargs)))
+        ))))
+
+(defmacro defpage [page-name & body]
   ^{:doc
     "Creates a page function, the macro expects page-name, key value options followed by a body
     to execute on success.
@@ -43,15 +113,6 @@
     :validator (fn [slug] ... )
     :success \"Success message to display\")
 
-    The output of this example would be the same as:
-    (defn test-page
-    ([] (layout/render \"test-page.html\" {:hello \"world\"}))
-    ([slug]
-    (validator slug)
-    (when (error/empty?)
-    (do (...))
-    (layout/render \"test-page.html\" slug {:hello \"world\"}))))
-
     ### options:
 
     - **:template**                 Define a template-path & args.
@@ -59,26 +120,7 @@
     - **:success**                  Define a message to show on success.
     "
     }
-  defpage [page-name & body]
-  (let [[params form] (extract-parameters body true)
-        [template & template-body] (get params :template)
-        args (get params :args)
-        validator `(get ~params :validator)
-        success `(get ~params :success)
-        redirect `(get ~params :redirect)]
-    `(defn ~page-name
-       ([~@`~args]
-         (layout/render ~template (update-template ~@args (list ~@template-body))))
-       ([slug# ~@`~args]
-        (when-not (nil? ~validator) (~validator slug#))
-        (if (error/empty?)
-          (do
-            (when-not (nil? ~success)
-              (message/success! ~success))
-            (let [result# (~@form slug#)]
-              (log/debug result#)
-              (if (not (nil? (get result# :body)))
-                result#
-                (layout/render ~template slug# (update-template ~@args (list ~@template-body))))))
-          (layout/render ~template slug# (update-template ~@args (list ~@template-body))))))))
-
+  `(def
+     ~page-name
+     (resolve-page ~@body)
+     ))

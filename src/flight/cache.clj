@@ -63,7 +63,7 @@
 
 (defn get [key]
   (let [mem-val (mem/get key)]
-    (if (not (nil? mem-val))
+    (if mem-val
       mem-val
       (when-not (nil? @*ce*)
         (when-let [val (c/get (get-connection) key)]

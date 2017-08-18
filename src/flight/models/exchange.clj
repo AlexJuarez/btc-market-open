@@ -48,7 +48,7 @@
 (defn update-from-remote []
   (let [response (get-from-remote (env :remote-bitcoin-values))
         prep (create-currency-map response)]
-    (if-not (empty? response)
+    (if (not (empty? response))
       (transaction
        (delete exchange)
        (insert exchange

@@ -12,26 +12,22 @@
   (let [images (image/all (user-id))]
     (layout/render "images/index.html" {:images images})))
 
-(defn images-upload
-  ([]
-    (layout/render "images/upload.html"))
-  ([{image :image}]
-   (parse-image nil image)
-   (message/success! "image uploaded")
-   (resp/redirect "/vendor/images")))
+(defpage images-upload
+  :template ["images/upload.html"]
+  :success "image uploaded"
+  (fn [{image :image}]
+    (parse-image nil image)
+    (resp/redirect "/vendor/images")))
 
 (defn image-delete [id]
   (image/remove! id (user-id))
   (message/success! "image deleted")
   (resp/redirect "/vendor/images"))
 
-(defn images-edit
-  ([]
-    (let [images (image/all (user-id))]
-      (layout/render "images/index.html" {:images images :edit true})))
-  ([{:keys [name] :as slug}]
-    (dorun (map #(if-let [n (val %)] (image/update! (parse-int (key %)) {:name n} (user-id))) name))
-    (images-edit)))
+(defpage images-edit
+  :template ["images/index.html" {:images (image/all (user-id)) :edit true}]
+  (fn [{:keys [name] :as slug}]
+    (dorun (map #(if-let [n (val %)] (image/update! (parse-int (key %)) {:name n} (user-id))) name))))
 
 (defroutes vendor-routes
   (context

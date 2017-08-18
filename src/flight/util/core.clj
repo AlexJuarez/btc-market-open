@@ -45,18 +45,18 @@
 
 (defmacro update-session
   [user-id & terms]
-    `(let [id# ~user-id
-           user-id# (session/get :user_id)]
-      (if (= id# user-id#)
-        (dorun (map session/remove! (list :user ~@terms)))
-        (let [user# (first (select users (fields :session) (where {:id id#})))]
-          (when (:session user#)
-            (let [session# (.toString (:session user#))
-                  sess# (cache/get session#)
-                  ttl# (* 60 60 10)]
-              (if (not (nil? sess#))
-                (cache/set session#
-                           (assoc sess# :noir (dissoc (:noir sess#) ~@terms :user)) ttl#))))))))
+  `(let [id# ~user-id
+         user-id# (session/get :user_id)]
+     (if (= id# user-id#)
+       (dorun (map session/remove! (list :user ~@terms)))
+       (let [user# (first (select users (fields :session) (where {:id id#})))]
+         (when (:session user#)
+           (let [session# (.toString (:session user#))
+                 sess# (cache/get session#)
+                 ttl# (* 60 60 10)]
+             (when sess#
+               (cache/set session#
+                          (assoc sess# :noir (dissoc (:noir sess#) ~@terms :user)) ttl#))))))))
 
 (defn convert-price [price from to]
   (if-not (= from to)

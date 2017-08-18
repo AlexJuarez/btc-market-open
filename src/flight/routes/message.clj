@@ -23,7 +23,7 @@
 
 (defn encrypt-feedback-ids [messages]
   (map
-    #(assoc % :feedback_id (if (not (nil? (:feedback_id %))) (hashids/encrypt-ticket-id (:feedback_id %))))
+    #(assoc % :feedback_id (when (:feedback_id %) (hashids/encrypt-ticket-id (:feedback_id %))))
     messages))
 
 (defn messages-page [page]
