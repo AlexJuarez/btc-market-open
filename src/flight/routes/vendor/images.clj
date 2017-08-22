@@ -25,7 +25,7 @@
   (resp/redirect "/vendor/images"))
 
 (defpage images-edit
-  :template ["images/index.html" {:images (image/all (user-id)) :edit true}]
+  :template ["images/index.html" {:images (fn [& _] (image/all (user-id))) :edit true}]
   (fn [{:keys [name] :as slug}]
     (dorun (map #(if-let [n (val %)] (image/update! (parse-int (key %)) {:name n} (user-id))) name))))
 

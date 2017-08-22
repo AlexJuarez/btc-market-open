@@ -17,9 +17,13 @@
    :currency_id (s/both Long (s/pred currency/exists? 'exists?))})
 
 (defpage postage-create-page
-  :template ["postage/create.html" {:currencies (currency/all)}]
+  :template ["postage/create.html" {:currencies currency/all}]
   :validator (fn [slug] (postage/add! slug (user-id)))
   (fn [slug] (resp/redirect "/vendor/listings")))
+
+;;(defpage postage-edit
+;;  :template ["postage/edit.html" {:currencies (fn [id] (currency/all)) :id (fn [id] id)}]
+;;  :args [id]
 
 (defn postage-edit [id]
   (let [post (postage/get id (user-id))]

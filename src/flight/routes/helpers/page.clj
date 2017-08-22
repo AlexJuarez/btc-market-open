@@ -32,7 +32,7 @@
     lst))
 
 (defn update-template [args body]
-  (into {} (apply-fns body args)))
+  (apply-fns body args))
 
 (defn prune [obj]
   (if (and (vector? obj) (= (count obj) 2))
@@ -41,10 +41,11 @@
     obj))
 
 (defn- render-page [obj _]
-  (let [template-path (get obj :template-path)]
+  (let [template-path (get obj :template-path)
+        render (get obj :render layout/render)]
     (assoc-in
       obj [:fns :render]
-      (fn [params] (layout/render template-path params)))))
+      (fn [& params] (apply render template-path params)))))
 
 (defn- page-success [obj opts]
   (let [success (get opts :success)]
@@ -66,13 +67,13 @@
 
 (defn parse-options [& body]
   (let [[params form] (extract-parameters body true)
-        [template & template-body] (get params :template)
-        args (get params :args)]
+        [template & template-body] (get params :template)]
     (clojure.walk/prewalk
        prune
        (-> {:template-path template
             :template-body (apply merge (flatten template-body))
-            :args args
+            :args (get params :args)
+            :render (get params :render)
             :body (apply list form)}
            (render-page params)
            (page-success params)
@@ -80,29 +81,29 @@
            (template-params params)
            ))))
 
-(defn resolve-page [& body]
-  (let [options (apply parse-options body)]
-    (let [render (get-in options [:fns :render])
-          params (get-in options [:fns :params])
-          validator (get-in options [:fns :validator])
-          success (get-in options [:fns :success])
-          {:keys [args body]} options]
-      (fn [& fargs]
-        (if
-          (= (inc (count args)) (count fargs))
-          (let [[slug & r] fargs]
-            (validator slug)
-            (if (error/empty?)
-              (let [results (map #(% slug) body)
-                    result (last results)]
-                (success)
-                (log/debug result)
-                (if (:body result)
-                  result
-                  (render slug (params r))))
-              (render slug (params r))))
-          (render (params fargs)))
-        ))))
+(defn resolve-page [options]
+  (let [render (get-in options [:fns :render])
+        params (get-in options [:fns :params])
+        validator (get-in options [:fns :validator])
+        success (get-in options [:fns :success])
+        {:keys [args body]} options]
+    (fn [& fargs]
+      (if
+        (= (inc (count args)) (count fargs))
+        (let [[slug & r] fargs
+              rs (if (not (empty? r)) (apply params r) ())]
+          (validator slug)
+          (if (error/empty?)
+            (let [results (map #(% slug) body)
+                  result (last results)]
+              (success)
+              (log/debug result)
+              (if (and result (:body result))
+                result
+                (render slug rs)))
+            (render slug rs)))
+        (render (apply params fargs)))
+      )))
 
 (defmacro defpage [page-name & body]
   ^{:doc
@@ -120,7 +121,8 @@
     - **:success**                  Define a message to show on success.
     "
     }
-  `(def
-     ~page-name
-     (resolve-page ~@body)
-     ))
+  `(let [options# (parse-options ~@body)]
+     (def
+       ~page-name
+       (resolve-page options#)
+       )))
