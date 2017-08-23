@@ -42,7 +42,7 @@
 
 (defn- render-page [obj _]
   (let [template-path (get obj :template-path)
-        render (get obj :render layout/render)]
+        render (get obj :render)]
     (assoc-in
       obj [:fns :render]
       (fn [& params] (apply render template-path params)))))
@@ -73,7 +73,7 @@
        (-> {:template-path template
             :template-body (apply merge (flatten template-body))
             :args (get params :args)
-            :render (get params :render)
+            :render (get params :render layout/render)
             :body (apply list form)}
            (render-page params)
            (page-success params)
@@ -121,8 +121,7 @@
     - **:success**                  Define a message to show on success.
     "
     }
-  `(let [options# (parse-options ~@body)]
-     (def
-       ~page-name
-       (resolve-page options#)
-       )))
+  `(def
+     ~page-name
+     (resolve-page (parse-options ~@body))
+     ))
