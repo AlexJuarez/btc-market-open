@@ -91,7 +91,7 @@
       (if
         (= (inc (count args)) (count fargs))
         (let [[slug & r] fargs
-              rs (if (not (empty? r)) (apply params r) ())]
+              rs (apply params r)]
           (validator slug)
           (if (error/empty?)
             (let [results (map #(% slug) body)

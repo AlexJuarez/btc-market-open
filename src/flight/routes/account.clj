@@ -28,7 +28,7 @@
 (defonce reviews-per-page 25)
 
 (defpage account-page
-  :template ["account/index.html" {:regions (fn [& _] (region/all)) :currencies (fn [& _] (currency/all))}]
+  :template ["account/index.html" {:alias (fn [& _] (:alias (current-user))) :regions (fn [& _] (region/all)) :currencies (fn [& _] (currency/all))}]
   :success "Your account has been updated"
   (fn [slug] (user/update! (user-id) slug)))
 
