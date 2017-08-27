@@ -99,7 +99,7 @@
 (s/defschema Listing
   {(s/optional-key :image_id)     (s/both Long (s/pred #(image/exists? % (user-id)) 'exists?))
    (s/optional-key :public)       Boolean
-   (s/optional-key :description)  (Str 3000)
+   :description                   (Str 0 3000)
    :title                         (Str 4 100)
    :price                         (s/both Double (in-range? 0))
    :currency_id                   (s/both Long (s/pred currency/exists? 'exists?))

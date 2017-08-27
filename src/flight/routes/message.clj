@@ -11,6 +11,7 @@
     [flight.models.currency :as currency]
     [flight.util.core :as util
      :refer               [user-id]]
+    [flight.util.error :as error]
     [flight.util.hashids :as hashids]
     [flight.env :refer [env]]
     [schema.core :as s]
@@ -88,8 +89,8 @@
                       :messages    (message/all (user-id) receiver-id)}))))
 
 (defn message-create [message receiver-id]
-  (let [message  (message/add! message (user-id) receiver-id)
-        receiver (user/get receiver-id)]
+  (let [receiver (user/get receiver-id)]
+    (when (error/empty?) (message/add! message (user-id) receiver-id))
     (layout/render "messages/thread.html"
                    {:has_pub_key (not (nil? (:pub_key receiver)))
                     :alias       (:alias receiver)
@@ -98,8 +99,8 @@
                    message)))
 
 (s/defschema Message
-  {(s/optional-key :subject) (Str 100)
-   :content                  (Str 6000)})
+  {:subject (Str 0 100)
+   :content (Str 6000)})
 
 (defroutes user-routes
   (context

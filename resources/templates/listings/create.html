@@ -33,7 +33,7 @@
 </ul>
 {% endblock %}
 {% block container %}
-<h1 class="jumbo">{% if edit %}Listing Edit{% else %}Listing Create{% endif %} </h1>
+<h1 class="jumbo">{% if edit %}Edit Listing{% else %}Create Listing{% endif %} </h1>
 {{message|format-message}}
 <form enctype="multipart/form-data" method="post">
   {% csrf-token %}
