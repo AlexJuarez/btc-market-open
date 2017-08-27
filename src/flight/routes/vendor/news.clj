@@ -39,7 +39,7 @@
   {(s/optional-key :subject) (Str 0 100)
    (s/optional-key :public) Boolean
    (s/optional-key :published) Boolean
-   (s/optional-key :content) String})
+   (s/optional-key :content) (Str 0 2000)})
 
 (defroutes vendor-routes
   (context

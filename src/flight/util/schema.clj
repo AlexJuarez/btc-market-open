@@ -10,18 +10,8 @@
     [schema.utils :as su]
     [taoensso.timbre :as log]))
 
-(defn prune [obj]
-  (if (and (vector? obj) (= (count obj) 2))
-    (let [[k v] obj]
-      (cond
-        (nil? v) nil
-        (and (string? v) (clojure.string/blank? v)) nil
-        :else obj))
-    obj))
-
-;; coercer removes empty strings and keys with nil values
 (defn coerce! [schema key type request]
-  (let [value (->> (key request) walk/keywordize-keys (walk/prewalk prune))]
+  (let [value (->> (key request) walk/keywordize-keys)]
     (if-let [matchers (mw/coercion-matchers request)]
       (if-let [matcher (matchers type)]
         (let [coercer (cached-coercer request)
