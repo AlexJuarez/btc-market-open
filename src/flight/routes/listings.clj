@@ -18,6 +18,7 @@
     [flight.util.error :as error]
     [flight.util.session :as session]
     [ring.util.response :as resp]
+    [flight.access :as access]
     [schema.core :as s]))
 
 (def per-page 10)
@@ -96,16 +97,16 @@
   (resp/redirect referer))
 
 (s/defschema Listing
-  {(s/optional-key :image_id) (s/both Long (s/pred #(image/exists? % (user-id)) 'exists?))
-   (s/optional-key :public)   Boolean
-   :title                     (Str 4 100)
-   :price                     (s/both Double (in-range? 0))
-   :currency_id               (s/both Long (s/pred currency/exists? 'exists?))
-   :quantity                  (s/both Long (in-range? 0))
-   :from                      (s/both Long (s/pred region/exists? 'exists?))
-   :to                        [(s/both Long (s/pred region/exists? 'exists?))]
-   :description               (Str 3000)
-   :category_id               (s/both Long (s/pred category/exists? 'exists?))})
+  {(s/optional-key :image_id)     (s/both Long (s/pred #(image/exists? % (user-id)) 'exists?))
+   (s/optional-key :public)       Boolean
+   :description                   (Str 0 3000)
+   :title                         (Str 4 100)
+   :price                         (s/both Double (in-range? 0))
+   :currency_id                   (s/both Long (s/pred currency/exists? 'exists?))
+   :quantity                      (s/both Long (in-range? 0))
+   :from                          (s/both Long (s/pred region/exists? 'exists?))
+   :to                            [(s/both Long (s/pred region/exists? 'exists?))]
+   :category_id                   (s/both Long (s/pred category/exists? 'exists?))})
 
 (defn update-listing-params [listing]
   (->
@@ -127,6 +128,8 @@
 (defroutes user-routes
   (context
     "/listing/:id" []
+    :tags ["user"]
+    :access-rule access/user-authenticated
     :path-params [id :- Long]
     (GET "/bookmark" [] (listing-bookmark id))
     (GET "/unbookmark" {{referer "referer"} :headers} (listing-unbookmark id referer))

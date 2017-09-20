@@ -7,10 +7,11 @@
     [flight.util.error :as error]
     [flight.util.session :as session]
     [flight.access :refer [wrap-restricted]]
-    [schema.utils :as su]))
+    [schema.utils :as su]
+    [taoensso.timbre :as log]))
 
 (defn coerce! [schema key type request]
-  (let [value (walk/keywordize-keys (key request))]
+  (let [value (->> (key request) walk/keywordize-keys)]
     (if-let [matchers (mw/coercion-matchers request)]
       (if-let [matcher (matchers type)]
         (let [coercer (cached-coercer request)

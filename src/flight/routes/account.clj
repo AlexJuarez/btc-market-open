@@ -22,12 +22,13 @@
     [flight.routes.account.pgp :refer [pgp-routes]]
     [flight.routes.account.wallet :refer [wallet-routes]]
     [schema.core :as s]
+    [flight.access :as access]
     [ring.util.http-response :refer :all]))
 
 (defonce reviews-per-page 25)
 
 (defpage account-page
-  :template ["account/index.html" {:regions (region/all) :currencies (currency/all)}]
+  :template ["account/index.html" {:alias (fn [& _] (:alias (current-user))) :regions (fn [& _] (region/all)) :currencies (fn [& _] (currency/all))}]
   :success "Your account has been updated"
   (fn [slug] (user/update! (user-id) slug)))
 
@@ -73,7 +74,7 @@
   (resp/redirect referer))
 
 (s/defschema Account
-  {(s/optional-key :alias)       (s/both String (in-range? 3 64) (is-alphanumeric?) (s/pred #(user/alias-availible? % (user-id)) 'availible?))
+  {(s/optional-key :alias)       (Str 3 64 (is-alphanumeric?) (s/pred #(user/alias-availible? % (user-id)) 'availible?))
    (s/optional-key :currency_id) (s/both Long (s/pred currency/exists? 'exists?))
    (s/optional-key :region_id)   (s/both Long (s/pred region/exists? 'exists?))
    (s/optional-key :auth)        Boolean
@@ -87,7 +88,7 @@
 (s/defschema Review
   {:rating (s/both Long (in-range? 0 5))
    :shipped Boolean
-   :content String})
+   (s/optional-key :content) (Str 2000)})
 
 (defn news-view [id]
   (let [article (post/get id)
@@ -97,6 +98,8 @@
 (defroutes user-routes
   (context
     "/account" []
+    :tags ["user"]
+    :access-rule access/user-authenticated
     pgp-routes
     wallet-routes
     (page-route "/" account-page Account)
@@ -106,11 +109,15 @@
          :query-params [{page :- Long 1}] (reviews-page page)))
 
   (GET "/news/:id" []
+       :tags ["user"]
+       :access-rule access/user-authenticated
        :path-params [id :- Long]
        (news-view id))
 
   (context
     "/review/:id" []
+    :tags ["user"]
+    :access-rule access/user-authenticated
     :path-params [id :- Long]
     (GET "/edit" [] (review-edit id))
     (POST "/edit" []
@@ -119,6 +126,8 @@
 
   (context
     "/user/:id" []
+    :tags ["user"]
+    :access-rule access/user-authenticated
     :path-params [id :- Long]
     (GET "/follow" [] (user-follow id))
     (GET "/unfollow" {{referer "referer"} :headers} (user-unfollow id referer))))

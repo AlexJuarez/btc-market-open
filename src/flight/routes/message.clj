@@ -11,6 +11,7 @@
     [flight.models.currency :as currency]
     [flight.util.core :as util
      :refer               [user-id]]
+    [flight.util.error :as error]
     [flight.util.hashids :as hashids]
     [flight.env :refer [env]]
     [schema.core :as s]
@@ -23,7 +24,7 @@
 
 (defn encrypt-feedback-ids [messages]
   (map
-    #(assoc % :feedback_id (if (not (nil? (:feedback_id %))) (hashids/encrypt-ticket-id (:feedback_id %))))
+    #(assoc % :feedback_id (when (:feedback_id %) (hashids/encrypt-ticket-id (:feedback_id %))))
     messages))
 
 (defn messages-page [page]
@@ -88,8 +89,8 @@
                       :messages    (message/all (user-id) receiver-id)}))))
 
 (defn message-create [message receiver-id]
-  (let [message  (message/add! message (user-id) receiver-id)
-        receiver (user/get receiver-id)]
+  (let [receiver (user/get receiver-id)]
+    (when (error/empty?) (message/add! message (user-id) receiver-id))
     (layout/render "messages/thread.html"
                    {:has_pub_key (not (nil? (:pub_key receiver)))
                     :alias       (:alias receiver)
@@ -98,30 +99,37 @@
                    message)))
 
 (s/defschema Message
-  {(s/optional-key :subject) (s/both String (less-than? 100))
-   :content                  (s/both String (less-than? 6000))})
+  {:subject (Str 0 100)
+   :content (Str 6000)})
 
 (defroutes user-routes
-  (context "/messages" []
-           (GET "/" []
-                :query-params [{page :- Long 1}]
-                (messages-page page))
-           (GET "/sent" [] (messages-sent))
-           (context "/:id" []
-                    :path-params [id :- (s/both Long (s/pred user/exists? 'exists?))]
-                    (GET "/" [] (messages-thread id))
-                    (GET "/download" [] (messages-download id))
-                    (POST "/" []
-                          :form [message Message]
-                          (message-create message id))))
-  (context "/message/:id" []
-           :tags        ["user"]
-           :path-params [id :- (s/both Long (s/pred message/exists? 'exists?))]
-           (GET "/delete" {{referer "referer"} :headers} (message-delete id referer)))
-  (context "/support/:tid" [tid]
-           :path-params [tid :- Long]
-           :tags        ["user"]
-           (GET "/" [] (support-thread tid))
-           (POST "/" []
-                 :form [message Message]
-                 (support-thread tid message))))
+  (context
+    "/messages" []
+    :tags ["user"]
+    :access-rule access/user-authenticated
+    (GET "/" []
+         :query-params [{page :- Long 1}]
+         (messages-page page))
+    (GET "/sent" [] (messages-sent))
+    (context "/:id" []
+             :path-params [id :- (s/both Long (s/pred user/exists? 'exists?))]
+             (GET "/" [] (messages-thread id))
+             (GET "/download" [] (messages-download id))
+             (POST "/" []
+                   :form [message Message]
+                   (message-create message id))))
+  (context
+    "/message/:id" []
+    :tags        ["user"]
+    :access-rule access/user-authenticated
+    :path-params [id :- (s/both Long (s/pred message/exists? 'exists?))]
+    (GET "/delete" {{referer "referer"} :headers} (message-delete id referer)))
+  (context
+    "/support/:tid" [tid]
+    :path-params [tid :- Long]
+    :tags        ["user"]
+    :access-rule access/user-authenticated
+    (GET "/" [] (support-thread tid))
+    (POST "/" []
+          :form [message Message]
+          (support-thread tid message))))

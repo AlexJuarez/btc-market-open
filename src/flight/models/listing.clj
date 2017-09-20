@@ -7,7 +7,6 @@
     [korma.db :refer [get-connection transaction]]
     [flight.util.core :as util]
     [flight.models.category :as cat]
-    [flight.validator :as v]
     [clojure.string :as string]
     [flight.util.error :as error]
     [hiccup.util :as hc]))

@@ -12,6 +12,7 @@
     [flight.util.cart :as cart]
     [flight.util.core :as util
      :refer               [user-id]]
+    [flight.access :as access]
     [flight.routes.cart.middleware :refer [consolidate-cart]]
     [schema.core :as s]))
 
@@ -63,14 +64,14 @@
   {:cart                    {s/Keyword {:id                       (s/both Long (s/pred listing/exists? 'exists?))
                                         (s/optional-key :postage) (s/both Long (s/pred postage/exists? 'exists?))
                                         :quantity                 (s/both Long (greater-than? 0))}}
-   (s/optional-key :submit) String})
+   (s/optional-key :submit) (Str)})
 
 (defn matches-pin [pin]
   (= pin (:pin (util/current-user))))
 
 (s/defschema Checkout
-  {:address              (s/both String (not-empty?))
-   (s/optional-key :pin) (s/both String (s/pred matches-pin 'matches-pin))})
+  {:address              (Str)
+   (s/optional-key :pin) (Str (s/pred matches-pin 'matches-pin))})
 
 (defroutes public-routes
   (context
@@ -92,6 +93,8 @@
 (defroutes user-routes
   (context
     "/cart" []
+    :tags ["user"]
+    :access-rule access/user-authenticated
     (GET "/checkout" []
          (cart-checkout))
     (POST "/checkout" []

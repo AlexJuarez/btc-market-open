@@ -21,8 +21,13 @@
   []
   (s/pred #(not (clojure.string/blank? %)) 'is-blank?))
 
-(defmacro Str
-  ([] `(s/both String (not-empty?)))
-  ([max] `(s/both String (not-empty?) (less-than? ~max)))
-  ([min max] `(s/both String (not-empty?) (in-range? ~min ~max)))
-  ([min max & args] `(s/both String (not-empty?) (in-range? ~min ~max) ~@args)))
+(defmacro Str [& args]
+  (let [forms (take-while number? args)
+        body (drop (count forms) args)]
+    (condp = (count forms)
+      1 (let [[max] forms] `(s/both String (not-empty?) (less-than? ~max) ~@body))
+      2 (let [[min max] forms]
+          (if (= min 0)
+            `(s/both String (in-range? ~min ~max) ~@body)
+            `(s/both String (not-empty?) (in-range? ~min ~max) ~@body)))
+      `(s/both String (not-empty?) ~@body))))

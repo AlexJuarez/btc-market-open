@@ -2,7 +2,7 @@
  :port       3000
  :nrepl-port 7000
  :couchbase true
- :log-path "./flight-rotor.log"
+ :log-path "./log/flight-rotor.log"
  :embed-image true
  :max-value 100000000
  :fee 0.06

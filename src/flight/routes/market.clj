@@ -20,8 +20,10 @@
    [flight.util.image :as image]
    [flight.util.markdown :as md]
    [flight.util.session :as session]
+   [flight.util.message :as m]
    [ring.util.http-response :refer :all]
    [ring.util.response :as resp]
+   [flight.access :as access]
    [schema.core :as s]))
 
 (def per-page 10)
@@ -77,10 +79,13 @@
           users (user/search q)
           listings (listing/search q)
           categories (category/public cid q)
-          category-results (category/search q)
-          message (if (and (empty? users) (empty? listings) (empty? categories)) "Nothing was found for your query. Please try again.")]
-      (layout/render "market/search.html" {:users users :listings listings :categories {:tree categories :id cid} :category-results category-results :query query :message message}))
-    (layout/render "market/search.html" {:message "Your query is too short it needs to be longers than three characters and less than 100."} )))
+          category-results (category/search q)]
+      (when (and (empty? users) (empty? listings) (empty? categories))
+        (m/warn! "Nothing was found for your query. Please try again."))
+      (layout/render "market/search.html" {:users users :listings listings :categories {:tree categories :id cid} :category-results category-results :query query}))
+    (do
+      (m/warn! "Your query is too short it needs to be longers than three characters and less than 100.")
+      (layout/render "market/search.html"))))
 
 (defn support-page
   ([]
@@ -182,9 +187,13 @@
 ;;restricted routes
 (defroutes user-routes
   (POST "/support" {params :params}
+        :tags ["user"]
+        :access-rule access/user-authenticated
         (support-page params))
   (context "/user/:id" []
            :path-params [id :- Long]
+           :tags ["user"]
+           :access-rule access/user-authenticated
            (GET "/report" {{referer "referer"} :headers} (report-add id (user-id) "user" referer))
            (GET "/unreport" {{referer "referer"} :headers} (report-remove id (user-id) "user" referer))))
 

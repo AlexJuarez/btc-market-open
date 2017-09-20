@@ -11,7 +11,8 @@
     [ring.util.response :as resp]
     [flight.util.core :as util
      :refer               [user-id]]
-    [schema.core :as s]))
+    [schema.core :as s]
+    [flight.access :as access]))
 
 (defn parse-reviews [{:keys [rating content shipped]}]
   (->>
@@ -94,17 +95,21 @@
   {:action                     (s/enum :extension :refund)
    (s/optional-key :extension) Long
    (s/optional-key :refund)    Long
-   (s/optional-key :content)   String})
+   (s/optional-key :content)   (Str 0 2000)})
 
 (defroutes user-routes
   (context
     "/orders" []
+    :tags ["user"]
+    :access-rule access/user-authenticated
     (GET "/" [] (orders-page))
     (POST "/" {params :params}
           (orders-page params)))
   (context
     "/order/:id" []
     :path-params [id :- String]
+    :tags ["user"]
+    :access-rule access/user-authenticated
     (GET "/resolve" [] (order-resolve (Hashid id)))
     (GET "/cancel" [] (order-cancel (Hashid id)))
     (GET "/" [] (order-view (Hashid id)))
