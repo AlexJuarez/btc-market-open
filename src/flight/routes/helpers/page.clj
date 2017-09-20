@@ -48,7 +48,8 @@
         [template & args] (get params :template)
         validator `(get ~params :validator)
         success `(get ~params :success)
-        redirect `(get ~params :redirect)]
+        redirect `(get ~params :redirect)
+        form (or form `((fn [& _#] nil)))]
     `(defn ~page-name
        ([]
         (layout/render ~template ~@args))
