@@ -10,7 +10,7 @@
   <li>
     <a class="header" href="/messages"><span class="category">Inbox</span> <span class="count">({{user.messages.unread}})</span></a>
     <ul>
-      <li><a class="header active"><span class="category">Thread with {{alias}}</span></a></li>
+      <li><a class="header active"><span class="category">Thread with {{receiver.alias}}</span></a></li>
     </ul>
   </li>
   <li>
@@ -23,7 +23,7 @@
   <h1 class="jumbo">Thread</h1>
 </div>
 {% if not messages|empty? %}
-<a class="right" href="/messages/{{user_id}}/download">download thread</a>
+<a class="right" href="/messages/{{receiver.id}}/download">download thread</a>
 <table class="table thread">
   <thead>
   <tr>
@@ -63,19 +63,19 @@
 </table>
 {% endif %}
 <form method="POST">
-  <p>Compose a message to: <strong>{{alias}}</strong></p>
+  <p>Compose a message to: <strong>{{receiver.alias}}</strong></p>
   {% if not no_subject %}
-  <p>
+  <div class="form-group">
     <label for="subject" class="{% has-error subject %}">Subject:</label>
     {{errors.subject|format-error}}
     <input name="subject" class="input" id="subject" type="text" value="{{subject}}" />
-    {% if has_pub_key %}<label><input type="checkbox" value="true" name="encrypt" />Encrypt?</label>{% endif %}
-  </p>
+    {% if receiver.pub_key %}<label><input type="checkbox" value="true" name="encrypt" />Encrypt?</label>{% endif %}
+  </div>
   {% endif %}
-  {{errors.content|format-error}}
-  <p>
+  <div class="form-group {% has-error content %}">
+    {{errors.content|format-error}}
     <textarea rows="6" name="content" class="form-control">{{content}}</textarea>
-  </p>
+  </div>
   <span class="submit">
     <input type="submit" class="btn btn-primary" value="send" />
   </span>

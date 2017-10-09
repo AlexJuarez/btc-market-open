@@ -1,13 +1,13 @@
 (ns flight.routes.message
   (:require
     [compojure.api.sweet :refer :all]
+    [flight.routes.helpers :refer :all]
     [flight.layout :as layout]
     [flight.models.user :as user]
     [ring.util.response :as r
      :refer                 [content-type response]]
     [flight.models.message :as message]
     [flight.models.post :as post]
-    [flight.routes.helpers :refer :all]
     [flight.models.currency :as currency]
     [flight.util.core :as util
      :refer               [user-id]]
@@ -29,30 +29,22 @@
 
 (defn messages-page [page]
   (let [pagemax  (util/page-max (:total (util/session! :messages (message/count (user-id)))) per-page)
-        news     (post/get-news (user-id)) ;;TODO: add pagination
+        news     (post/get-news (user-id))
         messages (encrypt-feedback-ids (message/all (user-id) page per-page))]
     (layout/render "messages/index.html"
                    {:paginate {:page page :max pagemax}
                     :news     news
                     :messages messages})))
 
-(defn support-thread
-  ([ticket-id]
+(defpage support-page
+  :template ["messages/thread.html"
+             {:receiver {:alias "Support Staff"}
+              :no_subject true
+              :messages (fn [ticket-id] (message/all (hashids/decrypt-ticket-id ticket-id)))}]
+  :args [:ticket-id]
+  (fn [slug ticket-id]
     (let [tid (hashids/decrypt-ticket-id ticket-id)]
-      (layout/render "messages/thread.html"
-                     {:has_pub_key false
-                      :alias       "Support Staff"
-                      :no_subject  true
-                      :messages    (message/all tid)})))
-  ([ticket-id slug]
-    (let [tid     (hashids/decrypt-ticket-id ticket-id)
-          message (message/add-support! slug tid (user-id))]
-      (layout/render "messages/thread.html"
-                     {:has_pub_key false
-                      :alias       "Support Staff"
-                      :no_subject  true
-                      :messages    (message/all tid)}
-                     message))))
+      (message/add-support! slug tid (user-id)))))
 
 (defn messages-sent []
   (layout/render "messages/sent.html" {:messages (message/sent (user-id))}))
@@ -79,24 +71,13 @@
         (r/header "Content-Disposition"
                   (str "attachment;filename=" (util/format-time (java.util.Date.) "MM-dd-yyyy") "-" sender_name "-conversation.csv")))))
 
-(defn messages-thread
-  ([receiver-id]
-    (let [receiver (user/get receiver-id)]
-      (layout/render "messages/thread.html"
-                     {:has_pub_key (not (nil? (:pub_key receiver)))
-                      :user_id     receiver-id
-                      :alias       (:alias receiver)
-                      :messages    (message/all (user-id) receiver-id)}))))
-
-(defn message-create [message receiver-id]
-  (let [receiver (user/get receiver-id)]
-    (when (error/empty?) (message/add! message (user-id) receiver-id))
-    (layout/render "messages/thread.html"
-                   {:has_pub_key (not (nil? (:pub_key receiver)))
-                    :alias       (:alias receiver)
-                    :user_id     (:id receiver)
-                    :messages    (message/all (user-id) (:id receiver))}
-                   message)))
+(defpage thread-page
+  :template ["messages/thread.html"
+   {:receiver (fn [id] (user/get id))
+    :messages (fn [id] (message/all (user-id) id))}]
+  :args [:id]
+  (fn [slug id]
+    (message/add! slug (user-id) id)))
 
 (s/defschema Message
   {:subject (Str 0 100)
@@ -113,11 +94,11 @@
     (GET "/sent" [] (messages-sent))
     (context "/:id" []
              :path-params [id :- (s/both Long (s/pred user/exists? 'exists?))]
-             (GET "/" [] (messages-thread id))
+             (GET "/" [] (thread-page id))
              (GET "/download" [] (messages-download id))
              (POST "/" []
                    :form [message Message]
-                   (message-create message id))))
+                   (thread-page message id))))
   (context
     "/message/:id" []
     :tags        ["user"]
@@ -129,7 +110,7 @@
     :path-params [tid :- Long]
     :tags        ["user"]
     :access-rule access/user-authenticated
-    (GET "/" [] (support-thread tid))
+    (GET "/" [] (support-page tid))
     (POST "/" []
           :form [message Message]
-          (support-thread tid message))))
+          (support-page tid message))))
