@@ -20,17 +20,18 @@
           <input class="form-control" id="pass" value="{{pass}}" name="pass" type="password" />
           {{errors.pass|format-error}}
         </div>
-        <div class="field">
+        <div class="field {% has-error confirm %}">
           <label for="confirm">Confirm Password</label>
           <input class="form-control" id="confirm" value="{{confirm}}" name="confirm" type="password" />
+          {{errors.confirm|format-error}}
         </div>
         <div class="field {% has-error captcha %}">
-          {{errors.captcha|format-error}}
           <label for="captcha">Captcha</label>
           <div>
             <img class="captcha" src="data:image/jpeg;base64,{{captcha|safe}}" />
           </div>
           <input class="form-control" id="captcha" name="captcha" type="text" />
+          {{errors.captcha|format-error}}
         </div>
       </div>
       <div class="modal-footer">

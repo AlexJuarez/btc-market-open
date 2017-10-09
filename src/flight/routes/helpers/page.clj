@@ -94,7 +94,7 @@
               rs (apply params r)]
           (validator slug)
           (if (error/empty?)
-            (let [results (map #(% slug) body)
+            (let [results (map #(apply % slug r) body)
                   result (last results)]
               (success)
               (log/debug result)

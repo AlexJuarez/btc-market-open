@@ -3,17 +3,14 @@
    [compojure.api.sweet :refer :all]
    [ring.util.http-response :refer :all]
    [ring.util.response :as resp]
-   [flight.layout :as layout]
    [flight.models.message :as message]
    [flight.models.order :as order]
    [flight.models.user :as users]
    [flight.routes.helpers :refer :all]
    [flight.util.captcha :as captcha]
    [flight.util.core :as util]
-   [flight.util.error :as error]
    [flight.util.pgp :as pgp]
    [flight.util.session :as session]
-   [slingshot.slingshot :refer [try+ throw+]]
    [schema.core :as s]
    [taoensso.timbre :as log]))
 
@@ -47,59 +44,64 @@
       (session/flash-get :captcha))
      text)))
 
-(defn registration-page
-  ([]
-   (layout/render "register.html" {:captcha (captcha/gen)}))
-  ([{:keys [login pass confirm] :as slug} cookies]
-   (do
-     (users/add! {:login login :pass pass :confirm confirm})
-     (let [session (:value (cookies "session"))
-           user (users/login! login pass session)]
-       (if (error/empty?)
-         (do
-           (log/debug user)
-           (finish-login user)
-           (redirect-url))
-         (layout/render "register.html" slug {:captcha (captcha/gen)}))))))
+(defn registration-page-validator
+  [{:keys [pass confirm]}]
+  (when-not
+    (= pass confirm)
+    (error/register! :pass "passwords do not match")))
 
-(defn login-page
-  ([referer]
-   (when referer (session/flash-put! :redirect referer))
-   (layout/render "login.html"))
-  ([{:keys [login pass] :as slug} cookies]
-   (let [session (:value (cookies "session"))
-         user (users/login! login pass session)]
-     (if (error/empty?)
-       (do
-         (finish-login user)
-         (if (session/get :authed)
-           (redirect-url)
-           (resp/redirect "/login/auth")))
-       (layout/render "login.html" slug)))))
+(defpage registration-page
+  :template ["register.html" {:captcha (fn [& _] (captcha/gen))}]
+  :args [:cookies]
+  :validator registration-page-validator
+  (fn [{:keys [login pass confirm] :as slug} cookies]
+    (users/add! {:login login :pass pass :confirm confirm})
+    (let [session (-> (cookies "session") :value)
+          user (users/login! login pass session)]
+      (log/debug user)
+      (finish-login user)
+      (redirect-url))))
 
-(defn auth-page
-  ([]
-   (let [hashkey (reduce str (map #(if (or true %) (str (get words (rand-int 32)))) (range 6)))
-         user (util/current-user)]
-     (when user
-       (session/flash-put! :key hashkey)
-       (layout/render "auth.html" {:decode (pgp/encode (:pub_key user) hashkey)}))))
-  ([{:keys [response]}]
-   (if (error/empty?)
-     (do
-       (session/put! :authed true)
-       (redirect-url))
-     (auth-page))))
+(defpage login-page
+  :template ["login.html"]
+  :args [:cookies]
+  (fn [{:keys [login pass] :as slug} cookies]
+    (prn slug cookies)
+    (let [session (-> (cookies "session") :value)
+          user (users/login! login pass session)]
+      (finish-login user)
+      (if (session/get :authed)
+        (redirect-url)
+        (resp/redirect "/login/auth")))))
+
+(defn gen-hashkey []
+  (->>
+    (range 6)
+    (map (fn [_] (get words (rand-int 31))))
+    (reduce str)))
+
+(defpage auth-page
+  :template
+  ["auth.html"
+   {:decode (fn []
+              (let [pub_key (-> (util/current-user) :pub_key)
+                    hashkey (gen-hashkey)
+                    decode (pgp/encode pub_key hashkey)]
+                (session/flash-put! :key hashkey)
+                decode))}]
+  (fn [{:keys [response]}]
+    (session/put! :authed true)
+    (redirect-url)))
 
 (defn check-auth [text]
   (= (session/flash-get :key) text))
 
 (s/defschema Login
-  {:login (Str 3 64 (s/pred users/exists? 'exists?))
+  {:login (Str 3 64 (s/pred users/exists? '(exists? "User")))
    :pass (Str 0 73)})
 
 (s/defschema Register
-  {:login (Str 3 64 (s/pred #(not (users/exists? %)) 'taken?))
+  {:login (Str 3 64 (is-alphanumeric?) (s/pred #(not (users/exists? %)) '(taken? "login")))
    :pass (Str 3 73)
    :confirm (Str 3 73)
    :captcha (Str 0 8 (s/pred valid-captcha? 'valid-captcha?))})

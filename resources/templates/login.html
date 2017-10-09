@@ -10,18 +10,19 @@
       <div class="modal-body">
         {{message|format-message}}
         <div class="{% has-error login %}">
-          {{errors.login|format-error}}
           <div class="field">
             <label for="handle">
               Login
             </label>
             <input id="handle" class="form-control" name="login" type="text" placeholder="Username" value="{{login}}"/>
+            {{errors.login|format-error}}
           </div>
           <div class="field">
             <label for="pass">
               Password
             </label>
             <input id="pass" class="form-control" name="pass" type="password" placeholder="Password" />
+            {{errors.pass|format-error}}
           </div>
         </div>
       </div>

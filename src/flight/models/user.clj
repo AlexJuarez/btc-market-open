@@ -84,9 +84,6 @@
 (defn prep [{pass :pass :as user}]
     (assoc user :pass (warden/encrypt pass)))
 
-(defn valid-user? [{:keys [login pass confirm] :as user}]
-  (v/user-validator user))
-
 (defn valid-update? [user]
   (v/user-update-validator user))
 
@@ -164,17 +161,13 @@
     (update users (set-fields {:wallet wallet}) (where {:id user-id}))))
 
 (defn add! [{:keys [login pass confirm] :as user}]
-  (let [check (valid-user? user)]
-    (if (and (error/empty?)
-             (empty? check))
-      (-> {:login (s/lower-case login)
-           :alias login
-           :currency_id (:id (currency/find "BTC"))
-           :pass pass
-           :vendor true}
-          (prep)
-          (store!))
-      (error/set! check))))
+  (-> {:login (s/lower-case login)
+       :alias login
+       :currency_id (:id (currency/find "BTC"))
+       :pass pass
+       :vendor true}
+      (prep)
+      (store!)))
 
 (defn last-login [id session]
   (transaction
@@ -190,7 +183,7 @@
            (not (nil? (:pass userstore)))
            (warden/compare pass (:pass userstore)))
         (do (last-login (:id userstore) session) (dissoc userstore :pass))
-        (error/put! :pass "Password Incorrect."))
+        (error/register! :pass "Password Incorrect"))
       (error/put! :message "This account has been locked for failing to login too many times."))))
 
 (defn remove! [login]
