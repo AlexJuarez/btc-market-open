@@ -28,7 +28,13 @@
 (defonce reviews-per-page 25)
 
 (defpage account-page
-  :template ["account/index.html" {:alias (fn [& _] (:alias (current-user))) :regions (fn [& _] (region/all)) :currencies (fn [& _] (currency/all))}]
+  :template
+  ["account/index.html"
+   {:alias (fn [& _] (:alias (current-user)))
+    :currency_id (fn [& _] (:currency_id (current-user)))
+    :region_id (fn [& _] (:region_id (current-user)))
+    :regions (fn [& _] (region/all))
+    :currencies (fn [& _] (currency/all))}]
   :success "Your account has been updated"
   (fn [slug] (user/update! (user-id) slug)))
 
@@ -78,7 +84,7 @@
    (s/optional-key :currency_id) (s/both Long (s/pred currency/exists? 'exists?))
    (s/optional-key :region_id)   (s/both Long (s/pred region/exists? 'exists?))
    (s/optional-key :auth)        Boolean
-   (s/optional-key :description) (Str 3000)})
+   (s/optional-key :description) (Str 0 3000)})
 
 (s/defschema Password
   {:password (Str 0 73 (s/pred password-matches? 'password-matches?))

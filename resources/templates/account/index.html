@@ -32,6 +32,7 @@
 {% endblock %}
 {% block container %}
 <h1 class="jumbo">Settings</h1>
+{{message|format-message}}
 <form action="/account" method="POST">
   {% csrf-token %}
   <div class="form-group {% has-error alias %}">
@@ -65,9 +66,10 @@
       </label>
   </div>
   {% if user.vendor %}
-  <div class="form-group">
+  <div class="form-group {% has-error description %}">
     <label for="description">My Description:</label>
     <textarea id="description" class="form-control" rows="8" name="description">{{description|safe}}</textarea>
+    {{errors.description|format-error}}
   </div>
   {% endif %}
   <div class="form-group">
