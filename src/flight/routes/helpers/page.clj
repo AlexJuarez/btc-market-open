@@ -32,10 +32,13 @@
     lst))
 
 (defn update-template [args body]
-  (apply-fns
-    (apply merge
-           (map #(if (fn? %) (apply % args) %) body))
-    args))
+  (->>
+    body
+    (map
+      #(if (fn? %)
+         (apply % args)
+         (apply-fns % args)))
+    (apply merge)))
 
 (defn prune [obj]
   (if (and (vector? obj) (= (count obj) 2))

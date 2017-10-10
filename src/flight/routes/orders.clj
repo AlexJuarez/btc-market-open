@@ -19,27 +19,38 @@
     (keys rating)
     (map #(assoc {} :order_id (Hashid %) :rating (% rating) :content (% content) :shipped (% shipped)))))
 
-(defn orders-page
-  ([]
-   (let [orders         (order/all (user-id))
-         orders         (map
-                          #(let [autofinalize (:auto_finalize %)
-                                 res
-                                 (and (not (nil? autofinalize))
-                                      (> 432000000 (- (.getTime autofinalize) (.getTime (java.util.Date.)))))
-                                 arbitration
-                                 (and (= (:status %) 2) (<= (.getTime autofinalize) (.getTime (java.util.Date.))))]
-                             ;;TODO: review resolution stuff
-                             (assoc % :resolve res :arbitration arbitration :id (hashids/encrypt (:id %))))
-                          orders)
-         pending-review (filter #(and (= false (:reviewed %)) (= true (:finalized %))) orders)
-         orders         (filter #(< (:status %) 3) orders)]
-     (layout/render "orders/index.html"
-                    {:orders orders :pending-review pending-review :user-id (user-id)})))
-  ([slug]
-   (let [raw-reviews (parse-reviews slug)
-         reviews   (review/add! raw-reviews (user-id))]
-     (resp/redirect "/orders"))))
+(defn- order-in-resolve
+  [{:keys [auto_finalize] :as order}]
+  (and (-> auto_finalize nil? not)
+       (> 432000000 (- (.getTime auto_finalize) (.getTime (java.util.Date.))))))
+
+(defn- order-in-arbitration
+  [{:keys [auto_finalize status] :as order}]
+  (and (= status 2)
+       (<= (.getTime auto_finalize) (.getTime (java.util.Date.)))))
+
+(defn- order-for-display [{:keys [id] :as order}]
+  (assoc
+    order
+    :resolve (order-in-resolve order)
+    :arbitration (order-in-arbitration order)
+    :id (hashids/encrypt id)))
+
+(defn- orders-for-display []
+  (->>
+    (order/all (user-id))
+    (map order-for-display)))
+
+(defn- order-page-params []
+  (let [orders (orders-for-display)]
+    {:orders (filter #(< (:status %) 3) orders)
+     :pending-review  (filter #(and (= false (:reviewed %)) (= true (:finalized %))) orders)}))
+
+(defpage orders-page
+  :template ["orders/index.html" order-page-params]
+  (fn [slug]
+    (review/add! (parse-reviews slug) (user-id))
+    (resp/redirect "/orders")))
 
 (defn order-finalize [id]
   (order/finalize id (user-id))
