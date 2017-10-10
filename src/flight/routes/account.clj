@@ -27,14 +27,17 @@
 
 (defonce reviews-per-page 25)
 
+(defn- account-page-params [& _]
+  (let [{:keys [alias currency_id region_id]} (current-user)]
+    {:alias alias
+     :currency_id currency_id
+     :region_id region_id
+     :regions (region/all)
+     :currencies (currency/all)}))
+
 (defpage account-page
   :template
-  ["account/index.html"
-   {:alias (fn [& _] (:alias (current-user)))
-    :currency_id (fn [& _] (:currency_id (current-user)))
-    :region_id (fn [& _] (:region_id (current-user)))
-    :regions (fn [& _] (region/all))
-    :currencies (fn [& _] (currency/all))}]
+  ["account/index.html" account-page-params]
   :success "Your account has been updated"
   :validator (fn [{:keys [auth] :as slug}]
                (when (and
