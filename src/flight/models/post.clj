@@ -48,14 +48,12 @@
 (defn add! [slug user-id]
   (-> slug prep (assoc :user_id user-id) store!))
 
-(defn publish! [id user-id]
-  (update posts
-          (set-fields {:published true})
-          (where {:user_id user-id :id id})))
-
 (defn update! [slug user-id]
   (let [post (-> slug prep (assoc :updated_on (raw "now()")))]
     (update posts
               (set-fields post)
               (where {:user_id user-id :id (:id slug)}))
     post))
+
+(defn publish! [id user-id]
+  (update! {:id id :published true} user-id))

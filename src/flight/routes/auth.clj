@@ -67,7 +67,6 @@
   :template ["login.html"]
   :args [:cookies]
   (fn [{:keys [login pass] :as slug} cookies]
-    (prn slug cookies)
     (let [session (-> (cookies "session") :value)
           user (users/login! login pass session)]
       (finish-login user)

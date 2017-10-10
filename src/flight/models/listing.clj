@@ -25,10 +25,6 @@
 (defn add-shipping [listing]
   (assoc listing :to (convert-shipping listing)))
 
-(defn check-field [map key]
-  (if-not (nil? (key map))
-    {key (key map)}))
-
 ;;remove this function
 (defn shipping [id]
   (select ships-to

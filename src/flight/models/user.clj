@@ -84,9 +84,6 @@
 (defn prep [{pass :pass :as user}]
     (assoc user :pass (warden/encrypt pass)))
 
-(defn valid-update? [user]
-  (v/user-update-validator user))
-
 (defn clean [{:keys [alias region_id auth currency_id pub_key description]}]
   {:auth (= auth "true")
    :currency_id currency_id

@@ -36,6 +36,11 @@
     :regions (fn [& _] (region/all))
     :currencies (fn [& _] (currency/all))}]
   :success "Your account has been updated"
+  :validator (fn [{:keys [auth] :as slug}]
+               (when (and
+                       (= auth true)
+                       (clojure.string/blank? (:pub_key (util/current-user))))
+                 (error/register! :auth "You need a public key first")))
   (fn [slug] (user/update! (user-id) slug)))
 
 (defn favorites-page []

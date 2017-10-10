@@ -21,7 +21,9 @@
                           (where {:id id})))))
 
 (defn exists? [id]
-  (not (nil? (get id))))
+  (-> (get id)
+      nil?
+      not))
 
 (defn add! [currencies]
   (insert currency (values currencies)))

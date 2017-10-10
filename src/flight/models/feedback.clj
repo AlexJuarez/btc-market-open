@@ -4,17 +4,23 @@
         [korma.core]
         [flight.db.core]))
 
+(defn select-feedback []
+  (-> (select* feedback)
+      (with users
+            (fields :alias))))
+
 (defn all []
-  (select feedback
-          (with users
-                (fields :alias))
-          (where {:read false})))
+  (->
+    (select-feedback)
+    (where {:read false})
+    select))
 
 (defn get [id]
-  (first (select feedback
-                 (with users
-                       (fields :alias))
-                 (where {:id id}))))
+  (->
+    (select-feedback)
+    (where {:id id})
+    select
+    first))
 
 (defn prep [{:keys [subject content]} user-id]
   {:subject subject

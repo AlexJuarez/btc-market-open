@@ -18,20 +18,19 @@
 
 (defpage postage-create-page
   :template ["postage/create.html" {:currencies (fn [& _] (currency/all))}]
-  :validator (fn [slug] (postage/add! slug (user-id)))
-  (fn [slug] (resp/redirect "/vendor/listings")))
+  (fn [slug]
+    (postage/add! slug (user-id))
+    (resp/redirect "/vendor/listings")))
 
-;;(defpage postage-edit
-;;  :template ["postage/edit.html" {:currencies (fn [id] (currency/all)) :id (fn [id] id)}]
-;;  :args [id]
-
-(defn postage-edit [id]
-  (let [post (postage/get id (user-id))]
-    (layout/render "postage/edit.html" {:currencies (currency/all)} post)))
-
-(defn postage-save [id slug]
-  (let [post (postage/update! slug id (user-id))]
-    (layout/render "postage/edit.html" {:currencies (currency/all) :id id} post)))
+(defpage postage-edit-page
+  :template ["postage/edit.html"
+             (fn [id]
+               (postage/get id (user-id)))
+             {:currencies (fn [& _] (currency/all))
+              :id (fn [id] id)}]
+  :args [:id]
+  (fn [slug id]
+    (postage/update! slug id (user-id))))
 
 (defn postage-remove [id]
   (let [record (postage/remove! id (user-id))]
@@ -46,7 +45,7 @@
     (page-route "/create" postage-create-page Postage)
     (context "/:id" []
               :path-params [id :- Long]
-              (GET "/edit" [] (postage-edit id))
+              (GET "/edit" [] (postage-edit-page id))
               (POST "/edit" []
-                     :form [postage Postage] (postage-save id postage))
+                     :form [postage Postage] (postage-edit-page postage id))
               (GET "/remove" [] (postage-remove id)))))

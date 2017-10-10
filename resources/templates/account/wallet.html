@@ -77,27 +77,27 @@
         <tr>
           <td><label for="oldpin">Old Pin: </label></td>
           <td class="{% has-error oldpin %}">
-          <input id="oldpin" class="input" type="text" name="oldpin" placeholder="Current Pin" />
+          <input id="oldpin" class="input" type="text" name="oldpin" value="{{oldpin}}" placeholder="Current Pin" />
           {{errors.oldpin|format-error}}
           </td>
         </tr>
         <tr>
           <td><label for="pin">New Pin: </label></td>
           <td class="{% has-error pin %}">
-          <input id="pin" class="input" type="text" name="pin"  placeholder="New Pin" />
+          <input id="pin" class="input" type="text" name="pin" value="{{pin}}"  placeholder="New Pin" />
           {{errors.pin|format-error}}
           </td>
         </tr>
         <tr>
           <td><label for="confirmpin">Confirm Pin: </label></td>
           <td class="{% has-error confirmpin %}">
-          <input id="confirmpin" class="input" type="text" name="confirmpin" placeholder="Confirm Pin" />
+          <input id="confirmpin" class="input" type="text" name="confirmpin" value="{{confirmpin}}" placeholder="Confirm Pin" />
           {{errors.confirmpin|format-error}}
           </td>
         </tr>
       </tbody>
     </table>
-    <button name="submit" class="btn btn-gray">Update</button>
+    <button type="submit" class="btn btn-gray">Update</button>
   </form>
   {% endif %}
 </div>

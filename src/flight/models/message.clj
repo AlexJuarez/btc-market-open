@@ -7,8 +7,15 @@
         [flight.util.pgp :as pgp]
         [flight.util.core :as util]))
 
+(defn get [id]
+  (-> (select* messages)
+      (where {:id id})
+      (select)))
+
 (defn exists? [id]
-   (not (nil? (select messages (where {:id id})))))
+  (-> (get id)
+      nil?
+      not))
 
 (defn count [id]
   (let [counts (select messages

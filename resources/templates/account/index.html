@@ -57,13 +57,14 @@
       {% endfor %}
     </select>
   </div>
-  <div class="form-group public">
+  <div class="form-group public {% has-error auth %}">
       <strong>2 step auth?</strong>
       <br>
       <label>
         <input type="checkbox" {% if auth %}checked="checked"{% endif %} name="auth" value="true">
         (check for yes)
       </label>
+      {{errors.auth|format-error}}
   </div>
   {% if user.vendor %}
   <div class="form-group {% has-error description %}">

@@ -21,7 +21,6 @@
   (let [diff (get-diff inst)
         days (->days diff)
         months (-> days (/ 30) int)]
-    (prn days)
     (cond
       (< days 1) "today"
       (< months 1) (if (= days 1) "yesterday" (str days " days ago"))

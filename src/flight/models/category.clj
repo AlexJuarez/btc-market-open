@@ -11,11 +11,17 @@
     [flight.cache :as cache]))
 
 (defn get [id]
-  (first
-    (select category (where {:id id}))))
+  (->
+    (select* category)
+    (where {:id id})
+    (select)
+    first))
 
 (defn exists? [id]
-  (not (nil? (get id))))
+  (->
+    (get id)
+    nil?
+    not))
 
 (defn search [query]
   (select category

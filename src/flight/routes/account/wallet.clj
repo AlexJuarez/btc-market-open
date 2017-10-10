@@ -15,7 +15,7 @@
 
 (defn pin-update-valiator [{:keys [pin confirmpin]}]
   (when-not (= pin confirmpin)
-    (error/register! :pin "your pin's does not match")))
+    (error/register! :pin "your pins do not match")))
 
 (defn wallet-page
   ([& [slug]]
@@ -25,13 +25,16 @@
       :balance (not (= (:currency_id (util/current-user) 1)))}
      slug)))
 
-(defn wallet-updatepin [slug]
-  (pin-update-valiator slug)
-  (when (error/empty?)
-    (message/success! "Your pin has been changed.")
-    (user/update-pin! slug (user-id))
-    (resp/redirect "/account/wallet"))
-  (wallet-page slug))
+(defn- wallet-params []
+  {:transactions (audit/all (user-id))
+   :balance (not (= (:currency_id (util/current-user) 1)))})
+
+(defpage wallet-pin-page
+  :template ["account/wallet.html" (fn [] (wallet-params))]
+  :success "Your pin has been changed."
+  :validator pin-update-valiator
+  (fn [slug]
+    (user/update-pin! slug (user-id))))
 
 (defn wallet-withdraw [{:keys [amount address pin] :as slug}]
   (when (error/empty?)
@@ -67,11 +70,11 @@
     (GET "/" [] (wallet-page))
     (POST "/changepin" []
           :form [slug UpdatePin]
-          (wallet-updatepin slug))
+          (wallet-pin-page slug))
     (POST "/withdraw" []
           :form [slug Withdraw]
           (wallet-withdraw slug))
     (POST "/newpin" []
           :form [slug NewPin]
-          (wallet-updatepin slug))
+          (wallet-pin-page slug))
     (GET "/new" [] (wallet-new))))
