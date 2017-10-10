@@ -48,19 +48,27 @@
     :converted_price (util/convert-price price currency_id 26)
     :updated_on (raw "now()")))
 
+(defmacro select-listing [& body]
+  `(->
+     (select* listings)
+     (with currency (fields :hedge_fee))
+     ~@body
+     select))
+
 (defn get
   ([id]
-    (add-shipping
-     (first (select listings
-                   (with currency (fields :hedge_fee))
-      (where {:id id})))))
+   (when-let
+     [listing (-> (select-listing (where {:id id})) first)]
+     (add-shipping listing)))
   ([id user-id]
-   (add-shipping
-     (first (select listings
-        (where {:id id :user_id user-id}))))))
+   (when-let [listing (-> (select-listing (where {:id id :user_id user-id})) first)]
+     (add-shipping listing))))
 
-(defn exists? [id]
-  (not (nil? (get id))))
+(defn exists? [id & args]
+  (->
+    (apply get id args)
+    nil?
+    not))
 
 (defn search [query]
   (convert (select listings

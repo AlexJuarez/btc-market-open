@@ -93,8 +93,7 @@
     (fn [& fargs]
       (if
         (= (inc (count args)) (count fargs))
-        (let [[slug & r] fargs
-              rs (apply params r)]
+        (let [[slug & r] fargs]
           (validator slug)
           (if (error/empty?)
             (let [results (map #(apply % slug r) body)
@@ -103,8 +102,8 @@
               (log/debug result)
               (if (and result (:body result))
                 result
-                (render rs slug)))
-            (render rs slug)))
+                (render (apply params r) slug)))
+            (render (apply params r) slug)))
         (render (apply params fargs)))
       )))
 

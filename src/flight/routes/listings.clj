@@ -55,37 +55,30 @@
               curr (if (empty? current) [[(:name c) (:id c)]] (walk-current current c))]
           (recur (rest cats) curr (conj output (assoc c :name (string/join " > " (map first curr)))))))))
 
+(defn- listing-params [& _]
+  {:regions    (region/all)
+   :min-price  (util/convert-currency 1 0.01)
+   :recent     (listing/recent-shipping (user-id))
+   :images     (image/all (user-id))
+   :categories (create-categories (category/all))
+   :currencies (currency/all)})
 
-(defn listing-create-page [&[listing params]]
-  (layout/render "listings/create.html"
-                 {:regions    (region/all)
-                  :min-price  (util/convert-currency 1 0.01)
-                  :recent     (listing/recent-shipping (user-id))
-                  :images     (image/all (user-id))
-                  :categories (create-categories (category/all))
-                  :currencies (currency/all)}
-                 params listing))
+(defpage listing-edit-page
+  :template ["listings/create.html"
+             listing-params
+             {:edit true :id (fn [id] id)}
+             (fn [id] (listing/get id (user-id)))]
+  :args [:id]
+  :success "This listing has been updated."
+  (fn [slug id]
+    (listing/update! slug id (user-id))))
 
-(defn listing-edit [id]
-  (let [listing (listing/get id (user-id))]
-    (listing-create-page listing {:edit true :id id})))
-
-(defn listing-save [id slug]
-  (let [listing (listing/update! slug id (user-id))]
-    (message/success! "listing-updated")
-    (listing-create-page listing {:edit true :id id})))
-
-(defn listing-create
-  "Listing creation page"
-  ([]
-    (listing-create-page))
-  ([{:keys [image image_id] :as slug}]
+(defpage create-page
+  :template ["listings/create.html" listing-params]
+  :success "listing-created"
+  (fn [slug]
     (let [listing (listing/add! slug (user-id))]
-      (if (error/empty?)
-          (do
-            (message/success! "listing created")
-            (resp/redirect (str "/vendor/listing/" (:id listing) "/edit")))
-          (listing-create-page listing)))))
+      (resp/redirect (str "/vendor/listing/" (:id listing) "/edit")))))
 
 (defn listing-bookmark [id]
   (if-not (bookmark/exists? id (user-id))
@@ -97,8 +90,8 @@
   (resp/redirect referer))
 
 (s/defschema Listing
-  {(s/optional-key :image_id)     (s/both Long (s/pred #(image/exists? % (user-id)) 'exists?))
-   (s/optional-key :public)       Boolean
+  {:image_id                      (s/maybe (s/both Long (s/pred #(image/exists? % (user-id)) 'exists?)))
+   :public                        (s/maybe Boolean)
    :description                   (Str 0 3000)
    :title                         (Str 4 100)
    :price                         (s/both Double (in-range? 0))
@@ -141,18 +134,18 @@
     "/listings" []
     (GET "/" []
          :query-params [{page :- Long 1}] (listings-page page))
-    (GET "/create" [] (listing-create))
+    (GET "/create" [] (create-page))
     (POST "/create" []
           :multipart-form [listing Listing]
           :middleware     [upload/wrap-multipart-params middleware-listing]
-          (listing-create listing)))
+          (create-page listing)))
 
   (context
     "/listing/:id" []
     :path-params [id :- Long]
-    (GET "/edit" [] (listing-edit id))
+    (GET "/edit" [] (listing-edit-page id))
     (GET "/remove" [] (listing-remove id))
     (POST "/edit" []
           :multipart-form [listing Listing]
           :middleware     [upload/wrap-multipart-params middleware-listing]
-          (listing-save id listing))))
+          (listing-edit-page listing id))))
