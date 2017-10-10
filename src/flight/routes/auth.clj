@@ -11,6 +11,7 @@
    [flight.util.core :as util]
    [flight.util.pgp :as pgp]
    [flight.util.session :as session]
+   [flight.util.error :as error]
    [schema.core :as s]
    [taoensso.timbre :as log]))
 
