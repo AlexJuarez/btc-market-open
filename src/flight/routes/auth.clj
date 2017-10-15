@@ -52,7 +52,7 @@
     (error/register! :pass "passwords do not match")))
 
 (defpage registration-page
-  :template ["register.html" {:captcha (fn [& _] (captcha/gen))}]
+  :template ["register.html" {:captcha_img (fn [& _] (captcha/gen))}]
   :args [:cookies]
   :validator registration-page-validator
   (fn [{:keys [login pass confirm] :as slug} cookies]

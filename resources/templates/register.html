@@ -28,7 +28,7 @@
         <div class="field {% has-error captcha %}">
           <label for="captcha">Captcha</label>
           <div>
-            <img class="captcha" src="data:image/jpeg;base64,{{captcha|safe}}" />
+            <img class="captcha" src="data:image/jpeg;base64,{{captcha_img|safe}}" />
           </div>
           <input class="form-control" id="captcha" name="captcha" type="text" />
           {{errors.captcha|format-error}}

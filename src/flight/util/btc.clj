@@ -10,20 +10,20 @@
   (try
     (btc/getaccountaddress :account (str account) :config (env :btcspec))
     (catch Exception ex
-      (log/error ex "Address creation error"))))
+      (log/error "Address creation error"))))
 
 (defn newaddress [account]
   (try
     (btc/getnewaddress :account (str account) :config (env :btcspec))
     (catch Exception ex
-      (log/error ex "Address creation error - new address"))))
+      (log/error "Address creation error - new address"))))
 
 (defn privkey [address]
   (if (string? address)
     (try
       (btc/dumpprivkey :bitcoinaddress address :config (env :btcspec))
       (catch Exception ex
-        (log/error ex "Address private key retrieval failed")))))
+        (log/error "Address private key retrieval failed")))))
 
 (defn decode-base58 [s]
   (let [arr (.toByteArray
