@@ -46,87 +46,60 @@
       (when-not (nil? v) obj))
     obj))
 
-(defn- render-page [obj _]
+(defn- render-page [obj]
   (let [template-path (get obj :template-path)
-        render (get obj :render)]
-    (assoc-in
-      obj [:fns :render]
-      (fn [& params] (apply render template-path params)))))
+        render (get obj :render layout/render)]
+    (fn [& params] (apply render template-path params))))
 
-(defn- page-success [obj opts]
-  (let [success (get opts :success)]
-    (assoc-in
-      obj [:fns :success]
-      (fn [] (when success (message/success! success))))))
+(defn- page-success [obj]
+  (let [success (get obj :success)]
+    (fn [] (when success (message/success! success)))))
 
-(defn- page-validator [obj opts]
-  (let [validator (get opts :validator (fn [_]))]
-    (assoc-in
-      obj [:fns :validator]
-      (fn [& args] (apply validator args)))))
+(defn- page-validator [obj]
+  (let [validator (get obj :validator (fn [_]))]
+    (fn [& args] (apply validator args))))
 
-(defn- template-params [obj _]
+(defn- template-params [obj]
   (let [template-body (get obj :template-body ())]
-    (assoc-in
-      obj [:fns :params]
-      (fn [& args] (update-template args template-body)))))
+    (fn [& args] (update-template args template-body))))
 
-(defn parse-options [& body]
+(defn parse-options [body]
   (let [[params form] (extract-parameters body true)
         [template & template-body] (get params :template)]
     (clojure.walk/prewalk
-       prune
-       (-> {:template-path template
-            :template-body (flatten template-body)
-            :args (get params :args)
-            :render (get params :render layout/render)
-            :body (apply list form)}
-           (render-page params)
-           (page-success params)
-           (page-validator params)
-           (template-params params)
-           ))))
+      prune
+      (->
+        params
+        (dissoc :template)
+        (assoc
+          :template-path template
+          :template-body template-body
+          :body (last form)
+          )))))
 
-(defn resolve-page [options]
-  (let [render (get-in options [:fns :render])
-        params (get-in options [:fns :params])
-        validator (get-in options [:fns :validator])
-        success (get-in options [:fns :success])
+(defn resolve-page [fargs & body]
+  (let [options (parse-options body)
+        render (render-page options)
+        params (template-params options)
+        validator (page-validator options)
+        success (page-success options)
         {:keys [args body]} options]
-    (fn [& fargs]
-      (if
-        (= (inc (count args)) (count fargs))
-        (let [[slug & r] fargs]
-          (validator slug)
-          (if (error/empty?)
-            (let [results (map #(apply % slug r) body)
-                  result (last results)]
-              (success)
-              (log/debug result)
-              (if (and result (:body result))
-                result
-                (render (apply params r) slug)))
-            (render (apply params r) slug)))
-        (render (apply params fargs)))
-      )))
+    (if
+      (= (inc (count args)) (count fargs))
+      (let [[slug & r] fargs]
+        (validator slug)
+        (if (error/empty?)
+          (let [result (apply body fargs)]
+            (success)
+            (log/debug result)
+            (if (and result (:body result))
+              result
+              (render (apply params r) slug)))
+          (render (apply params r) slug)))
+      (render (apply params fargs)))))
 
 (defmacro defpage [page-name & body]
-  ^{:doc
-    "Creates a page function, the macro expects page-name, key value options followed by a body
-    to execute on success.
-    (defpage test-page
-    :template [\"test-page.html\" {:hello \"world\"}]
-    :validator (fn [slug] ... )
-    :success \"Success message to display\")
-
-    ### options:
-
-    - **:template**                 Define a template-path & args.
-    - **:validator**                Define a custom slug validator.
-    - **:success**                  Define a message to show on success.
-    "
-    }
   `(def
      ~page-name
-     (resolve-page (parse-options ~@body))
-     ))
+     (fn [& args#]
+       (resolve-page args# ~@body))))
