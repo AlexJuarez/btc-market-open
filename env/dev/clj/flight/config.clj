@@ -3,21 +3,15 @@
             [flight.dev-middleware :refer [wrap-dev]]
             [flight.db.fixtures :refer [load-fixtures]]
             [flight.env :refer [env]]
-            [taoensso.timbre :as log]
-            [taoensso.timbre.appenders.3rd-party.rotor :as rotor]))
+            [clojure.tools.logging :as log]
+            [io.aviso.logging :refer [install-pretty-logging install-uncaught-exception-handler]]))
 
 (def defaults
   {:init
    (fn []
+     (install-pretty-logging)
+     (install-uncaught-exception-handler)
      (parser/cache-off!)
-     (log/merge-config!
-       {:level     ((fnil keyword :info) (env :log-level))
-        :ns-blacklist ["com.mchange.*", "net.spy.memcached.*"]
-        :appenders {:rotor (rotor/rotor-appender
-                             {:path (env :log-path)
-                              :max-size (* 512 1024)
-                              :backlog 10})
-                    }})
      (load-fixtures)
      (log/info "-=[flight started successfully using the development profile]=-"))
    :stop

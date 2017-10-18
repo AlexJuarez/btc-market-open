@@ -7,7 +7,7 @@
    [clojure.string :only (split lower-case)])
   (:require
    [flight.env :refer [env]]
-   [taoensso.timbre :as log]
+   [clojure.tools.logging :as log]
    [cheshire.core :as jr]
    [flight.cache :as cache]
    [clj-http.client :as client]))
@@ -27,7 +27,9 @@
   (try
     (:body (client/get url remote-opts))
     (catch Exception ex
-      (log/error ex "getting the information from coinbase failed")
+      (do
+        (log/error "Fetch from coinbase failed")
+        (throw ex))
       (jr/parse-string (slurp "resources/exchange_rates.json")))))
 
 (defn- get-currency-map [currencies]

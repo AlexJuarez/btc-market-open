@@ -1,7 +1,7 @@
 (ns flight.db.fixtures
   (:require
    [cheshire.core :as jr]
-   [taoensso.timbre :as log]
+   [clojure.tools.logging :as log]
    [flight.models.currency :as c]
    [flight.models.category :as cat]
    [flight.models.exchange :as e]

@@ -2,7 +2,7 @@
   (:require
    [flight.db.core :refer [users currency]]
    [korma.core :refer [select with where fields]]
-   [taoensso.timbre :as log]
+   [clojure.tools.logging :as log]
    [flight.cache :as cache]
    [flight.util.session :as session]
    [clojure.string :as s]
@@ -34,11 +34,12 @@
                           (where {:id (session/get :user_id)})) first (dissoc :salt :pass)))))
 
 (defn create-uuid [string]
- "creates a uuid from a string"
- (try
-  (java.util.UUID/fromString string)
-  (catch Exception ex
-   (log/error ex "an error has occured while creating the uuid from string"))))
+  "creates a uuid from a string"
+  (try
+    (java.util.UUID/fromString string)
+    (catch Exception ex
+      (log/error "Could not create uuid from " string)
+      (throw ex))))
 
 (defn user-id []
   (session/get :user_id))

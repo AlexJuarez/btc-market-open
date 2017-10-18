@@ -1,13 +1,14 @@
 (ns flight.core
-  (:require [flight.handler :as handler]
-            [luminus.http-server :as http]
-            [luminus.repl-server :as repl]
-            [flight.db.migrations :as migrations]
-            [flight.db.fixtures :refer [load-fixtures]]
-            [clojure.tools.logging :as log]
-            [clojure.tools.cli :refer [parse-opts]]
-            [flight.env :refer [env]]
-            [mount.core :as mount])
+  (:require
+    [flight.env :refer [env]]
+    [flight.handler :as handler]
+    [luminus.http-server :as http]
+    [luminus.repl-server :as repl]
+    [flight.db.migrations :as migrations]
+    [flight.db.fixtures :refer [load-fixtures]]
+    [clojure.tools.logging :as log]
+    [clojure.tools.cli :refer [parse-opts]]
+    [mount.core :as mount])
   (:gen-class))
 
 (def cli-options

@@ -13,7 +13,7 @@
    [flight.util.session :as session]
    [flight.util.error :as error]
    [schema.core :as s]
-   [taoensso.timbre :as log]))
+   [clojure.tools.logging :as log]))
 
 (defonce words ["the" "and" "for" "are" "but" "not" "can" "one" "day"
                 "get" "man" "new" "now" "old" "two" "boy" "put" "her" "dad" "zoo"

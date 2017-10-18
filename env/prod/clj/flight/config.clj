@@ -1,8 +1,8 @@
 (ns flight.config
   (:require [selmer.parser :as parser]
             [flight.env :refer [env]]
-            [taoensso.timbre :as log]
-            [taoensso.timbre.appenders.3rd-party.rotor :as rotor]
+            [clojure.tools.logging :as log]
+            [clojure.tools.logging.appenders.3rd-party.rotor :as rotor]
             [ring.middleware.gzip :refer [wrap-gzip]]))
 
 (def defaults

@@ -2,7 +2,7 @@
   (:refer-clojure :exclude [get update])
   (:require
    [flight.util.image :as image-util]
-   [taoensso.timbre :as log])
+   [clojure.tools.logging :as log])
   (:use [korma.db :only (defdb)]
         [korma.core]
         [clojure.java.io :as io]
@@ -31,7 +31,8 @@
         (io/delete-file (image-util/file-path id "_max.jpg"))
         (io/delete-file (image-util/file-path id "_thumb.jpg")))
       (catch Exception ex
-        (log/error "failed to delete image" id)))
+        (log/error "Failed to delete image" id)
+        (throw ex)))
       (delete images
               (where {:user_id user-id :id id}))))
 

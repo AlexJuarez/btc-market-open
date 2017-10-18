@@ -2,7 +2,7 @@
   (:require
    [flight.env :refer [env]]
    [clj-btc.core :as btc]
-   [taoensso.timbre :as log]))
+   [clojure.tools.logging :as log]))
 
 (defonce digits58 "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz")
 
@@ -10,20 +10,23 @@
   (try
     (btc/getaccountaddress :account (str account) :config (env :btcspec))
     (catch Exception ex
-      (log/error "Address creation error"))))
+      (log/error "Address creation error")
+      (throw ex))))
 
 (defn newaddress [account]
   (try
     (btc/getnewaddress :account (str account) :config (env :btcspec))
     (catch Exception ex
-      (log/error "Address creation error - new address"))))
+      (log/error "Address creation error - new address")
+      (throw ex))))
 
 (defn privkey [address]
   (if (string? address)
     (try
       (btc/dumpprivkey :bitcoinaddress address :config (env :btcspec))
       (catch Exception ex
-        (log/error "Address private key retrieval failed")))))
+        (log/error "Address private key retrieval failed")
+        (throw ex)))))
 
 (defn decode-base58 [s]
   (let [arr (.toByteArray

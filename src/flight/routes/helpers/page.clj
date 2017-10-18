@@ -6,7 +6,7 @@
     [compojure.api.common :refer [extract-parameters]]
     [flight.util.message :as message]
     [flight.util.error :as error]
-    [taoensso.timbre :as log]
+    [clojure.tools.logging :as log]
     [flight.layout :as layout]))
 
 (defn page-route [route page Schema]

@@ -13,7 +13,7 @@
             [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
             [ring.middleware.format :refer [wrap-restful-format]]
             [ring.middleware.webjars :refer [wrap-webjars]]
-            [taoensso.timbre :as log])
+            [clojure.tools.logging :as log])
   (:import [javax.servlet ServletContext]))
 
 (defn wrap-context [handler]

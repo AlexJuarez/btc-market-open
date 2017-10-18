@@ -1,5 +1,5 @@
 (ns flight.util.pgp
-  (:require [taoensso.timbre :as log])
+  (:require [clojure.tools.logging :as log])
   (:import
     org.bouncycastle.jce.provider.BouncyCastleProvider
     (org.bouncycastle.bcpg ArmoredOutputStream)
@@ -10,7 +10,8 @@
     (let [factory (-> (.getBytes s "UTF-8") java.io.ByteArrayInputStream. PGPUtil/getDecoderStream PGPObjectFactory.)]
       (.nextObject factory))
       (catch Exception ex
-        (log/error "Invalid pgp public key"))))
+        (log/error "Invalid pgp public key")
+        (throw ex))))
 
 (defn get-encryption-key [key-ring]
   (when key-ring
@@ -49,8 +50,8 @@
                             (java.util.Date.))]
         (do (.write finalout secret) (.close finalout) (.close encryptedout) (.close armored-output) (.close output) (str output))))
   (catch Exception ex
-    (log/error ex "Encoding failed")
-    "the encoding has failed")))
+    (log/error "Encoding failed")
+    (throw ex))))
 
 (defn valid? [s]
   (not (nil? (get-key-ring s))))

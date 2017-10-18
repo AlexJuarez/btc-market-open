@@ -3,7 +3,7 @@
    [ring.util.http-response :refer [bad-request internal-server-error]]
    [clojure.walk :refer [postwalk]]
    [clojure.core.match :refer [match]]
-   [taoensso.timbre :as log]
+   [clojure.tools.logging :as log]
    [schema.utils :as su])
   (:import [schema.utils ValidationError NamedError]))
 

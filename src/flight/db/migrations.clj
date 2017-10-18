@@ -1,6 +1,6 @@
 (ns flight.db.migrations
   (:require
-   [taoensso.timbre :as log]
+   [clojure.tools.logging :as log]
    [lobos.migration :as lm]
    [lobos.core :as lc]
    [flight.env :refer [env]]))

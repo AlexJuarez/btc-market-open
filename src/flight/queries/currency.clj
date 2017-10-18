@@ -1,5 +1,5 @@
 (ns flight.queries.currency
-  (:refer-clojure :exclude [get])
+  (:refer-clojure :exclude [get update])
   (:require
     [flight.db.core :refer :all]
     [korma.core :refer :all]))

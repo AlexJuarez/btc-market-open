@@ -8,7 +8,7 @@
     [flight.util.session :as session]
     [flight.access :refer [wrap-restricted]]
     [schema.utils :as su]
-    [taoensso.timbre :as log]))
+    [clojure.tools.logging :as log]))
 
 (defn coerce! [schema key type request]
   (let [value (->> (key request) walk/keywordize-keys)]

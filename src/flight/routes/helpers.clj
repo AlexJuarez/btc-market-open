@@ -4,7 +4,7 @@
     [flight.util.hashids :as hashids]
     [flight.util.core :as util :refer [user-id]]
     [clojure.string :as string]
-    [taoensso.timbre :as log]
+    [clojure.tools.logging :as log]
     [flight.env :refer [env]]))
 
 (load "helpers/image")

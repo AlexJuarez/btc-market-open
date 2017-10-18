@@ -4,7 +4,7 @@
             [flight.env :refer [env]]
             [flight.util.mem-store :as mem]
             [mount.core :refer [defstate]]
-            [taoensso.timbre :as log]
+            [clojure.tools.logging :as log]
             [ring.middleware.session.store :as session-store])
   (:import net.spy.memcached.compat.log.Log4JLogger
            org.apache.log4j.BasicConfigurator))
@@ -14,8 +14,8 @@
     (try
       (c/text-connection address)
       (catch Exception e
-        (log/error "Error creating couchbase connection" e)
-        nil))))
+        (log/error "Could not create the couchbase connection" e)
+        (throw e)))))
 
 (defn init-connection []
   (if (env :couchbase)

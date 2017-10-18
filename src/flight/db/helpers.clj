@@ -2,7 +2,7 @@
   (:require
    [clojure.java.jdbc :as jdbc]
    [cheshire.core :refer [generate-string parse-string]]
-   [taoensso.timbre :as log]
+   [clojure.tools.logging :as log]
    [flight.db.protocols]
    [korma.core :as korma]
    [clojure.xml :as xml])

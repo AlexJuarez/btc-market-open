@@ -17,5 +17,6 @@
             (save-file (resizer/resize-and-crop (clojure.java.io/file (str (resource-path) "/" image_id ".jpg")) 180 135) (str (resource-path) "/" image_id "_thumb.jpg"))
             (clojure.java.io/delete-file (str (resource-path) "/" image_id ".jpg")))
           (catch Exception ex
-            (log/error ex (str "File upload failed for image " image_id))))
+            (log/error "File upload failed for image " image_id)
+            (throw ex)))
           image_id))))
