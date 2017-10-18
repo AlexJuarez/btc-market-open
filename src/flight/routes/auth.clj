@@ -19,17 +19,6 @@
                 "get" "man" "new" "now" "old" "two" "boy" "put" "her" "dad" "zoo"
                 "tan" "saw" "mad" "jet" "far" "cat" "map" "key" "dog" "god" "bat"])
 
-(defn redirect-check [url]
-  (and (not (empty? url))
-       (every? #(re-matcher (re-pattern %) url) ["register" "login"])))
-
-(defn redirect-url [& [d]]
-  (let [url (and (redirect-check (session/flash-get :redirect))
-                 (session/flash-get :redirect))
-        default (or d "/")
-        url (or url default)]
-    (resp/redirect url)))
-
 (defn finish-login [{:keys [id vendor auth pub_key] :as user}]
   (when vendor (session/put! :sales (order/count-sales id)))
   (session/put! :authed (not (and auth (not (nil? pub_key)))))
@@ -61,7 +50,7 @@
           user (users/login! login pass session)]
       (log/debug user)
       (finish-login user)
-      (redirect-url))))
+      (resp/redirect "/"))))
 
 (defpage login-page
   :template ["login.html"]
@@ -71,7 +60,7 @@
           user (users/login! login pass session)]
       (finish-login user)
       (if (session/get :authed)
-        (redirect-url)
+        (resp/redirect "/")
         (resp/redirect "/login/auth")))))
 
 (defn gen-hashkey []
@@ -91,7 +80,7 @@
                 decode))}]
   (fn [{:keys [response]}]
     (session/put! :authed true)
-    (redirect-url)))
+    (resp/redirect "/")))
 
 (defn check-auth [text]
   (= (session/flash-get :key) text))
