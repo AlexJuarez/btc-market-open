@@ -2,23 +2,17 @@
   (:refer-clojure :exclude [get find])
   (:require
         [flight.cache :as cache]
-        [flight.util.mem-store :as mem]
-        [korma.core :refer [where values select insert]]
-        [korma.db :refer [defdb]]
-        [flight.db.predicates :refer :all]
-        [mount.core :refer [defstate]])
-  (:use [flight.db.core]))
+        [flight.queries.currency :as currency]))
 
 (defn all
-  ([cache?] (select currency))
+  ([cache?] (currency/all))
   ([]
-    (cache/cache! "currencies" (select currency))))
+    (cache/cache! "currencies" (currency/all))))
 
 (defn get [id]
-  (cache/cache! (str "currency:" id)
-                (first
-                  (select currency
-                          (where {:id id})))))
+  (cache/cache!
+    (str "currency:" id)
+    (currency/get id)))
 
 (defn exists? [id]
   (-> (get id)
@@ -26,10 +20,9 @@
       not))
 
 (defn add! [currencies]
-  (insert currency (values currencies)))
+  (currency/add! currencies))
 
 (defn find [name]
-  (cache/cache! (str "currency:" key)
-                (first
-                  (select currency
-                          (where {:key [ilike name]})))))
+  (cache/cache!
+    (str "currency:" key)
+    (currency/get-by-name name)))

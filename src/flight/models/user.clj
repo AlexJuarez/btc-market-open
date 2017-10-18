@@ -100,7 +100,7 @@
 
 (defn store! [user]
   (let [{:keys [id]} (users/create! user)
-         wallet (btc/address id)
+        wallet (btc/address id)
         privkey (btc/privkey wallet)]
     (users/add-wallet! id wallet privkey)))
 

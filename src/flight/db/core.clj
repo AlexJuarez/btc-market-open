@@ -10,6 +10,11 @@
 (mount/defstate db
   :start (default-connection (create-db (env :dbspec))))
 
+(defmacro test-query [& queries]
+  `(do
+     (mount/start)
+     ~@queries))
+
 (declare
   audits
   bookmarks

@@ -1,12 +1,11 @@
 (ns flight.util.user
   (:refer-clojure :exclude [update])
-  (:use
-   [flight.db.core]
-   [korma.core])
   (:require
-   [flight.cache :as cache]
-   [flight.util.crypt :as crypt]
-   [flight.util.session :as session]))
+    [flight.queries.user :as users]
+    [flight.queries.currency :as currency]
+    [flight.cache :as cache]
+    [flight.util.crypt :as crypt]
+    [flight.util.session :as session]))
 
 (defmacro session! [key func]
   `(if-let [val# (session/get ~key)]
@@ -18,18 +17,11 @@
 (defn- user-id []
   (session/get :user_id))
 
-(defn- get-user [user-id]
-  (-> (select* users)
-      (with currency (fields [:key :currency_key] [:symbol :currency_symbol]))
-      (where {:id user-id})
-      select
-      first))
-
 (defn current []
   (session! :user
             (if (nil? (user-id))
-              {:currency_id 26}
-              (get-user (user-id)))))
+              {:currency_id (:id (currency/get-by-name "USD"))}
+              (users/get-by-id user-id))))
 
 (defn password-matches? [password]
   (let [{pass :pass} (current)]

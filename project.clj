@@ -49,6 +49,7 @@
                   [selmer "0.9.5" :exclusions [com.google.guava/guava org.json/json]] ;;templating
                   [slingshot "0.12.2"] ;;smarter error handling
                   [to-jdbc-uri "0.2.0"];;jdbc uri parser
+
                   ]
 
   :min-lein-version "2.5.2"
@@ -78,8 +79,10 @@
                                  [clj-webdriver/clj-webdriver "0.6.1" :exclusions [org.yaml/snakeyaml]]
                                  [org.apache.httpcomponents/httpcore "4.4"]
                                  [org.clojure/core.cache "0.6.3"]
-                                 [mvxcvi/puget "1.0.0"]]
-                  :plugins      [[lein-drip "0.1.1-SNAPSHOT"]]
+                                 [mvxcvi/puget "1.0.0"]
+                                 [io.aviso/pretty "0.1.34"]]
+                  :plugins      [[lein-drip "0.1.1-SNAPSHOT"]
+                                 [io.aviso/pretty "0.1.34"]]
                   :source-paths ["env/dev/clj"]
                   :resource-paths ["env/dev/resources"]
                   :repl-options {:init-ns flight.core}

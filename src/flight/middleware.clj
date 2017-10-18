@@ -31,16 +31,6 @@
                 (:app-context env))]
       (handler request))))
 
-(defn wrap-internal-error [handler]
-  (fn [req]
-    (try
-      (handler req)
-      (catch Throwable t
-        (log/error t)
-        (error-page {:status 500
-                     :title "Something very bad has happened!"
-                     :message "We've dispatched a team of highly trained gnomes to take care of the problem."})))))
-
 (defn remove-anti-forgery-token [handler]
   (fn [request]
     (let [request (-> request
