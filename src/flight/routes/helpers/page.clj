@@ -87,7 +87,7 @@
     (if
       (= (inc (count args)) (count fargs))
       (let [[slug & r] fargs]
-        (validator slug)
+        (apply validator fargs)
         (if (error/empty?)
           (let [result (apply body fargs)]
             (success)

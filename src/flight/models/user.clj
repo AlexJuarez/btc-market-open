@@ -7,7 +7,6 @@
     [hiccup.util :as hc]
     [clojure.string :as s]
     [flight.util.core :as util]
-    [flight.util.error :as error]
     [flight.util.pgp :as pgp]
     [flight.util.session :as session]
     [flight.models.currency :as currency]
@@ -115,13 +114,12 @@
 
 (defn login! [login pass session]
   (when-let [user (users/get-by-login login)]
-    (if (> 20 (:login_tries user))
-      (if (and
-           (not (nil? (:pass user)))
-           (warden/compare pass (:pass user)))
-        (do (users/login-success (util/create-uuid session) (:id user)) (dissoc user :pass))
-        (error/register! :pass "Password Incorrect"))
-      (error/put! :message "This account has been locked for failing to login too many times."))))
+    (when (and
+            (> 20 (:login_tries user))
+            (not (nil? (:pass user)))
+            (warden/compare pass (:pass user)))
+      (users/login-success (util/create-uuid session) (:id user))
+      (dissoc user :pass))))
 
 (defn remove! [login]
   (users/remove! login))

@@ -12,6 +12,7 @@
    [flight.util.pgp :as pgp]
    [flight.util.session :as session]
    [flight.util.error :as error]
+   [flight.util.crypt :as warden]
    [schema.core :as s]
    [clojure.tools.logging :as log]))
 
@@ -35,7 +36,7 @@
      text)))
 
 (defn registration-page-validator
-  [{:keys [pass confirm]}]
+  [{:keys [pass confirm]} cookies]
   (when-not
     (= pass confirm)
     (error/register! :pass "passwords do not match")))
@@ -52,9 +53,21 @@
       (finish-login user)
       (resp/redirect "/"))))
 
+(defn login-validator [{:keys [login pass] :as slug} cookies]
+  (let [session (-> (cookies "session") :value)]
+    (when-let [user (users/get-by-login login)]
+      (users/track-login user)
+      (when (> (:login_tries user) 20)
+        (error/register! :message "This account has been locked for failing to login too many times."))
+      (when (or
+              (-> user :pass nil?)
+              (not (warden/compare pass (:pass user))))
+        (error/register! :pass "Password Incorrect")))))
+
 (defpage login-page
   :template ["login.html"]
   :args [:cookies]
+  :validator login-validator
   (fn [{:keys [login pass] :as slug} cookies]
     (let [session (-> (cookies "session") :value)
           user (users/login! login pass session)]
