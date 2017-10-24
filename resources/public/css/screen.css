@@ -671,7 +671,7 @@ a:active {
 }
 .side-menu {
   padding-top: 8px;
-  background: #2C394A;
+  background: #2c394a;
   position: relative;
   white-space: nowrap;
   min-width: 230px;
@@ -856,14 +856,35 @@ a:active {
   right: 1.5rem;
   top: 0.5rem;
 }
+.message {
+  padding: .75rem 1.25rem;
+  margin: 1rem 0;
+  border: 1px solid transparent;
+  border-radius: .25rem;
+}
+.message.success {
+  background-color: #dff0d8;
+  border-color: #d0e9c6;
+  color: #3c763d;
+}
+.message.warn {
+  background-color: #fcf8e3;
+  border-color: #faf2cc;
+  color: #8a6d3b;
+}
+.message.error {
+  background-color: #f2dede;
+  border-color: #ebcccc;
+  color: #a94442;
+}
+.jumbo + .subtitle {
+  margin-bottom: 3rem;
+}
 .price {
   color: #bec86e;
 }
 .clear-float {
   clear: both;
-}
-.inbox {
-  margin-bottom: 20px;
 }
 .thread {
   margin-bottom: 20px;

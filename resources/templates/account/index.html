@@ -30,9 +30,10 @@
   </li>
 </ul>
 {% endblock %}
-{% block container %}
+{% block header %}
 <h1 class="jumbo">Settings</h1>
-{{message|format-message}}
+{% endblock %}
+{% block container %}
 <form action="/account" method="POST">
   {% csrf-token %}
   <div class="form-group {% has-error alias %}">

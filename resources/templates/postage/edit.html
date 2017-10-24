@@ -30,8 +30,10 @@
   </li>
 </ul>
 {% endblock %}
-{% block container %}
+{% block header %}
 <h1 class="jumbo">Edit Postage</h1>
+{% endblock %}
+{% block container %}
 <form method="POST">
   {% csrf-token %}
   <p>

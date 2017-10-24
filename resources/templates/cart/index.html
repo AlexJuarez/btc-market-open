@@ -10,11 +10,13 @@
   My cart
 </div>
 {% endblock %}
-{% block container %}
+{% block header %}
 <h1 class="jumbo">Shopping Cart</h1>
 <div class="subtitle">
   <a href="/cart/empty">empty cart</a>
 </div>
+{% endblock %}
+{% block container %}
 {% if not listings|empty? %}
 <form class="my-cart" method="post">
 {% csrf-token %}

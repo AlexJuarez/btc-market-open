@@ -27,8 +27,10 @@
   </li>
 </ul>
 {% endblock %}
-{% block container %}
+{% block header %}
 <h1 class="jumbo">Postage</h1>
+{% endblock %}
+{% block container %}
 <form method="post">
   {% csrf-token %}
   {{errors.title|format-error}}

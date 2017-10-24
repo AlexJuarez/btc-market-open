@@ -30,8 +30,10 @@
   </li>
 </ul>
 {% endblock %}
-{% block container %}
+{% block header %}
 <h2>Verify your pgp key</h2>
+{% endblock %}
+{% block container %}
 <form enctype="multipart/form-data" method="POST">
   {% csrf-token %}
   {% if message %}

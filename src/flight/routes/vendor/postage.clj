@@ -28,6 +28,7 @@
                (postage/get id (user-id)))
              {:currencies (currency/all)
               :id (fn [id] id)}]
+  :success "Postage has been updated"
   :args [:id]
   (fn [slug id]
     (postage/update! slug id (user-id))))

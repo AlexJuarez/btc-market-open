@@ -30,8 +30,10 @@
   </li>
 </ul>
 {% endblock %}
-{% block container %}
+{% block header %}
 <h1 class="jumbo">Favorites</h1>
+{% endblock %}
+{% block container %}
 {% if bookmarks|empty? %}
 {% if favorites|empty? %}
 <p class="well">

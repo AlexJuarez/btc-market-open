@@ -31,14 +31,16 @@
   </li>
 </ul>
 {% endblock %}
+{% block header %}
+<h1 class="jumbo">Images</h1>
+<div class="subtitle">
+  <a href="/vendor/images/edit">edit</a>
+  | <a href="/vendor/images">manage</a>
+  | <strong>upload</strong>
+</div>
+{% endblock %}
 {% block container %}
 <div class="images">
-  <h1 class="jumbo">Images</h1>
-  <div class="subtitle">
-    <a href="/vendor/images/edit">edit</a>
-    | <a href="/vendor/images">manage</a>
-    | <strong>upload</strong>
-  </div>
   <p>
     The max size for an image is 400(px) wide x 300(px) tall. Any image uploaded at a different size will be transformed to these dimensions and
     images must be in the jpeg format.

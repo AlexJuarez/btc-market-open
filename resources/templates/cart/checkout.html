@@ -10,8 +10,10 @@
   My cart
 </div>
 {% endblock %}
-{% block container %}
+{% block header %}
 <h1 class="jumbo">Checkout</h1>
+{% endblock %}
+{% block container %}
 {% if not listings|empty? %}
 <table class="table">
   <thead>

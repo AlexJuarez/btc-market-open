@@ -30,9 +30,10 @@
   </li>
 </ul>
 {% endblock %}
-{% block container %}
+{% block header %}
 <h1 class="jumbo">Reviews</h1>
-{{message|format-message}}
+{% endblock %}
+{% block container %}
 {% if not reviews|empty? %}
 <table class="table normal p">
   <thead>

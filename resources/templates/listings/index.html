@@ -31,8 +31,10 @@
   </li>
 </ul>
 {% endblock %}
-{% block container %}
+{% block header %}
 <h1 class="jumbo">Listings</h1>
+{% endblock %}
+{% block container %}
 <div class="postage">
 {% if not postages|empty? %}
 <table class="table normal">

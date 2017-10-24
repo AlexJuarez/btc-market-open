@@ -24,8 +24,10 @@
   </li>
 </ul>
 {% endblock %}
-{% block container %}
+{% block header %}
 <h1 class="jumbo">Sales in Transit</h1>
+{% endblock %}
+{% block container %}
 {% if not sales|empty? %}
 <a href="/vendor/sales/shipped/download?page={{page}}" class="right">download</a>
 <table class="table">

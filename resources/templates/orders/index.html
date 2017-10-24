@@ -2,8 +2,10 @@
 {% block links %}
     {% include "links/orders.html" %}
 {% endblock %}
-{% block container %}
+{% block header %}
 <h1 class="jumbo">Orders</h1>
+{% endblock %}
+{% block container %}
 {% if not pending-review|empty? %}
 <form method="post">
   {% csrf-token %}

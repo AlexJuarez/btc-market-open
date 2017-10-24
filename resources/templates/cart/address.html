@@ -10,8 +10,10 @@
   My cart
 </div>
 {% endblock %}
-{% block container %}
+{% block header %}
 <h1 class="jumbo">Shopping Cart</h1>
+{% endblock %}
+{% block container %}
 <form class="my-cart" method="post">
   <h1>Total: &#3647;{{btc-total|double-format:5}} {% if convert %} ~({{user.currency_symbol|safe}}{{total|double-format:5}}) {% endif %} {{errors.total|format-error}}</h1>
   <p>

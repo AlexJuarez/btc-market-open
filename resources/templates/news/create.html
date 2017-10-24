@@ -30,8 +30,7 @@
   </li>
 </ul>
 {% endblock %}
-{% block container %}
-
+{% block header %}
 {% if preview %}
 <h1 class="jumbo">Preview</h1>
 <div class="well">
@@ -41,6 +40,8 @@
 {% if not preview %}
 <h1 class="jumbo">New Post</h1>
 {% endif %}
+{% endblock %}
+{% block container %}
 <form method="POST">
   <p>
     <label for="subject">Subject: {{errors.subject|format-error}}</label>

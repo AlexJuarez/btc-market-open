@@ -23,6 +23,13 @@
       {% endblock %}
     </nav>
     <div class="ls cell">
+      <div class="header">
+        {% block header %}
+        {% endblock %}
+      </div>
+      {% block messages %}
+        {{message|format-message}}
+      {% endblock %}
       {% block container %}
       {% endblock %}
     </div>

@@ -24,8 +24,10 @@
   </li>
 </ul>
 {% endblock %}
-{% block container %}
+{% block header %}
 <h1 class="jumbo">New Sales</h1>
+{% endblock %}
+{% block container %}
 {% if not sales|empty? %}
 <form action="/vendor/sales/new" method="POST">
   {% csrf-token %}

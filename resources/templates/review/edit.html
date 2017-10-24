@@ -30,8 +30,10 @@
   </li>
 </ul>
 {% endblock %}
-{% block container %}
+{% block header %}
 <h1 class="jumbo">Update Review {{id}}</h1>
+{% endblock %}
+{% block container %}
   <form method="post">
     {% csrf-token %}
     <table class="table">

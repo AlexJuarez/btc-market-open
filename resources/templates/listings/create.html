@@ -32,9 +32,10 @@
   </li>
 </ul>
 {% endblock %}
-{% block container %}
+{% block header %}
 <h1 class="jumbo">{% if edit %}Edit Listing{% else %}Create Listing{% endif %} </h1>
-{{message|format-message}}
+{% endblock %}
+{% block container %}
 <form enctype="multipart/form-data" method="post">
   {% csrf-token %}
   <div class="image">

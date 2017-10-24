@@ -1,5 +1,5 @@
 {% extends "layout/side-menu.html" %}
-{% block container %}
+{% block header %}
 {% if not id %}
 <p>User not found</p>
 {% else %}
@@ -20,8 +20,9 @@
   </ul>
 </div>
 {% endif %}
-<br />
-<br />
+{% endif %}
+{% endblock %}
+{% block container %}
 <div class="well sm">
   has been a member since: <strong title="{{created_on|freshness}}">{{created_on|date:shortDate}}</strong>
   <br />
@@ -126,6 +127,5 @@
       {% endfor %}
     </tbody>
   </table>
-{% endif %}
 {% endif %}
 {% endblock %}

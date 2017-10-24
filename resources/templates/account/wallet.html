@@ -27,9 +27,10 @@
   </li>
 </ul>
 {% endblock %}
-{% block container %}
+{% block header %}
 <h1 class="jumbo">Wallet</h1>
-{{message|format-message}}
+{% endblock %}
+{% block container %}
 <p>
   <strong>availible: </strong>&#3647;{{user.btc}} {% if balance %}(~{{user.currency_symbol|safe}}{{user.balance|double-format:2}}){% endif %}
   <br>

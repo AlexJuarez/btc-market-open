@@ -30,8 +30,10 @@
   </li>
 </ul>
 {% endblock %}
-{% block container %}
+{% block header %}
 <h1 class="jumbo">My Followers</h1>
+{% endblock %}
+{% block container %}
 <div class="p">
   you have {{user.fans}} follower{{user.fans|pluralize:"":"s"}}
 </div>

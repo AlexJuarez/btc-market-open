@@ -15,10 +15,10 @@
     </li>
   </ul>
 {% endblock %}
+{% block header %}
+<h1 class="jumbo">Inbox</h1>
+{% endblock %}
 {% block container %}
-<div class="inbox">
-  <h1 class="jumbo">Inbox</h1>
-</div>
 {% if not messages|empty? %}
 <table class="table normal messages">
   <thead>

@@ -24,8 +24,10 @@
   </li>
 </ul>
 {% endblock %}
-{% block container %}
+{% block header %}
 <h1 class="jumbo">Sales in Resolution</h1>
+{% endblock %}
+{% block container %}
 {% if not sales|empty? %}
 <table class="table">
   <thead>

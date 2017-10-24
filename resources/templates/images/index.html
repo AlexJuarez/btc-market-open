@@ -31,23 +31,22 @@
   </li>
 </ul>
 {% endblock %}
+{% block header %}
+<h1 class="jumbo">Images</h1>
+<div class="subtitle">
+  {% if not edit %}
+  <a href="/vendor/images/edit">edit</a>
+  | <strong>manage</strong>
+  | <a href="/vendor/images/upload">upload</a>
+  {% else %}
+  <strong>edit</strong>
+  | <a href="/vendor/images">manage</a>
+  | <a href="/vendor/images/upload">upload</a>
+  {% endif %}
+</div>
+{% endblock %}
 {% block container %}
 <div class="images">
-  <h1 class="jumbo">Images</h1>
-  <div class="subtitle">
-    {% if not edit %}
-      <a href="/vendor/images/edit">edit</a>
-      | <strong>manage</strong>
-      | <a href="/vendor/images/upload">upload</a>
-    {% else %}
-      <strong>edit</strong>
-      | <a href="/vendor/images">manage</a>
-      | <a href="/vendor/images/upload">upload</a>
-    {% endif %}
-  </div>
-  <br />
-  <br />
-  {{message|format-message}}
   {% if not images|empty? %}
   <form method="POST">
     {% csrf-token %}

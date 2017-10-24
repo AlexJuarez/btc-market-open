@@ -18,10 +18,10 @@
   </li>
 </ul>
 {% endblock %}
+{% block header %}
+<h1 class="jumbo">Thread</h1>
+{% endblock %}
 {% block container %}
-<div class="inbox">
-  <h1 class="jumbo">Thread</h1>
-</div>
 {% if not messages|empty? %}
 <a class="right" href="/messages/{{receiver.id}}/download">download thread</a>
 <table class="table thread">

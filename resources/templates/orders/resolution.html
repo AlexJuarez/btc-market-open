@@ -2,11 +2,13 @@
 {% block links %}
 {% include "links/orders.html" %}
 {% endblock %}
+{% block header %}
+<h1 class="jumbo">Order Information</h1>
+{% endblock %}
 {% block container %}
 {% if not id %}
 Order not found
 {% else %}
-<h1 class="jumbo">Order Information</h1>
 <span>Transaction #<a href="/order/{{id}}">{{id}}</a></span>
 <div class="well">
   <table class="fact-table">
