@@ -17,17 +17,16 @@
                   [cprop "0.1.10"]
                   [crypto-random "1.2.0"] ;;crypto lib
                   [hashobject/hashids "0.2.0"];;for anon hashing
-                  [image-resizer "0.1.9"]
+                  [image-resizer "0.1.10"]
                   [korma "0.4.2" :exclusions [c3p0/c3p0]] ;;sql dsl
                   [lobos "1.0.0-beta3"]
                   [luminus-immutant "0.2.3"]
                   [luminus-nrepl "0.1.4"]
-                  [markdown-clj "0.9.82"]
+                  [markdown-clj "0.9.99"]
                   [metis "0.3.3"];;validator
                   [metosin/compojure-api "2.0.0-alpha1"]
-                  [metosin/ring-http-response "0.6.5"]
+                  [metosin/ring-http-response "0.9.0"]
                   [metosin/ring-middleware-format "0.6.0" :exclusions [org.json/json]]
-                  [migratus "0.8.7"]
                   [mount "0.1.11" :exclusions [ch.qos.logback/logback-classic]]
                   [net.sf.jlue/jlue-core "1.3" :exclusions
                    [ch.qos.logback/logback-classic
@@ -40,13 +39,14 @@
                   [org.clojure/tools.cli "0.3.5"]
                   [org.clojure/tools.logging "0.4.0"]
                   [org.postgresql/postgresql "9.3-1102-jdbc41"] ;;postgres adapter
-                  [org.slf4j/log4j-over-slf4j "1.7.12"]
-                  [prismatic/schema "1.0.3"]
-                  [ring "1.4.0" :exclusions [ring/ring-jetty-adapter]]
+                  [org.slf4j/log4j-over-slf4j "1.7.14"]
+                  [prismatic/schema "1.1.6"]
+                  [ring/ring-core "1.6.1"]
+                  [ring/ring-defaults "0.3.0"]
                   [ring-ttl-session "0.1.1"]
                   [ring-webjars "0.1.1"]
                   [ring/ring-defaults "0.2.1"]
-                  [selmer "0.9.5" :exclusions [com.google.guava/guava org.json/json]] ;;templating
+                  [selmer "1.10.7" :exclusions [com.google.guava/guava org.json/json]] ;;templating
                   [slingshot "0.12.2"] ;;smarter error handling
                   [to-jdbc-uri "0.2.0"];;jdbc uri parser
                   ]

@@ -33,7 +33,10 @@
       (orders/add! (cart/cart) (cart/total 1) address pin (user-id)))))
 
 (defpage cart-checkout
-  :template ["cart/checkout.html"]
+  :template ["cart/checkout.html"
+             {:total (cart/total)
+              :btc_total (cart/total 1)
+              :listings (cart/listings)}]
   :validator cart-checkout-validator
   (fn [slug] (resp/redirect "/orders")))
 
