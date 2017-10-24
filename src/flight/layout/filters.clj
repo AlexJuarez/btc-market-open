@@ -35,7 +35,7 @@
 
 (add-filter! :status
              (fn [x]
-               (let [status ["processing" "shipping" "in resolution" "finalized" "canceled" "refunded"]]
+               (let [status ["processing" "shipping" "in resolution" "finalized" "cancelled" "refunded"]]
                  (status x))))
 
 (defn region [region_id]

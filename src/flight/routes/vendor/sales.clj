@@ -56,7 +56,7 @@
 
 (defn sales-finailized
   [page]
-  (render-sales "sales/finailized.html" "/vendor/sales/past" 3 page))
+  (render-sales "sales/finalized.html" "/vendor/sales/past" 3 page))
 
 (defn sales-overview
   [page]

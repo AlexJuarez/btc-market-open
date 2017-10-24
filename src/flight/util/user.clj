@@ -15,7 +15,7 @@
   (session! :user
             (if (nil? (user-id))
               {:currency_id (:id (currency/get-by-name "USD"))}
-              (users/get-by-id user-id))))
+              (users/get-by-id (user-id)))))
 
 (defn password-matches? [password]
   (let [{pass :pass} (current)]

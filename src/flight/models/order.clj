@@ -16,10 +16,10 @@
 ;;1 - shipping
 ;;2 - resolution
 ;;3 - finalized
-;;4 - canceled
+;;4 - cancelled
 ;;5 - refunded
 
-(def statuses [:new :ship :resolution :finalize :canceled :refunded])
+(def statuses [:new :ship :resolution :finalize :cancelled :refunded])
 
 (defn get-order [id user-id]
   (first (select orders
@@ -108,7 +108,7 @@
          (insert order-audit (values {:user_id user_id :status 4 :order_id id}))
          (if (and (:public listing) (<= (- (:quantity listing) quantity) 0))
            (update category (set-fields {:count (raw "count + 1")}) (where {:id (:category_id listing)})))
-         (update orders (set-fields {:status 4 :reviewed true}) (where {:id id :finalized false}))))))
+         (update orders (set-fields {:status 4 :finalized true :reviewed true}) (where {:id id :finalized false}))))))
   ([id user-id]
    (let [order (first (select orders (where {:id id :status 0})))]
      (if (or (= (:seller_id order) user-id)

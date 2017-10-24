@@ -38,6 +38,7 @@
               :btc_total (cart/total 1)
               :listings (cart/listings)}]
   :validator cart-checkout-validator
+  :success "Your order has been placed."
   (fn [slug] (resp/redirect "/orders")))
 
 (defn cart-view
