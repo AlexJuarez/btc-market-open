@@ -22,7 +22,7 @@
    :cancelled ""})
 
 (defn get-sales [k]
-  ((util/session! :sales (order/count-sales (user-id))) k))
+  (get (util/session! :sales (order/count-sales (user-id))) k 0))
 
 (defn get-order-status [state]
   (->
@@ -60,7 +60,7 @@
 
 (defn- sales-params [& state]
   (fn [page]
-    (let [pagemax (util/page-max (get-sales state) sales-per-page)
+    (let [pagemax (util/page-max (reduce + (map get-sales state)) sales-per-page)
           orders (get-orders state page)]
       {:sales orders
        :page page
