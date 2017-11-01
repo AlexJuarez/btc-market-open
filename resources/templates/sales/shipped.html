@@ -29,7 +29,7 @@
 {% endblock %}
 {% block container %}
 {% if not sales|empty? %}
-<a href="/vendor/sales/shipped/download?page={{page}}" class="right">download</a>
+<a href="/vendor/sales/shipped/download?page={{paginate.page}}" class="right">download</a>
 <table class="table">
   <thead>
     <tr>
@@ -45,7 +45,7 @@
   <tfoot>
   <tr>
     <td colspan="7">
-      {{page-info|pagination}}
+      {{paginate|pagination}}
     </td>
   </tr>
   </tfoot>

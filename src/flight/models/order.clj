@@ -55,7 +55,7 @@
        select))
   ([status id page per-page]
    (-> (sold* id page per-page)
-       (where {:status status})
+       (where {:status [in status]})
        select)))
 
 (defn check-item [item]

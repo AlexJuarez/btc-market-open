@@ -33,7 +33,7 @@
   {% csrf-token %}
   <input class="btn btn-primary" type="submit" name="submit" value="accept" />
   <input class="btn btn-warn" type="submit" name="submit" value="reject" />
-  <a href="/vendor/sales/new/download?page={{page}}" class="right">download</a>
+  <a href="/vendor/sales/new/download?page={{paginate.page}}" class="right">download</a>
   <table class="table sales">
     <thead>
       <tr>
