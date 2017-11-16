@@ -70,12 +70,12 @@
                                         :quantity                 (s/both Long (greater-than? 0))}}
    (s/optional-key :submit) (Str)})
 
-(defn matches-pin [pin]
+(defn matches-pin? [pin]
   (= pin (:pin (util/current-user))))
 
 (s/defschema Checkout
   {:address              (Str)
-   (s/optional-key :pin) (Str (s/pred matches-pin 'matches-pin))})
+   (s/optional-key :pin) (Str (s/pred matches-pin? '(match? "pins")))})
 
 (defroutes public-routes
   (context

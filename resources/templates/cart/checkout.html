@@ -60,12 +60,13 @@
   <textarea id="address" class="form-control" rows="4" name="address">{{address|safe}}</textarea>
 </div>
 <hr />
-<p class="text-right">
+<div class="text-right {% has-error pin %}">
+  {{errors.pin|format-error}}
   {% if user.pin %}
   <input type="text" class="input btn-input" name="pin" value="{{pin}}" placeholder="Enter your pin" />
   {% endif %}
   <button class="btn btn-primary" type="submit">Place Order</button>
-</p>
+</div>
 </form>
 {% else %}
   <p class="well">Your cart is empty!</p>

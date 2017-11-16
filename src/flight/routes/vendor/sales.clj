@@ -54,8 +54,8 @@
 (defn- sales-new-params [page]
   (let [pagemax (util/page-max (get-sales :new) sales-per-page)
         orders (get-orders [:new] page)]
-    {:sales  (filter :finalized orders)
-     :finalized (filter (comp not :finalized) orders)
+    {:finalized (filter :finalized orders)
+     :sales (filter (comp not :finalized) orders)
      :paginate {:page page :max pagemax :url "/vendor/sales/new"}}))
 
 (defn- sales-params [& state]
