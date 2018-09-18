@@ -1,18 +1,4 @@
-# Cool side project
-
-- [x] need to work on bitcoind framework
-- [x] need to put server config files into a repo
-- [x] added markdown processing for form input, make your own order form. TODO- test
-- [ ] work on creating cart flow, update | checkout -> enter address -> confirm -> complete
-- [.5] need to start on admin functionality
-
 #TODO: - custom listing ideas
-listings should have a order completion form, this will be part
-of the checkout process.
-dump a raw blob of unstructured data.
-
-
-sudo apt-get install bitcoind
 
 ## Setup
 
@@ -21,6 +7,13 @@ There are several scripts that will setup postgres, and couchbase for first time
 [1]: to install couchbase run `./scripts/install-couchbase.sh`
 [2]: to install postgres run `./scripts/install-postgres.sh`
 [3]: to create the db run `./scripts/db-run-up.sh`
+
+## Start
+
+To run a dev webserver `./start.sh`
+
+### install bitcoin client
+sudo apt-get install bitcoind
 
 ### Reseting the postgres db
 
@@ -52,11 +45,3 @@ To start a web server for the application, run:
 Copyright © 2013 FIXME
 
 Future Enhancements
-•	Verified Vendor fee.
-•	Permalinks for vendors, /user/alias done
-•	http://directory4iisquf.onion add verified vendor directory, for pgp keys. done
-•	Contract support – send message - in process
-•	Allow Vendors to post to followers
-•	Add latest posts to user page.
-•	Add an option to encrypt all messages to a user.
- 
